@@ -418,15 +418,22 @@ export default function App() {
   }, [eventGroups, musicGroups, staffGroups, locations, textColors, listsLoaded, isAdminAuthenticated, db]);
 
   const saveTheme = async (monthKey, text) => {
-    if (!isAdminAuthenticated || !db) return;
+    // Спочатку оновлюємо локальний стан, щоб користувач бачив результат негайно
+    setMonthlyThemes(prev => ({ ...prev, [monthKey]: text || "" }));
+    setIsEditingTheme(false);
+
+    // Якщо ми не в режимі адміна або база не ініціалізована - просто виходимо
+    // (локально зміни вже відобразилися)
+    if (!isAdminAuthenticated || !db) {
+      console.log("Збережено локально (Firebase не підключено)");
+      return;
+    }
+
     try {
       await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'monthly_themes', monthKey), { theme: text || "" }, { merge: true });
-      setMonthlyThemes(prev => ({ ...prev, [monthKey]: text || "" }));
-      setIsEditingTheme(false);
     } catch (err) {
       console.error("Error saving theme: ", err);
-      alert("Помилка збереження теми. Перевірте з'єднання з інтернетом.");
-      setIsEditingTheme(false);
+      alert("Помилка збереження на сервері. Зміни залишаться лише до оновлення сторінки.");
     }
   };
 
@@ -682,7 +689,7 @@ export default function App() {
                 className="p-2 bg-red-600/20 text-red-500 hover:bg-red-600/30 rounded-lg transition-all border border-red-500/30 flex items-center gap-2"
               >
                 <Pencil size={14}/>
-                <span className="text-[8px] font-black uppercase hidden md:inline">Тема місяця</span>
+                <span className="text-[8px] font-black uppercase hidden md:inline">Текст місяця</span>
               </button>
             )}
             {activeTab === 'view' ? (
@@ -718,12 +725,18 @@ export default function App() {
         </div>
 
         {/* Theme of the Month Display */}
-        {currentTheme && (
-          <div className="w-full max-w-4xl text-center px-4 py-2 bg-red-600/5 border-y border-red-600/10 backdrop-blur-sm">
-            <h2 className="text-red-600 font-black uppercase text-[10px] md:text-xs tracking-widest mb-1">Тема місяця:</h2>
-            <p className="text-red-500 font-bold text-xs md:text-lg lg:text-xl italic leading-relaxed">
-              {currentTheme}
-            </p>
+        {(currentTheme || activeTab === 'admin') && (
+          <div className="w-full max-w-4xl text-center px-4 py-2 bg-red-600/5 border-y border-red-600/10 backdrop-blur-sm relative group">
+            <h2 className="text-red-600 font-black uppercase text-[10px] md:text-xs tracking-widest mb-1">ТЕКСТ МІСЯЦЯ:</h2>
+            {currentTheme ? (
+              <p className="text-red-500 font-bold text-xs md:text-lg lg:text-xl italic leading-relaxed">
+                {currentTheme}
+              </p>
+            ) : activeTab === 'admin' && (
+              <p className="text-red-500/40 font-bold text-[10px] italic">
+                (Натисніть олівець вгорі, щоб додати текст місяця)
+              </p>
+            )}
           </div>
         )}
 
@@ -1100,11 +1113,38 @@ export default function App() {
                   curr.setDate(curr.getDate() + 1);
                 }
 
+                const monthKey = `${selectedDate.getFullYear()}-${String(monthIdx + 1).padStart(2, '0')}`;
+                const monthTheme = monthlyThemes[monthKey];
+
                 return (
                   <div key={monthIdx} className={`bg-slate-900/40 rounded-2xl p-4 border border-slate-800/50 print:bg-white print:border-none print:p-0 ${monthIdx === 6 ? 'print:page-break-before' : ''}`}>
-                    <h3 className="text-white font-black uppercase text-xs mb-4 tracking-widest border-b border-slate-800 pb-2 print:text-black print:border-black/10">
-                      {monthDate.toLocaleDateString('uk-UA', { month: 'long' })}
-                    </h3>
+                    <div className="flex justify-between items-start border-b border-slate-800 pb-2 mb-4 print:text-black print:border-black/10">
+                      <h3 className="text-white font-black uppercase text-xs tracking-widest print:text-black">
+                        {monthDate.toLocaleDateString('uk-UA', { month: 'long' })}
+                      </h3>
+                      {activeTab === 'admin' && (
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedDate(new Date(selectedDate.getFullYear(), monthIdx, 1));
+                            setThemeText(monthTheme || "");
+                            setIsEditingTheme(true);
+                          }}
+                          className="p-1 text-slate-500 hover:text-blue-400 transition-colors"
+                        >
+                          <Pencil size={10} />
+                        </button>
+                      )}
+                    </div>
+                    
+                    {monthTheme && (
+                      <div className="mb-4 px-2 py-1 bg-red-600/5 border-l-2 border-red-600/30">
+                        <p className="text-red-500/80 text-[9px] italic leading-tight font-medium">
+                          {monthTheme}
+                        </p>
+                      </div>
+                    )}
+
                     <div className="flex flex-col gap-2">
                       {monthDays.map((d) => {
                         const dateKey = formatDateKey(d);
@@ -1243,7 +1283,7 @@ export default function App() {
           <div className="bg-slate-900 w-full max-w-2xl rounded-[32px] border border-slate-800 shadow-2xl overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
             <div className="px-6 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
               <div>
-                <h3 className="text-white font-black uppercase text-xs tracking-widest">Тема місяця</h3>
+                <h3 className="text-white font-black uppercase text-xs tracking-widest">ТЕКСТ МІСЯЦЯ</h3>
                 <p className="text-slate-500 text-[10px] font-bold">{selectedDate.toLocaleDateString('uk-UA', { month: 'long', year: 'numeric' })}</p>
               </div>
               <button onClick={() => setIsEditingTheme(false)} className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-400"><X size={20}/></button>
@@ -1253,7 +1293,7 @@ export default function App() {
                 autoFocus
                 value={themeText} 
                 onChange={(e) => setThemeText(e.target.value)}
-                placeholder="Введіть тему місяця або цитату з Біблії..."
+                placeholder="Введіть текст місяця або цитату з Біблії..."
                 className="w-full h-48 bg-white border border-slate-300 rounded-2xl p-4 text-slate-900 text-sm md:text-base font-medium outline-none focus:border-red-500/50 transition-colors resize-none shadow-inner"
               />
               <div className="mt-6 flex gap-3">
@@ -1267,7 +1307,7 @@ export default function App() {
                   onClick={() => saveTheme(currentMonthKey, themeText)}
                   className="flex-[2] py-3 rounded-xl text-[10px] font-black uppercase tracking-widest bg-red-600 text-white shadow-lg shadow-red-600/20 hover:bg-red-500 transition-all flex items-center justify-center gap-2"
                 >
-                  <Save size={16}/> Зберегти тему
+                  <Save size={16}/> Зберегти текст
                 </button>
               </div>
             </div>
