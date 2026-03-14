@@ -341,18 +341,26 @@ export default function App() {
     }
   }, [selectedDayForEvent]);
   
+  const [authError, setAuthError] = useState(null);
+
   useEffect(() => {
     if (!auth) return;
     const initAuth = async () => {
-      if (initialAuthToken) {
-        try {
-          await signInWithCustomToken(auth, initialAuthToken);
-        } catch (e) {
-          console.error("Custom token auth failed", e);
+      try {
+        if (initialAuthToken) {
+          try {
+            await signInWithCustomToken(auth, initialAuthToken);
+          } catch (e) {
+            console.error("Custom token auth failed", e);
+            await signInAnonymously(auth);
+          }
+        } else {
           await signInAnonymously(auth);
         }
-      } else {
-        await signInAnonymously(auth);
+        setAuthError(null);
+      } catch (e) {
+        console.error("Auth failed:", e);
+        setAuthError(e.message);
       }
     };
     initAuth();
@@ -418,22 +426,22 @@ export default function App() {
   }, [eventGroups, musicGroups, staffGroups, locations, textColors, listsLoaded, isAdminAuthenticated, db]);
 
   const saveTheme = async (monthKey, text) => {
-    // Спочатку оновлюємо локальний стан, щоб користувач бачив результат негайно
-    setMonthlyThemes(prev => ({ ...prev, [monthKey]: text || "" }));
-    setIsEditingTheme(false);
-
-    // Якщо ми не в режимі адміна або база не ініціалізована - просто виходимо
-    // (локально зміни вже відобразилися)
+    // Якщо ми не в режимі адміна або база не ініціалізована - попереджаємо
     if (!isAdminAuthenticated || !db) {
-      console.log("Збережено локально (Firebase не підключено)");
+      setMonthlyThemes(prev => ({ ...prev, [monthKey]: text || "" }));
+      setIsEditingTheme(false);
+      alert("Увага: Ви не авторизовані або база не підключена. Зміни збережено лише тимчасово (до оновлення сторінки).");
       return;
     }
 
     try {
       await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'monthly_themes', monthKey), { theme: text || "" }, { merge: true });
+      setMonthlyThemes(prev => ({ ...prev, [monthKey]: text || "" }));
+      setIsEditingTheme(false);
+      alert("Текст збережено успішно!");
     } catch (err) {
       console.error("Error saving theme: ", err);
-      alert("Помилка збереження на сервері. Зміни залишаться лише до оновлення сторінки.");
+      alert("Помилка збереження на сервері: " + err.message);
     }
   };
 
@@ -460,15 +468,25 @@ export default function App() {
   };
 
   const commitToDB = async (dateKey, dayEvents, closeAfter = true) => {
-    if (!isAdminAuthenticated || !db) return;
+    if (!isAdminAuthenticated) {
+      alert("Ви повинні увійти в режим редагування, щоб зберігати зміни.");
+      return;
+    }
+    if (!db) {
+      alert("База даних не підключена. Перевірте налаштування Firebase.");
+      return;
+    }
+    
     try {
       await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'calendar_events', dateKey), { events: dayEvents }, { merge: true });
       if (closeAfter) {
         setSelectedDayForEvent(null);
       }
+      // Додамо коротке сповіщення в консоль або легкий фідбек
+      console.log("Дані збережено в Firebase");
     } catch (err) {
       console.error("Error saving document: ", err);
-      alert("Помилка збереження подій.");
+      alert("Помилка збереження подій: " + err.message);
     }
   };
 
@@ -641,8 +659,42 @@ export default function App() {
   const currentMonthKey = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`;
   const currentTheme = monthlyThemes[currentMonthKey] || "";
 
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
+
   return (
     <div className="min-h-screen bg-[#0a1120] text-slate-200 p-4 font-sans pb-24 text-[10px]">
+      {showDiagnostics && (
+        <div className="fixed inset-0 z-[3000] bg-black/90 backdrop-blur-md p-6 flex items-center justify-center" onClick={() => setShowDiagnostics(false)}>
+          <div className="bg-slate-900 border border-slate-700 p-6 rounded-[32px] max-w-md w-full" onClick={e => e.stopPropagation()}>
+            <h3 className="text-white font-black uppercase tracking-widest mb-4">Діагностика підключення</h3>
+            <div className="space-y-3 text-[11px]">
+              <div className="flex justify-between border-b border-slate-800 pb-2">
+                <span className="text-slate-500">Firebase App:</span>
+                <span className={app ? "text-green-400" : "text-red-400"}>{app ? "Ініціалізовано" : "Помилка"}</span>
+              </div>
+              <div className="flex justify-between border-b border-slate-800 pb-2">
+                <span className="text-slate-500">База даних (Firestore):</span>
+                <span className={db ? "text-green-400" : "text-red-400"}>{db ? "Підключено" : "Відсутня"}</span>
+              </div>
+              <div className="flex flex-col border-b border-slate-800 pb-2">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Авторизація:</span>
+                  <span className={user ? "text-green-400" : "text-red-400"}>{user ? `Увійшли (ID: ${user.uid.slice(0,5)}...)` : "Не авторизовано"}</span>
+                </div>
+                {authError && <div className="text-[9px] text-red-500/80 mt-1 italic">Помилка: {authError}</div>}
+              </div>
+              <div className="flex justify-between border-b border-slate-800 pb-2">
+                <span className="text-slate-500">Режим адміна:</span>
+                <span className={isAdminAuthenticated ? "text-blue-400" : "text-slate-600"}>{isAdminAuthenticated ? "УВІМКНЕНО" : "ВИМКНЕНО"}</span>
+              </div>
+              <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl text-blue-300 text-[10px] leading-relaxed">
+                Порада: Якщо "Авторизація" червона, увімкніть <b>Anonymous Auth</b> у Firebase Console. Якщо все зелене, але не зберігає — перевірте <b>Firestore Rules</b>.
+              </div>
+            </div>
+            <button onClick={() => setShowDiagnostics(false)} className="w-full mt-6 bg-slate-800 py-3 rounded-xl font-black uppercase tracking-widest hover:bg-slate-700 transition-colors">Закрити</button>
+          </div>
+        </div>
+      )}
       <header className="max-w-7xl mx-auto flex flex-col items-center mb-6 gap-4">
         <div className="flex items-center justify-between w-full">
           <div 
@@ -680,6 +732,11 @@ export default function App() {
              </div>
           </div>
           <div className="flex items-center gap-2">
+            <div 
+              onClick={() => setShowDiagnostics(true)}
+              className={`w-2 h-2 rounded-full cursor-pointer transition-transform hover:scale-150 ${db ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-red-500'} mr-1`} 
+              title="Натисніть для діагностики"
+            ></div>
             {activeTab === 'admin' && (
               <button 
                 onClick={() => {
@@ -1271,7 +1328,7 @@ export default function App() {
               <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-blue-600/20"><Lock size={24} className="text-white"/></div>
               <h2 className="text-white text-base font-black uppercase mb-4 tracking-widest">Пароль</h2>
               <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••" className="w-full bg-slate-900 p-3 rounded-xl mb-4 text-center text-white text-lg font-black border border-slate-700 outline-none focus:border-blue-500 transition-colors" />
-              <button onClick={() => password === '2026' ? (setIsAdminAuthenticated(true), setActiveTab('admin')) : alert('Невірний пароль')} className="w-full bg-blue-600 p-3 rounded-xl font-black text-[10px] text-white uppercase tracking-widest hover:bg-blue-500 transition-colors">Ввійти</button>
+              <button onClick={() => password === (initialAuthToken || '2026') ? (setIsAdminAuthenticated(true), setActiveTab('admin')) : alert('Невірний пароль')} className="w-full bg-blue-600 p-3 rounded-xl font-black text-[10px] text-white uppercase tracking-widest hover:bg-blue-500 transition-colors">Ввійти</button>
             </div>
           </div>
         )}
