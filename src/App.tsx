@@ -121,6 +121,7 @@ const CustomSelect = ({ value, options = [], onChange, placeholder, groups = nul
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeGroupIndex, setActiveGroupIndex] = useState(0);
+  const [searchValue, setSearchValue] = useState("");
   const tabsRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -136,6 +137,7 @@ const CustomSelect = ({ value, options = [], onChange, placeholder, groups = nul
   useEffect(() => {
     if (isOpen) {
       setActiveGroupIndex(0);
+      setSearchValue("");
       // Small delay to allow DOM to render
       setTimeout(checkScroll, 50);
     }
@@ -156,15 +158,42 @@ const CustomSelect = ({ value, options = [], onChange, placeholder, groups = nul
     }
   }, [isOpen, groups, value]);
 
+  const currentItems = groups ? (groups[activeGroupIndex]?.items || []) : options;
+  const filteredItems = searchValue 
+    ? currentItems.filter(item => item.toLowerCase().includes(searchValue.toLowerCase()))
+    : currentItems;
+
   const content = (
     <div className="fixed inset-0 z-[1300] flex items-center justify-center px-4 bg-black/60 backdrop-blur-[2px] animate-in fade-in duration-150" onClick={() => setIsOpen(false)}>
       <div 
-        className={`bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[60vh] animate-in zoom-in-95 duration-150 ${(!groups || groups.length <= 1) ? 'w-auto min-w-[200px] max-w-[300px]' : 'w-full max-w-[300px]'}`}
+        className={`bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[70vh] animate-in zoom-in-95 duration-150 ${(!groups || groups.length <= 1) ? 'w-auto min-w-[240px] max-w-[320px]' : 'w-full max-w-[320px]'}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-3 py-1.5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
            <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">{title || "Виберіть значення"}</span>
            <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-slate-200 rounded-full transition-colors"><X size={14} className="text-slate-400"/></button>
+        </div>
+
+        {/* Manual Input / Search */}
+        <div className="p-2 border-b border-slate-100">
+          <div className="relative flex flex-col gap-2">
+            <textarea 
+              autoFocus
+              rows={2}
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              placeholder="Введіть або виберіть..." 
+              className="w-full bg-slate-100 border-none rounded-lg px-3 py-2 text-[11px] font-bold text-slate-900 outline-none focus:ring-2 focus:ring-blue-500/20 resize-none"
+            />
+            {searchValue.trim() && (
+              <button 
+                onClick={() => { onChange(searchValue.trim()); setIsOpen(false); }}
+                className="w-full bg-blue-600 text-white py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-blue-700 shadow-md shadow-blue-600/20 transition-all active:scale-95"
+              >
+                Підтвердити
+              </button>
+            )}
+          </div>
         </div>
         
         {groups ? (
@@ -222,7 +251,7 @@ const CustomSelect = ({ value, options = [], onChange, placeholder, groups = nul
               {/* Items List */}
               <div className="flex-1 overflow-y-auto bg-white">
                   <div className="flex flex-col">
-                    {sortAlphabetically(groups[activeGroupIndex]?.items || []).map((opt) => (
+                    {sortAlphabetically(filteredItems).map((opt) => (
                         <div
                             key={opt}
                             onClick={() => { onChange(opt); setIsOpen(false); }}
@@ -233,13 +262,18 @@ const CustomSelect = ({ value, options = [], onChange, placeholder, groups = nul
                             {opt}
                         </div>
                     ))}
+                    {searchValue && filteredItems.length === 0 && (
+                      <div className="p-4 text-center text-slate-400 text-[10px] italic">
+                        Нічого не знайдено. Натисніть "ОК" вище, щоб використати введений текст.
+                      </div>
+                    )}
                   </div>
               </div>
           </div>
         ) : (
           <div className="overflow-y-auto max-h-[300px]">
             <div className="flex flex-col">
-              {sortAlphabetically(options).map((opt) => (
+              {sortAlphabetically(filteredItems).map((opt) => (
                 <div
                   key={opt}
                   onClick={() => { onChange(opt); setIsOpen(false); }}
@@ -250,6 +284,11 @@ const CustomSelect = ({ value, options = [], onChange, placeholder, groups = nul
                   <span className="truncate">{opt}</span>
                 </div>
               ))}
+              {searchValue && filteredItems.length === 0 && (
+                <div className="p-4 text-center text-slate-400 text-[10px] italic">
+                  Нічого не знайдено. Натисніть "ОК" вище, щоб використати введений текст.
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -1158,8 +1197,8 @@ export default function App() {
         {(activeTab === 'view' || activeTab === 'admin') && activeTab !== 'login' && (
           <div className={`
             ${viewMode === 'month' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 print:grid-cols-1 print:gap-0' : ''}
-            ${viewMode === 'week' ? 'flex flex-col gap-3 max-w-2xl mx-auto' : ''}
-            ${viewMode === 'day' ? 'flex flex-col gap-3 max-w-2xl mx-auto' : ''}
+            ${viewMode === 'week' ? 'flex flex-col gap-3 max-w-xl mx-auto' : ''}
+            ${viewMode === 'day' ? 'flex flex-col gap-3 max-w-xl mx-auto' : ''}
             ${viewMode === 'year' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 print:grid-cols-1 print:gap-0' : ''}
           `}>
             {viewMode === 'year' ? (
@@ -1251,18 +1290,20 @@ export default function App() {
                     setDayViewPivotDate(new Date(d.dateKey));
                     setViewMode('day');
                   }}
-                  className={`relative flex flex-row overflow-hidden border-l-[14px] bg-white shadow-md transition-all cursor-pointer min-h-[110px] rounded-3xl ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
+                  className={`relative flex flex-row overflow-hidden border-l-[6px] bg-white shadow-md transition-all cursor-pointer min-h-[110px] rounded-3xl ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
                   style={{ borderLeftColor: (d.isOtherMonth && activeTab === 'view') ? '#f1f5f9' : BORDER_COLORS[d.weekdayIndex] }}
                 >
                   {/* Left Column: Date & Day */}
-                  <div className={`${viewMode === 'month' ? 'w-14' : 'w-20'} shrink-0 flex flex-col items-center justify-center border-r border-slate-100 bg-slate-50/80`}>
-                    <span className={`text-3xl font-black leading-none tracking-tighter ${d.isToday ? 'text-blue-600' : 'text-slate-900'}`}>
+                  <div className={`${viewMode === 'month' ? 'w-10' : 'w-12'} shrink-0 flex flex-col items-center justify-center border-r border-slate-100 bg-slate-50/80 gap-1 py-2`}>
+                    <span className={`text-[20px] font-bold uppercase leading-none ${d.isToday ? 'text-blue-600' : 'text-slate-900'}`}>
                       {String(d.day).padStart(2, '0')}
                     </span>
-                    <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest mt-1.5">{SHORT_WEEKDAYS[d.weekdayIndex]}</span>
-                    {viewMode !== 'month' && (
-                       <span className="text-[10px] font-bold text-slate-400 uppercase mt-1">{d.monthName}</span>
-                    )}
+                    <span className="text-[9px] font-bold text-slate-500 uppercase leading-none tracking-tighter">
+                      {d.monthName}
+                    </span>
+                    <span className="text-[9px] font-bold text-slate-500 uppercase leading-none tracking-tighter">
+                      {SHORT_WEEKDAYS[d.weekdayIndex]}
+                    </span>
                   </div>
 
                   {activeTab === 'admin' && (
@@ -1298,8 +1339,8 @@ export default function App() {
                           </div>
 
                           {/* Col 2: Event & Music */}
-                          <div className="flex flex-col gap-1.5 min-w-[200px] flex-1">
-                            <div className="font-black uppercase text-[15px] leading-tight tracking-tight group-hover/event:translate-x-0.5 transition-transform" style={{ color: ev.textColor }}>
+                          <div className="flex flex-col gap-1.5 min-w-[160px] flex-1 text-center items-center">
+                            <div className="font-black uppercase text-[15px] leading-tight tracking-tight group-hover/event:scale-[1.02] transition-transform w-full whitespace-pre-wrap" style={{ color: ev.textColor }}>
                               {ev.title}
                             </div>
                             {ev.music && (
@@ -1310,10 +1351,10 @@ export default function App() {
                             )}
                           </div>
 
-                          {/* Col 3: Ministers - Adaptive Width */}
-                          <div className={`grid gap-x-8 gap-y-1.5 ${leadsCount > 2 ? 'grid-flow-col grid-rows-2 min-w-[350px]' : 'grid-cols-1 min-w-[180px]'}`}>
+                          {/* Col 3: Ministers - Tight List */}
+                          <div className="flex flex-col gap-0.5 min-w-fit pr-2">
                             {ev.leads?.filter(l => l).map((lead, lIdx) => (
-                              <div key={lIdx} className="text-[#003366] font-extrabold text-[12px] leading-tight flex items-center gap-2 whitespace-nowrap">
+                              <div key={lIdx} className="text-[#003366] font-extrabold text-[12px] leading-none flex items-center gap-2 whitespace-nowrap py-0.5">
                                 <div className="w-1.5 h-1.5 rounded-full bg-blue-200 shrink-0" />
                                 {lead}
                               </div>
