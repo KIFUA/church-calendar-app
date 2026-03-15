@@ -1275,16 +1275,18 @@ export default function App() {
                   )}
 
                   {/* Right Column: Events */}
-                  <div className="flex-1 p-3 space-y-3 min-h-[40px] overflow-y-auto bg-slate-50/30">
+                  <div className="flex-1 p-3 space-y-3 min-h-[40px] overflow-x-auto bg-slate-50/30 scrollbar-thin scrollbar-thumb-slate-200 touch-pan-x">
                     {dayEvents.length > 0 ? dayEvents.map((ev, i) => {
                       const isCleaning = ev.title?.toUpperCase().includes('ПРИБИРАННЯ');
+                      const leadsCount = ev.leads?.filter(l => l).length || 0;
+                      
                       return (
-                        <div key={i} className={`grid grid-cols-1 md:grid-cols-[120px_1fr_1fr] gap-3 md:gap-6 py-4 px-5 items-start rounded-2xl border border-slate-100 shadow-sm bg-white hover:border-blue-300 hover:shadow-md transition-all relative overflow-hidden group/event ${isCleaning ? 'bg-slate-50/80' : ''}`}>
+                        <div key={i} className={`flex flex-row items-center gap-6 md:gap-10 py-4 px-6 rounded-2xl border border-slate-100 shadow-sm bg-white hover:border-blue-300 hover:shadow-md transition-all relative overflow-hidden group/event min-w-max ${isCleaning ? 'bg-slate-50/80' : ''}`}>
                           {/* Accent line */}
                           <div className="absolute left-0 top-0 bottom-0 w-1.5 opacity-80 group-hover/event:opacity-100 transition-opacity" style={{ backgroundColor: ev.textColor }} />
                           
                           {/* Col 1: Location & Time */}
-                          <div className="flex flex-col gap-1.5 pl-1">
+                          <div className="flex flex-col gap-1.5 pl-1 w-[120px] shrink-0">
                             <div className="flex items-center gap-1.5 text-blue-600 font-black text-[10px] uppercase tracking-tight">
                               <MapPin size={12} className="shrink-0" />
                               <span className="truncate">{ev.place || '—'}</span>
@@ -1296,7 +1298,7 @@ export default function App() {
                           </div>
 
                           {/* Col 2: Event & Music */}
-                          <div className="flex flex-col gap-1.5">
+                          <div className="flex flex-col gap-1.5 min-w-[200px] flex-1">
                             <div className="font-black uppercase text-[15px] leading-tight tracking-tight group-hover/event:translate-x-0.5 transition-transform" style={{ color: ev.textColor }}>
                               {ev.title}
                             </div>
@@ -1308,10 +1310,10 @@ export default function App() {
                             )}
                           </div>
 
-                          {/* Col 3: Ministers */}
-                          <div className="flex flex-col gap-1.5">
+                          {/* Col 3: Ministers - Adaptive Width */}
+                          <div className={`grid gap-x-8 gap-y-1.5 ${leadsCount > 2 ? 'grid-flow-col grid-rows-2 min-w-[350px]' : 'grid-cols-1 min-w-[180px]'}`}>
                             {ev.leads?.filter(l => l).map((lead, lIdx) => (
-                              <div key={lIdx} className="text-[#003366] font-extrabold text-[12px] leading-tight flex items-center gap-2">
+                              <div key={lIdx} className="text-[#003366] font-extrabold text-[12px] leading-tight flex items-center gap-2 whitespace-nowrap">
                                 <div className="w-1.5 h-1.5 rounded-full bg-blue-200 shrink-0" />
                                 {lead}
                               </div>
