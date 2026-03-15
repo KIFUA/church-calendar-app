@@ -676,6 +676,10 @@ export default function App() {
                 <span className="text-slate-500">База даних (Firestore):</span>
                 <span className={db ? "text-green-400" : "text-red-400"}>{db ? "Підключено" : "Відсутня"}</span>
               </div>
+              <div className="flex justify-between border-b border-slate-800 pb-2">
+                <span className="text-slate-500">Папка даних (App ID):</span>
+                <span className="text-slate-300 font-mono text-xs">{appId}</span>
+              </div>
               <div className="flex flex-col border-b border-slate-800 pb-2">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Авторизація:</span>
@@ -1247,73 +1251,74 @@ export default function App() {
                     setDayViewPivotDate(new Date(d.dateKey));
                     setViewMode('day');
                   }}
-                  className={`relative flex flex-row overflow-hidden border-[9px] bg-white shadow-sm transition-all cursor-pointer min-h-[100px] rounded-xl ${d.isToday ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-[#0a1120]' : 'hover:scale-[1.01]'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
-                  style={{ borderColor: (d.isOtherMonth && activeTab === 'view') ? '#f1f5f9' : BORDER_COLORS[d.weekdayIndex] }}
+                  className={`relative flex flex-row overflow-hidden border-l-[12px] bg-white shadow-sm transition-all cursor-pointer min-h-[100px] rounded-2xl ${d.isToday ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-[#0a1120]' : 'hover:shadow-md'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
+                  style={{ borderLeftColor: (d.isOtherMonth && activeTab === 'view') ? '#f1f5f9' : BORDER_COLORS[d.weekdayIndex] }}
                 >
                   {/* Left Column: Date & Day */}
-                  <div className={`${viewMode === 'month' ? 'w-9' : 'w-12'} shrink-0 flex flex-col items-center pt-2.5 border-r border-black/5`}>
-                    <div className={`w-8 h-8 flex items-center justify-center rounded-full transition-colors ${d.isToday ? 'bg-blue-600 text-white shadow-md' : ''}`}>
-                      <span className={`text-xl font-black leading-none ${d.isToday ? 'text-white' : 'text-slate-900'}`}>
-                        {String(d.day).padStart(2, '0')}
-                      </span>
-                    </div>
-                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-tighter mt-1">{SHORT_WEEKDAYS[d.weekdayIndex]}</span>
+                  <div className={`${viewMode === 'month' ? 'w-12' : 'w-16'} shrink-0 flex flex-col items-center justify-center border-r border-black/5 bg-slate-50/50`}>
+                    <span className={`text-2xl font-black leading-none ${d.isToday ? 'text-blue-600' : 'text-slate-900'}`}>
+                      {String(d.day).padStart(2, '0')}
+                    </span>
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">{SHORT_WEEKDAYS[d.weekdayIndex]}</span>
                     {viewMode !== 'month' && (
-                       <span className="text-[8px] font-bold text-slate-400 uppercase mt-auto pb-3">{d.monthName}</span>
+                       <span className="text-[9px] font-bold text-slate-400 uppercase mt-1">{d.monthName}</span>
                     )}
                   </div>
 
                   {activeTab === 'admin' && (
                     <button 
                       onClick={() => setSelectedDayForEvent(d.dateKey)} 
-                      className="absolute top-2 right-2 z-10 px-2 py-1 text-[7px] font-black uppercase transition-all shadow-sm bg-black/10 text-black/60 hover:bg-black/20 rounded-md"
+                      className="absolute top-2 right-2 z-10 px-2 py-1 text-[7px] font-black uppercase transition-all shadow-sm bg-black/5 text-black/40 hover:bg-black/10 rounded-md"
                     >
                       Змінити
                     </button>
                   )}
 
                   {/* Right Column: Events */}
-                  <div className="flex-1 divide-y divide-black/5 min-h-[40px] overflow-y-auto">
+                  <div className="flex-1 p-3 space-y-3 min-h-[40px] overflow-y-auto bg-slate-50/30">
                     {dayEvents.length > 0 ? dayEvents.map((ev, i) => {
                       const isCleaning = ev.title?.toUpperCase().includes('ПРИБИРАННЯ');
                       return (
-                        <div key={i} className="py-3 space-y-1.5">
-                          {/* Row 1: Place + Time */}
-                          <div className="flex flex-row flex-wrap gap-2 items-center px-3">
-                            {ev.place && (
-                              <div className="text-slate-500 font-bold flex items-center gap-1 bg-white/50 px-1.5 py-0.5 text-[8px] rounded truncate">
-                                <MapPin size={8}/> {ev.place}
-                              </div>
-                            )}
-                            <div className="flex items-center gap-1 text-[8px] font-bold text-slate-600 bg-black/5 px-1.5 py-0.5 rounded">
-                              <Clock size={9} className="text-blue-500"/> {ev.startTime}{ev.endTime ? ` - ${ev.endTime}` : ''}
+                        <div key={i} className={`grid grid-cols-1 md:grid-cols-[110px_1fr_1fr] gap-3 md:gap-4 py-3 px-4 items-start rounded-xl border border-black/5 shadow-sm bg-white hover:border-blue-200 transition-all ${isCleaning ? 'bg-slate-100/80' : ''}`}>
+                          
+                          {/* Col 1: Location & Time (Moved closer) */}
+                          <div className="flex flex-col gap-0.5">
+                            <div className="flex items-center gap-1 text-blue-600 font-black text-[9px] uppercase tracking-tight">
+                              <MapPin size={10} className="shrink-0" />
+                              <span className="truncate">{ev.place || '—'}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-slate-500 font-bold text-[10px]">
+                              <Clock size={10} className="text-blue-400 shrink-0" />
+                              <span>{ev.startTime}{ev.endTime ? `-${ev.endTime}` : ''}</span>
                             </div>
                           </div>
 
-                          {/* Row 2: Event Title */}
-                          <div className={`px-3 py-1 ${isCleaning ? 'bg-slate-300' : ''}`}>
-                            <div className={`${viewMode === 'month' ? 'text-[9px]' : 'text-[11px]'} font-black uppercase leading-tight`} style={{ color: ev.textColor }}>
+                          {/* Col 2: Event & Music */}
+                          <div className="flex flex-col gap-1">
+                            <div className="font-black uppercase text-[13px] leading-tight tracking-tight" style={{ color: ev.textColor }}>
                               {ev.title}
                             </div>
+                            {ev.music && (
+                              <div className="text-slate-600 italic text-[11px] leading-tight font-semibold flex items-center gap-1">
+                                <Music size={10} className="shrink-0 text-slate-500" />
+                                <span>{ev.music}</span>
+                              </div>
+                            )}
                           </div>
 
-                          {/* Row 3: Participants */}
-                          {ev.leads?.some(l => l) && (
-                            <div className="text-[#003366] font-extrabold truncate text-[8px] px-3">
-                              ● {ev.leads.filter(l => l).join(', ')}
-                            </div>
-                          )}
-
-                          {/* Row 4: Music */}
-                          {ev.music && (
-                            <div className="text-slate-400 italic text-[8px] px-3">
-                              ♫ {ev.music}
-                            </div>
-                          )}
+                          {/* Col 3: Ministers (No bullets) */}
+                          <div className="flex flex-col gap-1">
+                            {ev.leads?.filter(l => l).map((lead, lIdx) => (
+                              <div key={lIdx} className="text-[#003366] font-bold text-[11px] leading-tight">
+                                {lead}
+                              </div>
+                            ))}
+                          </div>
+                          
                         </div>
                       );
                     }) : (
-                      <div className="h-full flex items-center justify-center p-4 text-[8px] uppercase font-black text-black/10 tracking-widest italic">Порожньо</div>
+                      <div className="h-full flex items-center justify-center p-6 text-[10px] uppercase font-black text-black/5 tracking-[0.2em] italic">Порожньо</div>
                     )}
                   </div>
                 </div>
