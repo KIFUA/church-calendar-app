@@ -1251,17 +1251,17 @@ export default function App() {
                     setDayViewPivotDate(new Date(d.dateKey));
                     setViewMode('day');
                   }}
-                  className={`relative flex flex-row overflow-hidden border-l-[12px] bg-white shadow-sm transition-all cursor-pointer min-h-[100px] rounded-2xl ${d.isToday ? 'ring-2 ring-blue-500 ring-offset-2 ring-offset-[#0a1120]' : 'hover:shadow-md'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
+                  className={`relative flex flex-row overflow-hidden border-l-[14px] bg-white shadow-md transition-all cursor-pointer min-h-[110px] rounded-3xl ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
                   style={{ borderLeftColor: (d.isOtherMonth && activeTab === 'view') ? '#f1f5f9' : BORDER_COLORS[d.weekdayIndex] }}
                 >
                   {/* Left Column: Date & Day */}
-                  <div className={`${viewMode === 'month' ? 'w-12' : 'w-16'} shrink-0 flex flex-col items-center justify-center border-r border-black/5 bg-slate-50/50`}>
-                    <span className={`text-2xl font-black leading-none ${d.isToday ? 'text-blue-600' : 'text-slate-900'}`}>
+                  <div className={`${viewMode === 'month' ? 'w-14' : 'w-20'} shrink-0 flex flex-col items-center justify-center border-r border-slate-100 bg-slate-50/80`}>
+                    <span className={`text-3xl font-black leading-none tracking-tighter ${d.isToday ? 'text-blue-600' : 'text-slate-900'}`}>
                       {String(d.day).padStart(2, '0')}
                     </span>
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">{SHORT_WEEKDAYS[d.weekdayIndex]}</span>
+                    <span className="text-[11px] font-black text-slate-500 uppercase tracking-widest mt-1.5">{SHORT_WEEKDAYS[d.weekdayIndex]}</span>
                     {viewMode !== 'month' && (
-                       <span className="text-[9px] font-bold text-slate-400 uppercase mt-1">{d.monthName}</span>
+                       <span className="text-[10px] font-bold text-slate-400 uppercase mt-1">{d.monthName}</span>
                     )}
                   </div>
 
@@ -1279,37 +1279,40 @@ export default function App() {
                     {dayEvents.length > 0 ? dayEvents.map((ev, i) => {
                       const isCleaning = ev.title?.toUpperCase().includes('ПРИБИРАННЯ');
                       return (
-                        <div key={i} className={`grid grid-cols-1 md:grid-cols-[110px_1fr_1fr] gap-3 md:gap-4 py-3 px-4 items-start rounded-xl border border-black/5 shadow-sm bg-white hover:border-blue-200 transition-all ${isCleaning ? 'bg-slate-100/80' : ''}`}>
+                        <div key={i} className={`grid grid-cols-1 md:grid-cols-[120px_1fr_1fr] gap-3 md:gap-6 py-4 px-5 items-start rounded-2xl border border-slate-100 shadow-sm bg-white hover:border-blue-300 hover:shadow-md transition-all relative overflow-hidden group/event ${isCleaning ? 'bg-slate-50/80' : ''}`}>
+                          {/* Accent line */}
+                          <div className="absolute left-0 top-0 bottom-0 w-1.5 opacity-80 group-hover/event:opacity-100 transition-opacity" style={{ backgroundColor: ev.textColor }} />
                           
-                          {/* Col 1: Location & Time (Moved closer) */}
-                          <div className="flex flex-col gap-0.5">
-                            <div className="flex items-center gap-1 text-blue-600 font-black text-[9px] uppercase tracking-tight">
-                              <MapPin size={10} className="shrink-0" />
+                          {/* Col 1: Location & Time */}
+                          <div className="flex flex-col gap-1.5 pl-1">
+                            <div className="flex items-center gap-1.5 text-blue-600 font-black text-[10px] uppercase tracking-tight">
+                              <MapPin size={12} className="shrink-0" />
                               <span className="truncate">{ev.place || '—'}</span>
                             </div>
-                            <div className="flex items-center gap-1 text-slate-500 font-bold text-[10px]">
-                              <Clock size={10} className="text-blue-400 shrink-0" />
+                            <div className="flex items-center gap-1.5 text-slate-600 font-bold text-[11px] bg-slate-100/50 px-2 py-0.5 rounded-md w-fit">
+                              <Clock size={11} className="text-blue-500 shrink-0" />
                               <span>{ev.startTime}{ev.endTime ? `-${ev.endTime}` : ''}</span>
                             </div>
                           </div>
 
                           {/* Col 2: Event & Music */}
-                          <div className="flex flex-col gap-1">
-                            <div className="font-black uppercase text-[13px] leading-tight tracking-tight" style={{ color: ev.textColor }}>
+                          <div className="flex flex-col gap-1.5">
+                            <div className="font-black uppercase text-[15px] leading-tight tracking-tight group-hover/event:translate-x-0.5 transition-transform" style={{ color: ev.textColor }}>
                               {ev.title}
                             </div>
                             {ev.music && (
-                              <div className="text-slate-600 italic text-[11px] leading-tight font-semibold flex items-center gap-1">
-                                <Music size={10} className="shrink-0 text-slate-500" />
+                              <div className="text-slate-500 italic text-[12px] leading-tight font-semibold flex items-center gap-1.5 bg-blue-50/30 px-2 py-1 rounded-lg w-fit">
+                                <Music size={11} className="shrink-0 text-blue-400" />
                                 <span>{ev.music}</span>
                               </div>
                             )}
                           </div>
 
-                          {/* Col 3: Ministers (No bullets) */}
-                          <div className="flex flex-col gap-1">
+                          {/* Col 3: Ministers */}
+                          <div className="flex flex-col gap-1.5">
                             {ev.leads?.filter(l => l).map((lead, lIdx) => (
-                              <div key={lIdx} className="text-[#003366] font-bold text-[11px] leading-tight">
+                              <div key={lIdx} className="text-[#003366] font-extrabold text-[12px] leading-tight flex items-center gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-blue-200 shrink-0" />
                                 {lead}
                               </div>
                             ))}
