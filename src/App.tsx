@@ -1591,7 +1591,7 @@ export default function App() {
                     setDayViewPivotDate(new Date(d.dateKey));
                     setViewMode('day');
                   }}
-                  className={`relative flex flex-row overflow-hidden border-l-[12px] shadow-md transition-all cursor-pointer min-h-[110px] rounded-3xl ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''} md:min-w-[320px]`} 
+                  className={`relative flex flex-row overflow-hidden border-l-[12px] shadow-md transition-all cursor-pointer min-h-[110px] rounded-3xl w-full max-w-full ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''} md:max-w-[320px]`} 
                   style={{ 
                     borderLeftColor: (d.isOtherMonth && activeTab === 'view') ? '#f1f5f9' : BORDER_COLORS[d.weekdayIndex],
                     backgroundColor: (d.isOtherMonth && activeTab === 'view') ? '#f8fafc' : WEEKDAY_COLORS[d.weekdayIndex]
