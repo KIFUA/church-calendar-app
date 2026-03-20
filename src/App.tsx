@@ -518,7 +518,7 @@ export default function App() {
     if (!auth) return;
     const initAuth = async () => {
       try {
-        if (initialAuthToken) {
+        if (initialAuthToken && initialAuthToken.split('.').length === 3) {
           try {
             await signInWithCustomToken(auth, initialAuthToken);
           } catch (e) {
@@ -526,6 +526,9 @@ export default function App() {
             await signInAnonymously(auth);
           }
         } else {
+          if (initialAuthToken) {
+            console.warn("VITE_INITIAL_AUTH_TOKEN is set but invalid, falling back to anonymous auth.");
+          }
           await signInAnonymously(auth);
         }
         setAuthError(null);
@@ -1063,7 +1066,7 @@ export default function App() {
               <button onClick={() => setViewMode('year')} className={`px-2 py-1 rounded-md text-[8px] font-bold uppercase tracking-wider transition-all ${viewMode === 'year' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>Рік</button>
             </div>
           {viewMode === 'day' && (
-            <div className="flex items-center justify-center gap-4 w-full max-w-md">
+            <div className="flex items-center justify-between w-full max-w-[500px] mx-auto px-2">
               <button 
                 onClick={() => {
                   const d = new Date(dayViewPivotDate);
@@ -1071,12 +1074,13 @@ export default function App() {
                   setDayViewPivotDate(d);
                   setSelectedDate(new Date(d));
                 }}
-                className="p-1 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors"
+                className="p-4 text-blue-500 hover:bg-blue-500/10 rounded-full transition-colors"
               >
-                <ChevronLeft size={20}/>
+                <ChevronLeft size={32}/>
               </button>
+              
               <div 
-                className="flex items-center gap-2 cursor-ns-resize"
+                className="flex items-center gap-2 cursor-ns-resize overflow-x-auto [&::-webkit-scrollbar]:hidden"
                 onWheel={(e) => {
                   const d = new Date(dayViewPivotDate);
                   if (e.deltaY > 0) {
@@ -1095,13 +1099,14 @@ export default function App() {
                     <button 
                       key={i}
                       onClick={() => setSelectedDate(new Date(d))}
-                      className={`w-8 h-8 flex items-center justify-center rounded-full text-[11px] font-black transition-all ${isSelected ? 'bg-blue-600 text-white shadow-lg scale-110' : 'text-slate-400 hover:text-slate-200'} ${isToday && !isSelected ? 'ring-2 ring-blue-500' : ''}`}
+                      className={`w-10 h-10 flex items-center justify-center rounded-full text-[12px] font-black transition-all shrink-0 ${isSelected ? 'bg-blue-600 text-white shadow-lg scale-110' : 'text-slate-400 hover:text-slate-200'} ${isToday && !isSelected ? 'ring-2 ring-blue-500' : ''}`}
                     >
                       {String(d.getDate()).padStart(2, '0')}
                     </button>
                   );
                 })}
               </div>
+
               <button 
                 onClick={() => {
                   const d = new Date(dayViewPivotDate);
@@ -1109,9 +1114,9 @@ export default function App() {
                   setDayViewPivotDate(d);
                   setSelectedDate(new Date(d));
                 }}
-                className="p-1 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors"
+                className="p-4 text-blue-500 hover:bg-blue-500/10 rounded-full transition-colors"
               >
-                <ChevronRight size={20}/>
+                <ChevronRight size={32}/>
               </button>
             </div>
           )}
