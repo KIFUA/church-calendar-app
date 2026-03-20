@@ -1063,7 +1063,7 @@ export default function App() {
               <button onClick={() => setViewMode('year')} className={`px-2 py-1 rounded-md text-[8px] font-bold uppercase tracking-wider transition-all ${viewMode === 'year' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>Рік</button>
             </div>
           {viewMode === 'day' && (
-            <div className="flex items-center justify-between w-full max-w-md px-1">
+            <div className="flex items-center justify-center gap-4 w-full max-w-md">
               <button 
                 onClick={() => {
                   const d = new Date(dayViewPivotDate);
@@ -1071,12 +1071,12 @@ export default function App() {
                   setDayViewPivotDate(d);
                   setSelectedDate(new Date(d));
                 }}
-                className="p-1 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors flex-shrink-0"
+                className="p-1 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors"
               >
-                <ChevronLeft size={24}/>
+                <ChevronLeft size={20}/>
               </button>
               <div 
-                className="flex items-center gap-1 cursor-ns-resize overflow-x-auto scrollbar-hide flex-grow justify-center"
+                className="flex items-center gap-2 cursor-ns-resize"
                 onWheel={(e) => {
                   const d = new Date(dayViewPivotDate);
                   if (e.deltaY > 0) {
@@ -1095,7 +1095,7 @@ export default function App() {
                     <button 
                       key={i}
                       onClick={() => setSelectedDate(new Date(d))}
-                      className={`w-7 h-7 flex items-center justify-center rounded-full text-[10px] font-black transition-all ${isSelected ? 'bg-blue-600 text-white shadow-lg scale-110' : 'text-slate-400 hover:text-slate-200'} ${isToday && !isSelected ? 'ring-2 ring-blue-500' : ''}`}
+                      className={`w-8 h-8 flex items-center justify-center rounded-full text-[11px] font-black transition-all ${isSelected ? 'bg-blue-600 text-white shadow-lg scale-110' : 'text-slate-400 hover:text-slate-200'} ${isToday && !isSelected ? 'ring-2 ring-blue-500' : ''}`}
                     >
                       {String(d.getDate()).padStart(2, '0')}
                     </button>
@@ -1109,9 +1109,9 @@ export default function App() {
                   setDayViewPivotDate(d);
                   setSelectedDate(new Date(d));
                 }}
-                className="p-1 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors flex-shrink-0"
+                className="p-1 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors"
               >
-                <ChevronRight size={24}/>
+                <ChevronRight size={20}/>
               </button>
             </div>
           )}
@@ -1591,7 +1591,7 @@ export default function App() {
                     setDayViewPivotDate(new Date(d.dateKey));
                     setViewMode('day');
                   }}
-                  className={`relative flex flex-row overflow-hidden border-l-[12px] shadow-md transition-all cursor-pointer min-h-[110px] rounded-3xl w-full max-w-full ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''} md:max-w-[320px]`} 
+                  className={`relative flex flex-row overflow-hidden border-l-[12px] shadow-md transition-all cursor-pointer min-h-[110px] rounded-3xl w-full max-w-full ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
                   style={{ 
                     borderLeftColor: (d.isOtherMonth && activeTab === 'view') ? '#f1f5f9' : BORDER_COLORS[d.weekdayIndex],
                     backgroundColor: (d.isOtherMonth && activeTab === 'view') ? '#f8fafc' : WEEKDAY_COLORS[d.weekdayIndex]
@@ -1620,55 +1620,53 @@ export default function App() {
                   )}
 
                   {/* Right Column: Events */}
-                  <div className="flex-grow p-1 space-y-1 min-h-[40px] min-w-0 w-full overflow-hidden">
+                  <div className="flex-grow p-3 space-y-2 min-h-[40px] min-w-0">
                     {dayEvents.length > 0 ? dayEvents.map((ev, i) => {
                       const isCleaning = ev.title?.toUpperCase().includes('ПРИБИРАННЯ');
                       const leadsCount = ev.leads?.filter(l => l).length || 0;
                       
                       return (
-                        <div key={i} className={`grid ${isCleaning ? 'grid-cols-[auto,1fr]' : 'grid-cols-4'} items-stretch gap-0.5 py-0.5 px-0.5 rounded-lg border border-slate-200 shadow-sm bg-white relative group/event ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}>
+                        <div key={i} className={`grid grid-cols-4 items-stretch gap-0.5 md:gap-1.5 py-0.5 md:py-1.5 pl-1 md:pl-3 pr-0.5 md:pr-1.5 rounded-xl md:rounded-2xl border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}>
                           {/* Accent line */}
-                          <div className="absolute left-0 top-0 bottom-0 w-[2px] opacity-80 rounded-l-lg" style={{ backgroundColor: ev.textColor }} />
+                          <div className="absolute left-0 top-0 bottom-0 w-[2px] md:w-[3px] opacity-80 group-hover/event:opacity-100 transition-opacity rounded-l-xl md:rounded-l-2xl" style={{ backgroundColor: ev.textColor }} />
                           
                           {/* Col 1: Location & Time */}
-                          <div className={`${isCleaning ? 'col-span-1' : 'col-span-1'} flex flex-col gap-0 border rounded px-0.5 py-0.5 min-w-0`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
-                            <div className="flex items-center gap-0.5 text-blue-600 font-normal text-[6px] uppercase tracking-tighter">
-                              <MapPin size={6} className="shrink-0" />
-                              <span className="leading-tight">{ev.place || '—'}</span>
+                          <div className="col-span-1 flex flex-col gap-0.5 border rounded-lg md:rounded-xl px-0.5 md:px-2 py-0.5 md:py-1.5 min-w-0" style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                            <div className="flex items-start gap-0.5 md:gap-1 text-blue-600 font-normal text-[6px] md:text-[9px] lg:text-[10px] uppercase tracking-tight">
+                              <MapPin size={8} className="shrink-0 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3 mt-[2px]" />
+                              <span className="break-words min-w-0 flex-1">{ev.place || '—'}</span>
                             </div>
-                            <div className="flex items-center gap-0.5 text-slate-600 font-bold text-[6px]">
-                              <Clock size={6} className="text-blue-500 shrink-0" />
-                              <span className="leading-tight">{ev.startTime}{ev.endTime ? `-${ev.endTime}` : ''}</span>
+                            <div className="flex items-start gap-0.5 md:gap-1 text-slate-600 font-bold text-[6px] md:text-[9px] lg:text-[10px]">
+                              <Clock size={8} className="text-blue-500 shrink-0 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3 mt-[2px]" />
+                              <span className="whitespace-nowrap">{ev.startTime}{ev.endTime ? `-${ev.endTime}` : ''}</span>
                             </div>
                           </div>
 
                           {/* Col 2: Event & Music */}
-                          <div className={`${isCleaning ? 'col-span-1' : 'col-span-2'} flex flex-col gap-0 border rounded px-0.5 py-0.5 min-w-0 ${ev.align === 'center' ? 'text-center items-center' : ev.align === 'right' ? 'text-right items-end' : 'text-left items-start'}`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                          <div className={`col-span-2 flex flex-col gap-0.5 md:gap-1 border rounded-lg md:rounded-xl px-0.5 md:px-2 py-0.5 md:py-1.5 min-w-0 ${ev.align === 'center' ? 'text-center items-center' : ev.align === 'right' ? 'text-right items-end' : 'text-left items-start'}`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                             <div 
-                              className={`text-[7px] leading-tight tracking-tighter w-full ${ev.isBold !== false ? 'font-black' : 'font-medium'} ${ev.isItalic === true ? 'italic' : ''} ${ev.isUnderline === true ? 'underline' : ''} ${ev.isUppercase !== false ? 'uppercase' : ''}`}
+                              className={`text-[8px] md:text-[9px] xl:text-[11px] leading-tight tracking-tight group-hover/event:scale-[1.01] transition-transform w-full whitespace-pre-wrap break-words min-w-0 ${ev.isBold !== false ? 'font-black' : 'font-medium'} ${ev.isItalic === true ? 'italic' : ''} ${ev.isUnderline === true ? 'underline' : ''} ${ev.isUppercase !== false ? 'uppercase' : ''}`}
                               style={{ color: ev.textColor }}
                             >
                               {ev.title || ''}
                             </div>
                             {ev.music && (
-                              <div className="text-slate-500 italic text-[6px] leading-tight font-semibold flex items-center gap-0.5 bg-blue-50/30 px-0.5 py-0.5 rounded w-fit max-w-full">
-                                <Music size={6} className="shrink-0 text-blue-400" />
-                                <span className="leading-tight">{ev.music}</span>
+                              <div className="text-slate-500 italic text-[6px] md:text-[9px] lg:text-[10px] leading-tight font-semibold flex items-start gap-0.5 md:gap-1 bg-blue-50/30 px-1 md:px-1.5 py-0.5 rounded-md md:rounded-lg w-fit max-w-full">
+                                <Music size={8} className="shrink-0 text-blue-400 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3 mt-[2px]" />
+                                <span className="break-words min-w-0 flex-1">{ev.music}</span>
                               </div>
                             )}
                           </div>
 
-                          {/* Col 3: Ministers */}
-                          {!isCleaning && (
-                            <div className="col-span-1 flex flex-col gap-0 border rounded px-0.5 py-0.5 min-w-0" style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
-                              {ev.leads?.filter(l => l).map((lead, lIdx) => (
-                                <div key={lIdx} className="text-[#003366] font-medium text-[6px] leading-tight flex items-center gap-0.5 py-0.5">
-                                  <div className="w-0.5 h-0.5 rounded-full bg-blue-200 shrink-0" />
-                                  <span className="leading-tight">{lead}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
+                          {/* Col 3: Ministers - Tight List */}
+                          <div className="col-span-1 flex flex-col gap-0.5 border rounded-lg md:rounded-xl px-0.5 md:px-2 py-0.5 md:py-1.5 min-w-0" style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                            {ev.leads?.filter(l => l).map((lead, lIdx) => (
+                              <div key={lIdx} className="text-[#003366] font-medium text-[6px] md:text-[9px] lg:text-[10px] leading-none flex items-start gap-1 md:gap-1.5 py-0.5 break-words min-w-0">
+                                <div className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-blue-200 shrink-0 mt-[3px]" />
+                                <span className="break-words min-w-0 flex-1">{lead}</span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       );
                     }) : (
