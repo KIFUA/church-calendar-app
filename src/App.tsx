@@ -1627,11 +1627,11 @@ export default function App() {
                   {/* Right Column: Events */}
                   <div className="flex-grow p-3 space-y-1 min-h-[40px] min-w-0">
                     {dayEvents.length > 0 ? dayEvents.map((ev, i) => {
-                      const isCleaning = ev.title?.toUpperCase().includes('ПРИБИРАННЯ');
+                      const isCleaning = ev.title?.toUpperCase().replace(/\s+/g, '').includes('ПРИБИРАННЯ');
                       const leadsCount = ev.leads?.filter(l => l).length || 0;
                       
                       return (
-                        <div key={i} className={`grid grid-cols-4 items-stretch gap-0.5 md:gap-2 py-1 md:py-2 pl-1 md:pl-2 pr-0.5 md:pr-1 rounded-xl md:rounded-2xl border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}>
+                        <div key={i} className={`grid grid-cols-4 items-stretch gap-0.5 md:gap-2 py-1 md:py-2 pl-1 md:pl-2 pr-0.5 md:pr-1 rounded-xl md:rounded-2xl border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event ${isCleaning ? 'bg-slate-300' : 'bg-white'}`}>
                           {/* Accent line */}
                           <div className="absolute left-0 top-0 bottom-0 w-[2px] md:w-[3px] opacity-80 group-hover/event:opacity-100 transition-opacity rounded-l-xl md:rounded-l-2xl" style={{ backgroundColor: ev.textColor }} />
                           
