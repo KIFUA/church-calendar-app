@@ -1620,50 +1620,50 @@ export default function App() {
                   )}
 
                   {/* Right Column: Events */}
-                  <div className="flex-grow p-3 space-y-2 min-h-[40px] min-w-0">
+                  <div className="flex-grow p-1 space-y-1 min-h-[40px] min-w-0 w-full overflow-hidden">
                     {dayEvents.length > 0 ? dayEvents.map((ev, i) => {
                       const isCleaning = ev.title?.toUpperCase().includes('ПРИБИРАННЯ');
                       const leadsCount = ev.leads?.filter(l => l).length || 0;
                       
                       return (
-                        <div key={i} className={`grid grid-cols-[auto,1fr,auto] items-stretch gap-0 py-0.5 pl-0.5 pr-0.5 rounded border border-slate-200 shadow-sm bg-white relative group/event ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}>
+                        <div key={i} className={`grid grid-cols-4 items-stretch gap-0.5 py-0.5 px-0.5 rounded-lg border border-slate-200 shadow-sm bg-white relative group/event ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}>
                           {/* Accent line */}
-                          <div className="absolute left-0 top-0 bottom-0 w-[2px] opacity-80 rounded-l" style={{ backgroundColor: ev.textColor }} />
+                          <div className="absolute left-0 top-0 bottom-0 w-[2px] opacity-80 rounded-l-lg" style={{ backgroundColor: ev.textColor }} />
                           
                           {/* Col 1: Location & Time */}
-                          <div className="flex flex-col gap-0 border rounded px-0.5 py-0 min-w-[45px] max-w-[55px]" style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                          <div className="col-span-1 flex flex-col gap-0 border rounded px-0.5 py-0.5 min-w-0" style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                             <div className="flex items-center gap-0.5 text-blue-600 font-normal text-[6px] uppercase tracking-tighter">
-                              <MapPin size={5} className="shrink-0" />
-                              <span className="leading-none">{ev.place || '—'}</span>
+                              <MapPin size={6} className="shrink-0" />
+                              <span className="leading-tight">{ev.place || '—'}</span>
                             </div>
                             <div className="flex items-center gap-0.5 text-slate-600 font-bold text-[6px]">
-                              <Clock size={5} className="text-blue-500 shrink-0" />
-                              <span className="leading-none">{ev.startTime}{ev.endTime ? `-${ev.endTime}` : ''}</span>
+                              <Clock size={6} className="text-blue-500 shrink-0" />
+                              <span className="leading-tight">{ev.startTime}{ev.endTime ? `-${ev.endTime}` : ''}</span>
                             </div>
                           </div>
 
                           {/* Col 2: Event & Music */}
-                          <div className={`flex flex-col gap-0 border rounded px-0.5 py-0 min-w-0 ${ev.align === 'center' ? 'text-center items-center' : ev.align === 'right' ? 'text-right items-end' : 'text-left items-start'}`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                          <div className={`col-span-2 flex flex-col gap-0 border rounded px-0.5 py-0.5 min-w-0 ${ev.align === 'center' ? 'text-center items-center' : ev.align === 'right' ? 'text-right items-end' : 'text-left items-start'}`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                             <div 
-                              className={`text-[7px] leading-none tracking-tighter w-full ${ev.isBold !== false ? 'font-black' : 'font-medium'} ${ev.isItalic === true ? 'italic' : ''} ${ev.isUnderline === true ? 'underline' : ''} ${ev.isUppercase !== false ? 'uppercase' : ''}`}
+                              className={`text-[7px] leading-tight tracking-tighter w-full ${ev.isBold !== false ? 'font-black' : 'font-medium'} ${ev.isItalic === true ? 'italic' : ''} ${ev.isUnderline === true ? 'underline' : ''} ${ev.isUppercase !== false ? 'uppercase' : ''}`}
                               style={{ color: ev.textColor }}
                             >
                               {ev.title || ''}
                             </div>
                             {ev.music && (
-                              <div className="text-slate-500 italic text-[6px] leading-none font-semibold flex items-center gap-0.5 bg-blue-50/30 px-0.5 py-0 rounded w-fit max-w-full">
-                                <Music size={5} className="shrink-0 text-blue-400" />
-                                <span className="leading-none">{ev.music}</span>
+                              <div className="text-slate-500 italic text-[6px] leading-tight font-semibold flex items-center gap-0.5 bg-blue-50/30 px-0.5 py-0.5 rounded w-fit max-w-full">
+                                <Music size={6} className="shrink-0 text-blue-400" />
+                                <span className="leading-tight">{ev.music}</span>
                               </div>
                             )}
                           </div>
 
                           {/* Col 3: Ministers */}
-                          <div className="flex flex-col gap-0 border rounded px-0.5 py-0 min-w-[45px]" style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                          <div className="col-span-1 flex flex-col gap-0 border rounded px-0.5 py-0.5 min-w-0" style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                             {ev.leads?.filter(l => l).map((lead, lIdx) => (
-                              <div key={lIdx} className="text-[#003366] font-medium text-[6px] leading-none flex items-center gap-0.5 py-0.5">
+                              <div key={lIdx} className="text-[#003366] font-medium text-[6px] leading-tight flex items-center gap-0.5 py-0.5">
                                 <div className="w-0.5 h-0.5 rounded-full bg-blue-200 shrink-0" />
-                                <span className="leading-none">{lead}</span>
+                                <span className="leading-tight">{lead}</span>
                               </div>
                             ))}
                           </div>
