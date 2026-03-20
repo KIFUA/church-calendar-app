@@ -1650,7 +1650,7 @@ export default function App() {
                           {/* Col 2: Event & Music */}
                           <div className={`${isCleaning ? 'col-span-3' : 'col-span-2'} flex flex-col gap-0.5 md:gap-1 border rounded-lg md:rounded-xl px-1.5 md:px-2 py-1 md:py-1.5 min-w-0 ${ev.align === 'center' ? 'text-center items-center' : ev.align === 'right' ? 'text-right items-end' : 'text-left items-start'}`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                             <div 
-                              className={`text-[9px] md:text-[11px] xl:text-[13px] leading-tight tracking-tight group-hover/event:scale-[1.01] transition-transform w-full whitespace-pre-wrap break-words min-w-0 ${ev.isBold !== false ? 'font-black' : 'font-medium'} ${ev.isItalic === true ? 'italic' : ''} ${ev.isUnderline === true ? 'underline' : ''} ${ev.isUppercase !== false ? 'uppercase' : ''}`}
+                              className={`text-[8px] md:text-[11px] xl:text-[13px] leading-tight tracking-tight group-hover/event:scale-[1.01] transition-transform w-full whitespace-pre-wrap break-words min-w-0 ${ev.isBold !== false ? 'font-black' : 'font-medium'} ${ev.isItalic === true ? 'italic' : ''} ${ev.isUnderline === true ? 'underline' : ''} ${ev.isUppercase !== false ? 'uppercase' : ''}`}
                               style={{ color: ev.textColor }}
                             >
                               {ev.title || ''}
