@@ -1631,18 +1631,18 @@ export default function App() {
                       const leadsCount = ev.leads?.filter(l => l).length || 0;
                       
                       return (
-                        <div key={i} className={`grid grid-cols-4 items-stretch gap-0.5 md:gap-2 py-1 md:py-2 pl-1 md:pl-2 pr-0.5 md:pr-1 rounded-xl md:rounded-2xl border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event ${isCleaning ? 'bg-slate-300' : 'bg-white'}`}>
+                        <div key={i} className={`grid grid-cols-4 items-stretch gap-0.5 md:gap-2 py-1 md:py-2 pl-1 md:pl-2 pr-0.5 md:pr-1 rounded-xl md:rounded-2xl border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}>
                           {/* Accent line */}
                           <div className="absolute left-0 top-0 bottom-0 w-[2px] md:w-[3px] opacity-80 group-hover/event:opacity-100 transition-opacity rounded-l-xl md:rounded-l-2xl" style={{ backgroundColor: ev.textColor }} />
                           
                           {/* Col 1: Location & Time */}
                           <div className="col-span-1 flex flex-col gap-0 border rounded-lg md:rounded-xl px-1 md:px-2 py-0.5 md:py-1 min-w-0" style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
-                            <div className="flex items-start gap-0 md:gap-1 text-blue-600 font-normal text-[4px] md:text-[9px] lg:text-[10px] uppercase tracking-tight">
-                              <MapPin size={7} className="shrink-0 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3 mt-[1px]" />
+                            <div className="flex items-center gap-0 md:gap-1 text-blue-600 font-normal text-[4px] md:text-[9px] lg:text-[10px] uppercase tracking-tight">
+                              <MapPin size={5} className="shrink-0 md:w-2 md:h-2 lg:w-2.5 lg:h-2.5" />
                               <span className="break-words min-w-0 flex-1">{ev.place || '—'}</span>
                             </div>
-                            <div className="flex items-start gap-0 md:gap-1 text-slate-600 font-bold text-[4px] md:text-[9px] lg:text-[10px]">
-                              <Clock size={7} className="text-blue-500 shrink-0 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3 mt-[1px]" />
+                            <div className="flex items-center gap-0 md:gap-1 text-slate-600 font-bold text-[4px] md:text-[9px] lg:text-[10px]">
+                              <Clock size={5} className="text-blue-500 shrink-0 md:w-2 md:h-2 lg:w-2.5 lg:h-2.5" />
                               <span className="whitespace-nowrap">{ev.startTime}{ev.endTime ? `-${ev.endTime}` : ''}</span>
                             </div>
                           </div>
@@ -1656,8 +1656,8 @@ export default function App() {
                               {ev.title || ''}
                             </div>
                             {ev.music && (
-                              <div className="text-slate-500 italic text-[6px] md:text-[9px] lg:text-[10px] leading-tight font-semibold flex items-start gap-0.5 md:gap-1 bg-blue-50/30 px-1 md:px-1.5 py-0.5 rounded-md md:rounded-lg w-fit max-w-full">
-                                <Music size={8} className="shrink-0 text-blue-400 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3 mt-[2px]" />
+                              <div className="text-slate-500 italic text-[6px] md:text-[9px] lg:text-[10px] leading-tight font-semibold flex items-center gap-0.5 md:gap-1 bg-blue-50/30 px-1 md:px-1.5 py-0.5 rounded-md md:rounded-lg w-fit max-w-full">
+                                <Music size={6} className="shrink-0 text-blue-400 md:w-2 md:h-2 lg:w-2.5 lg:h-2.5" />
                                 <span className="break-words min-w-0 flex-1">{ev.music}</span>
                               </div>
                             )}
@@ -1668,7 +1668,6 @@ export default function App() {
                             <div className="col-span-1 flex flex-col gap-0.5 border rounded-lg md:rounded-xl px-1 md:px-2 py-0.5 md:py-1 min-w-0" style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                               {ev.leads?.filter(l => l).map((lead, lIdx) => (
                                 <div key={lIdx} className="text-[#003366] font-medium text-[4px] md:text-[9px] lg:text-[10px] leading-none flex items-start gap-1 md:gap-1.5 py-0.5 break-words min-w-0">
-                                  <div className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-blue-200 shrink-0 mt-[3px]" />
                                   <span className="break-words min-w-0 flex-1">{lead}</span>
                                 </div>
                               ))}
