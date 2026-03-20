@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+@layer base {
+  html, body {
+    width: 100%;
+    position: relative;
+    touch-action: auto; /* Ensure all touch gestures including zoom and scroll are fully enabled */
+  }
+}
+
+@layer utilities {
+  .page-break-before {
+    break-before: page;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@media print {
+  /* Hide UI elements */
+  header, 
+  nav, 
+  .no-print,
+  button,
+  .view-selector,
+  .navigation-row {
+    display: none !important;
+  }
+
+  /* Reset background and text colors */
+  body {
+    background: white !important;
+    color: black !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Ensure main content takes full width */
+  main {
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Force grid to single column for printing if needed, 
+     but Month view needs 7 days per sheet logic.
+  */
+  
+  .print-page-break {
+    page-break-before: always;
+  }
+
+  /* Improve contrast for print */
+  .text-slate-200, .text-slate-400, .text-slate-500 {
+    color: #333 !important;
+  }
+  
+  .bg-slate-800, .bg-slate-900, .bg-slate-950 {
+    background: transparent !important;
+    border-color: #eee !important;
+  }
+
+  /* Specific border colors for print */
+  [style*="border-color"] {
+    border-width: 2px !important;
+  }
+}
