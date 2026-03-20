@@ -1631,18 +1631,18 @@ export default function App() {
                       const leadsCount = ev.leads?.filter(l => l).length || 0;
                       
                       return (
-                        <div key={i} className={`grid grid-cols-4 items-stretch gap-0.5 md:gap-1.5 py-0.5 md:py-1.5 pl-1 md:pl-3 pr-0.5 md:pr-1.5 rounded-xl md:rounded-2xl border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}>
+                        <div key={i} className={`grid grid-cols-4 items-stretch gap-0 md:gap-1.5 py-0 md:py-1.5 pl-0.5 md:pl-3 pr-0 md:pr-1.5 rounded-xl md:rounded-2xl border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}>
                           {/* Accent line */}
                           <div className="absolute left-0 top-0 bottom-0 w-[2px] md:w-[3px] opacity-80 group-hover/event:opacity-100 transition-opacity rounded-l-xl md:rounded-l-2xl" style={{ backgroundColor: ev.textColor }} />
                           
                           {/* Col 1: Location & Time */}
-                          <div className="col-span-1 flex flex-col gap-0.5 border rounded-lg md:rounded-xl px-0.5 md:px-2 py-0.5 md:py-1.5 min-w-0" style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
-                            <div className="flex items-start gap-0.5 md:gap-1 text-blue-600 font-normal text-[6px] md:text-[9px] lg:text-[10px] uppercase tracking-tight">
-                              <MapPin size={8} className="shrink-0 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3 mt-[2px]" />
+                          <div className="col-span-1 flex flex-col gap-0 border rounded-lg md:rounded-xl px-0 md:px-2 py-0 md:py-1.5 min-w-0" style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                            <div className="flex items-start gap-0 md:gap-1 text-blue-600 font-normal text-[5px] md:text-[9px] lg:text-[10px] uppercase tracking-tight">
+                              <MapPin size={7} className="shrink-0 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3 mt-[1px]" />
                               <span className="break-words min-w-0 flex-1">{ev.place || '—'}</span>
                             </div>
-                            <div className="flex items-start gap-0.5 md:gap-1 text-slate-600 font-bold text-[6px] md:text-[9px] lg:text-[10px]">
-                              <Clock size={8} className="text-blue-500 shrink-0 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3 mt-[2px]" />
+                            <div className="flex items-start gap-0 md:gap-1 text-slate-600 font-bold text-[5px] md:text-[9px] lg:text-[10px]">
+                              <Clock size={7} className="text-blue-500 shrink-0 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3 mt-[1px]" />
                               <span className="whitespace-nowrap">{ev.startTime}{ev.endTime ? `-${ev.endTime}` : ''}</span>
                             </div>
                           </div>
