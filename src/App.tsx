@@ -1063,7 +1063,7 @@ export default function App() {
               <button onClick={() => setViewMode('year')} className={`px-2 py-1 rounded-md text-[8px] font-bold uppercase tracking-wider transition-all ${viewMode === 'year' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>Рік</button>
             </div>
           {viewMode === 'day' && (
-            <div className="flex items-center justify-center gap-4 w-full max-w-md">
+            <div className="flex items-center justify-between w-full max-w-md px-1">
               <button 
                 onClick={() => {
                   const d = new Date(dayViewPivotDate);
@@ -1071,12 +1071,12 @@ export default function App() {
                   setDayViewPivotDate(d);
                   setSelectedDate(new Date(d));
                 }}
-                className="p-1 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors"
+                className="p-1 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors flex-shrink-0"
               >
-                <ChevronLeft size={20}/>
+                <ChevronLeft size={24}/>
               </button>
               <div 
-                className="flex items-center gap-2 cursor-ns-resize"
+                className="flex items-center gap-1 cursor-ns-resize overflow-x-auto scrollbar-hide flex-grow justify-center"
                 onWheel={(e) => {
                   const d = new Date(dayViewPivotDate);
                   if (e.deltaY > 0) {
@@ -1095,7 +1095,7 @@ export default function App() {
                     <button 
                       key={i}
                       onClick={() => setSelectedDate(new Date(d))}
-                      className={`w-8 h-8 flex items-center justify-center rounded-full text-[11px] font-black transition-all ${isSelected ? 'bg-blue-600 text-white shadow-lg scale-110' : 'text-slate-400 hover:text-slate-200'} ${isToday && !isSelected ? 'ring-2 ring-blue-500' : ''}`}
+                      className={`w-7 h-7 flex items-center justify-center rounded-full text-[10px] font-black transition-all ${isSelected ? 'bg-blue-600 text-white shadow-lg scale-110' : 'text-slate-400 hover:text-slate-200'} ${isToday && !isSelected ? 'ring-2 ring-blue-500' : ''}`}
                     >
                       {String(d.getDate()).padStart(2, '0')}
                     </button>
@@ -1109,9 +1109,9 @@ export default function App() {
                   setDayViewPivotDate(d);
                   setSelectedDate(new Date(d));
                 }}
-                className="p-1 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors"
+                className="p-1 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors flex-shrink-0"
               >
-                <ChevronRight size={20}/>
+                <ChevronRight size={24}/>
               </button>
             </div>
           )}
@@ -1626,12 +1626,12 @@ export default function App() {
                       const leadsCount = ev.leads?.filter(l => l).length || 0;
                       
                       return (
-                        <div key={i} className={`grid grid-cols-4 items-stretch gap-0.5 py-0.5 px-0.5 rounded-lg border border-slate-200 shadow-sm bg-white relative group/event ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}>
+                        <div key={i} className={`grid ${isCleaning ? 'grid-cols-[auto,1fr]' : 'grid-cols-4'} items-stretch gap-0.5 py-0.5 px-0.5 rounded-lg border border-slate-200 shadow-sm bg-white relative group/event ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}>
                           {/* Accent line */}
                           <div className="absolute left-0 top-0 bottom-0 w-[2px] opacity-80 rounded-l-lg" style={{ backgroundColor: ev.textColor }} />
                           
                           {/* Col 1: Location & Time */}
-                          <div className="col-span-1 flex flex-col gap-0 border rounded px-0.5 py-0.5 min-w-0" style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                          <div className={`${isCleaning ? 'col-span-1' : 'col-span-1'} flex flex-col gap-0 border rounded px-0.5 py-0.5 min-w-0`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                             <div className="flex items-center gap-0.5 text-blue-600 font-normal text-[6px] uppercase tracking-tighter">
                               <MapPin size={6} className="shrink-0" />
                               <span className="leading-tight">{ev.place || '—'}</span>
@@ -1643,7 +1643,7 @@ export default function App() {
                           </div>
 
                           {/* Col 2: Event & Music */}
-                          <div className={`col-span-2 flex flex-col gap-0 border rounded px-0.5 py-0.5 min-w-0 ${ev.align === 'center' ? 'text-center items-center' : ev.align === 'right' ? 'text-right items-end' : 'text-left items-start'}`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                          <div className={`${isCleaning ? 'col-span-1' : 'col-span-2'} flex flex-col gap-0 border rounded px-0.5 py-0.5 min-w-0 ${ev.align === 'center' ? 'text-center items-center' : ev.align === 'right' ? 'text-right items-end' : 'text-left items-start'}`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                             <div 
                               className={`text-[7px] leading-tight tracking-tighter w-full ${ev.isBold !== false ? 'font-black' : 'font-medium'} ${ev.isItalic === true ? 'italic' : ''} ${ev.isUnderline === true ? 'underline' : ''} ${ev.isUppercase !== false ? 'uppercase' : ''}`}
                               style={{ color: ev.textColor }}
@@ -1659,14 +1659,16 @@ export default function App() {
                           </div>
 
                           {/* Col 3: Ministers */}
-                          <div className="col-span-1 flex flex-col gap-0 border rounded px-0.5 py-0.5 min-w-0" style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
-                            {ev.leads?.filter(l => l).map((lead, lIdx) => (
-                              <div key={lIdx} className="text-[#003366] font-medium text-[6px] leading-tight flex items-center gap-0.5 py-0.5">
-                                <div className="w-0.5 h-0.5 rounded-full bg-blue-200 shrink-0" />
-                                <span className="leading-tight">{lead}</span>
-                              </div>
-                            ))}
-                          </div>
+                          {!isCleaning && (
+                            <div className="col-span-1 flex flex-col gap-0 border rounded px-0.5 py-0.5 min-w-0" style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                              {ev.leads?.filter(l => l).map((lead, lIdx) => (
+                                <div key={lIdx} className="text-[#003366] font-medium text-[6px] leading-tight flex items-center gap-0.5 py-0.5">
+                                  <div className="w-0.5 h-0.5 rounded-full bg-blue-200 shrink-0" />
+                                  <span className="leading-tight">{lead}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       );
                     }) : (
