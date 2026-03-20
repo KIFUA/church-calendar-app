@@ -1626,44 +1626,44 @@ export default function App() {
                       const leadsCount = ev.leads?.filter(l => l).length || 0;
                       
                       return (
-                        <div key={i} className={`grid grid-cols-4 items-stretch gap-0.5 md:gap-1.5 py-0.5 md:py-1.5 pl-1 md:pl-3 pr-0.5 md:pr-1.5 rounded-xl md:rounded-2xl border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}>
+                        <div key={i} className={`grid grid-cols-[auto,1fr,auto] items-stretch gap-0.5 py-0.5 pl-0.5 pr-0.5 rounded-lg border border-slate-200 shadow-sm bg-white relative group/event ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}>
                           {/* Accent line */}
-                          <div className="absolute left-0 top-0 bottom-0 w-[2px] md:w-[3px] opacity-80 group-hover/event:opacity-100 transition-opacity rounded-l-xl md:rounded-l-2xl" style={{ backgroundColor: ev.textColor }} />
+                          <div className="absolute left-0 top-0 bottom-0 w-[2px] opacity-80 rounded-l-lg" style={{ backgroundColor: ev.textColor }} />
                           
                           {/* Col 1: Location & Time */}
-                          <div className="col-span-1 flex flex-col gap-0.5 border rounded-lg md:rounded-xl px-0.5 md:px-2 py-0.5 md:py-1.5 min-w-0" style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
-                            <div className="flex items-start gap-0.5 md:gap-1 text-blue-600 font-normal text-[6px] md:text-[9px] lg:text-[10px] uppercase tracking-tight">
-                              <MapPin size={8} className="shrink-0 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3 mt-[2px]" />
-                              <span className="break-words min-w-0 flex-1">{ev.place || '—'}</span>
+                          <div className="flex flex-col gap-0 border rounded px-0.5 py-0.5 min-w-[50px] max-w-[60px]" style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                            <div className="flex items-center gap-0.5 text-blue-600 font-normal text-[7px] md:text-[8px] uppercase tracking-tighter">
+                              <MapPin size={6} className="shrink-0" />
+                              <span className="leading-tight">{ev.place || '—'}</span>
                             </div>
-                            <div className="flex items-start gap-0.5 md:gap-1 text-slate-600 font-bold text-[6px] md:text-[9px] lg:text-[10px]">
-                              <Clock size={8} className="text-blue-500 shrink-0 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3 mt-[2px]" />
-                              <span className="whitespace-nowrap">{ev.startTime}{ev.endTime ? `-${ev.endTime}` : ''}</span>
+                            <div className="flex items-center gap-0.5 text-slate-600 font-bold text-[7px] md:text-[8px]">
+                              <Clock size={6} className="text-blue-500 shrink-0" />
+                              <span className="leading-tight">{ev.startTime}{ev.endTime ? `-${ev.endTime}` : ''}</span>
                             </div>
                           </div>
 
                           {/* Col 2: Event & Music */}
-                          <div className={`col-span-2 flex flex-col gap-0.5 md:gap-1 border rounded-lg md:rounded-xl px-0.5 md:px-2 py-0.5 md:py-1.5 min-w-0 ${ev.align === 'center' ? 'text-center items-center' : ev.align === 'right' ? 'text-right items-end' : 'text-left items-start'}`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                          <div className={`flex flex-col gap-0 border rounded px-0.5 py-0.5 min-w-0 ${ev.align === 'center' ? 'text-center items-center' : ev.align === 'right' ? 'text-right items-end' : 'text-left items-start'}`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                             <div 
-                              className={`text-[8px] md:text-[9px] xl:text-[11px] leading-tight tracking-tight group-hover/event:scale-[1.01] transition-transform w-full whitespace-pre-wrap break-words min-w-0 ${ev.isBold !== false ? 'font-black' : 'font-medium'} ${ev.isItalic === true ? 'italic' : ''} ${ev.isUnderline === true ? 'underline' : ''} ${ev.isUppercase !== false ? 'uppercase' : ''}`}
+                              className={`text-[8px] md:text-[10px] leading-tight tracking-tighter w-full ${ev.isBold !== false ? 'font-black' : 'font-medium'} ${ev.isItalic === true ? 'italic' : ''} ${ev.isUnderline === true ? 'underline' : ''} ${ev.isUppercase !== false ? 'uppercase' : ''}`}
                               style={{ color: ev.textColor }}
                             >
                               {ev.title || ''}
                             </div>
                             {ev.music && (
-                              <div className="text-slate-500 italic text-[6px] md:text-[9px] lg:text-[10px] leading-tight font-semibold flex items-start gap-0.5 md:gap-1 bg-blue-50/30 px-1 md:px-1.5 py-0.5 rounded-md md:rounded-lg w-fit max-w-full">
-                                <Music size={8} className="shrink-0 text-blue-400 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3 mt-[2px]" />
-                                <span className="break-words min-w-0 flex-1">{ev.music}</span>
+                              <div className="text-slate-500 italic text-[7px] md:text-[8px] leading-tight font-semibold flex items-center gap-0.5 bg-blue-50/30 px-0.5 py-0.5 rounded w-fit max-w-full">
+                                <Music size={6} className="shrink-0 text-blue-400" />
+                                <span className="leading-tight">{ev.music}</span>
                               </div>
                             )}
                           </div>
 
-                          {/* Col 3: Ministers - Tight List */}
-                          <div className="col-span-1 flex flex-col gap-0.5 border rounded-lg md:rounded-xl px-0.5 md:px-2 py-0.5 md:py-1.5 min-w-0" style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                          {/* Col 3: Ministers */}
+                          <div className="flex flex-col gap-0 border rounded px-0.5 py-0.5 min-w-[50px]" style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                             {ev.leads?.filter(l => l).map((lead, lIdx) => (
-                              <div key={lIdx} className="text-[#003366] font-medium text-[6px] md:text-[9px] lg:text-[10px] leading-none flex items-start gap-1 md:gap-1.5 py-0.5 break-words min-w-0">
-                                <div className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-blue-200 shrink-0 mt-[3px]" />
-                                <span className="break-words min-w-0 flex-1">{lead}</span>
+                              <div key={lIdx} className="text-[#003366] font-medium text-[7px] md:text-[8px] leading-tight flex items-center gap-0.5 py-0.5">
+                                <div className="w-0.5 h-0.5 rounded-full bg-blue-200 shrink-0" />
+                                <span className="leading-tight">{lead}</span>
                               </div>
                             ))}
                           </div>
