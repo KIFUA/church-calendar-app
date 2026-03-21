@@ -453,6 +453,32 @@ const THEME_BACKGROUNDS = [
   { id: 'scroll3', label: 'Сувій 3', url: 'https://pngimg.com/uploads/scroll/scroll_PNG25.png' },
 ];
 
+import { HexColorPicker } from "react-colorful";
+
+const COLOR_PRESETS = ['#ffffff', '#f87171', '#fb923c', '#facc15', '#4ade80', '#22d3ee', '#818cf8', '#e879f9'];
+
+const ColorPicker = ({ label, value, onChange }: { label: string, value: string, onChange: (c: string) => void }) => {
+  const [showCustom, setShowCustom] = useState(false);
+  return (
+    <div>
+      <label className="text-[8px] font-black text-slate-500 uppercase block mb-1">{label}</label>
+      <div className="flex items-center gap-2">
+        <button onClick={() => setShowCustom(!showCustom)} className="w-8 h-8 rounded cursor-pointer border border-slate-700" style={{ backgroundColor: value }} />
+        <div className="flex flex-wrap gap-1">
+          {COLOR_PRESETS.map(c => (
+            <button key={c} onClick={() => onChange(c)} className="w-5 h-5 rounded-sm" style={{ backgroundColor: c }} />
+          ))}
+        </div>
+      </div>
+      {showCustom && (
+        <div className="mt-2 p-2 bg-slate-800 rounded-lg">
+          <HexColorPicker color={value} onChange={onChange} />
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function App() {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('view');
@@ -463,7 +489,11 @@ export default function App() {
     subtitle: "УЦХВЄ м. Івано-Франківська", 
     logo: null,
     themeBackground: 'none',
-    themeFontSize: 16
+    themeFontSize: 16,
+    backgroundColor: '#0a1120',
+    titleColor: '#ffffff',
+    subtitleColor: '#3b82f6',
+    logoColor: '#ffffff'
   });
   const [isEditingTheme, setIsEditingTheme] = useState(false);
   const [isEditingSettings, setIsEditingSettings] = useState(false);
@@ -605,10 +635,10 @@ export default function App() {
     }
   };
 
-  const handleSaveSettings = async (name: string, subtitle: string, themeBackground: string) => {
-    setAppSettings(prev => ({ ...prev, name, subtitle, themeBackground }));
+  const handleSaveSettings = async (name: string, subtitle: string, themeBackground: string, backgroundColor: string, titleColor: string, subtitleColor: string, logoColor: string) => {
+    setAppSettings(prev => ({ ...prev, name, subtitle, themeBackground, backgroundColor, titleColor, subtitleColor, logoColor }));
     if (isAdminAuthenticated && db) {
-      await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'general'), { name, subtitle, themeBackground }, { merge: true });
+      await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'general'), { name, subtitle, themeBackground, backgroundColor, titleColor, subtitleColor, logoColor }, { merge: true });
     }
   };
 
@@ -886,7 +916,7 @@ export default function App() {
   const [showDiagnostics, setShowDiagnostics] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#0a1120] text-slate-200 p-4 font-sans pb-24 text-[10px]">
+    <div className="min-h-screen text-slate-200 p-4 font-sans pb-24 text-[10px]" style={{ backgroundColor: appSettings.backgroundColor }}>
       {showDiagnostics && (
         <div className="fixed inset-0 z-[3000] bg-black/90 backdrop-blur-md p-6 flex items-center justify-center" onClick={() => setShowDiagnostics(false)}>
           <div className="bg-slate-900 border border-slate-700 p-6 rounded-[32px] max-w-md w-full" onClick={e => e.stopPropagation()}>
@@ -946,7 +976,7 @@ export default function App() {
             }}
           >
              <div className="group-hover:scale-105 transition-transform">
-               <div className="w-10 h-10 md:w-20 md:h-20 flex items-center justify-center overflow-hidden">
+               <div className="h-8 md:h-12 w-8 md:w-12 flex items-center justify-center overflow-hidden">
                  {appSettings.logo ? (
                    <img src={appSettings.logo} alt="Logo" className="w-full h-full object-contain" />
                  ) : (
@@ -969,16 +999,16 @@ export default function App() {
                      {/* Round Window */}
                      <circle cx="50" cy="78" r="4.5" fill="#0a1120" />
                      {/* Cross */}
-                     <path d="M50 12 L50 24 M46 16 L54 16" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                     <path d="M50 12 L50 24 M46 16 L54 16" stroke={appSettings.logoColor} strokeWidth="2" strokeLinecap="round" />
                    </svg>
                  )}
                </div>
              </div>
-             <div className="flex flex-col gap-0.5 md:gap-1.5 mt-0.5 md:mt-1">
-               <h1 className="text-base md:text-3xl lg:text-4xl font-black uppercase text-white leading-none tracking-tight group-hover:text-blue-400 transition-colors">
+             <div className="flex flex-col justify-center gap-0.5 md:gap-1.5 mt-0.5 md:mt-1">
+               <h1 className="text-base md:text-3xl lg:text-4xl font-black uppercase leading-none tracking-tight group-hover:text-blue-400 transition-colors" style={{ color: appSettings.titleColor }}>
                  {appSettings.name}
                </h1>
-               <span className="text-blue-500 text-[6px] md:text-[10px] lg:text-xs font-bold tracking-[0.2em] md:tracking-[0.4em] uppercase">{appSettings.subtitle}</span>
+               <span className="text-[6px] md:text-[10px] lg:text-xs font-bold tracking-[0.2em] md:tracking-[0.4em] uppercase" style={{ color: appSettings.subtitleColor }}>{appSettings.subtitle}</span>
              </div>
           </div>
           
@@ -1715,64 +1745,10 @@ export default function App() {
                   className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-[10px] font-bold outline-none focus:border-blue-500 transition-colors"
                 />
               </div>
-              <div>
-                <label className="text-[8px] font-black text-slate-500 uppercase block mb-1">Логотип</label>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center overflow-hidden shrink-0">
-                    {appSettings.logo ? (
-                      <img src={appSettings.logo} alt="Logo" className="w-full h-full object-contain" />
-                    ) : (
-                      <span className="text-slate-500 text-[8px] font-bold">НЕМАЄ</span>
-                    )}
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white px-3 py-1.5 rounded-lg text-[8px] font-black uppercase cursor-pointer transition-colors text-center">
-                      Завантажити фото
-                      <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
-                    </label>
-                    {appSettings.logo && (
-                      <button 
-                        onClick={() => {
-                          setAppSettings(prev => ({ ...prev, logo: null }));
-                          if (isAdminAuthenticated && db) {
-                            setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'general'), { logo: null }, { merge: true });
-                          }
-                        }}
-                        className="text-red-500 hover:text-red-400 text-[8px] font-black uppercase"
-                      >
-                        Видалити
-                      </button>
-                    )}
-                  </div>
-                </div>
-                <p className="text-[7px] text-slate-500 mt-1.5 leading-tight">Рекомендується квадратне зображення. Воно буде збережено в базі даних.</p>
-              </div>
-              <div>
-                <label className="text-[8px] font-black text-slate-500 uppercase block mb-1">Фон тексту місяця</label>
-                <div className="grid grid-cols-2 gap-1.5">
-                  {THEME_BACKGROUNDS.map(bg => (
-                    <button
-                      key={bg.id}
-                      onClick={() => setAppSettings(prev => ({ ...prev, themeBackground: bg.id }))}
-                      className={`p-1.5 rounded-lg border transition-all flex flex-col items-center gap-1 ${
-                        appSettings.themeBackground === bg.id 
-                          ? 'bg-blue-600/20 border-blue-500 text-blue-400' 
-                          : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-600'
-                      }`}
-                    >
-                      {bg.url ? (
-                        <div 
-                          className="h-8 w-full bg-contain bg-center bg-no-repeat" 
-                          style={{ backgroundImage: `url(${bg.url})` }}
-                        />
-                      ) : (
-                        <div className="h-8 flex items-center justify-center text-[7px] font-black opacity-40">БЕЗ ФОНУ</div>
-                      )}
-                      <span className="text-[7px] font-black uppercase">{bg.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <ColorPicker label="Колір фону" value={appSettings.backgroundColor} onChange={(c) => setAppSettings(prev => ({ ...prev, backgroundColor: c }))} />
+              <ColorPicker label="Колір назви" value={appSettings.titleColor} onChange={(c) => setAppSettings(prev => ({ ...prev, titleColor: c }))} />
+              <ColorPicker label="Колір підзаголовка" value={appSettings.subtitleColor} onChange={(c) => setAppSettings(prev => ({ ...prev, subtitleColor: c }))} />
+              <ColorPicker label="Колір логотипу" value={appSettings.logoColor} onChange={(c) => setAppSettings(prev => ({ ...prev, logoColor: c }))} />
             </div>
             <div className="p-3 border-t border-slate-800 bg-slate-900/50 flex gap-2 shrink-0">
               <button 
@@ -1783,7 +1759,7 @@ export default function App() {
               </button>
               <button 
                 onClick={() => {
-                  handleSaveSettings(appSettings.name, appSettings.subtitle, appSettings.themeBackground);
+                  handleSaveSettings(appSettings.name, appSettings.subtitle, appSettings.themeBackground, appSettings.backgroundColor, appSettings.titleColor, appSettings.subtitleColor, appSettings.logoColor);
                   setIsEditingSettings(false);
                 }}
                 className="flex-1 py-2 rounded-lg text-[8px] font-black uppercase tracking-widest bg-blue-600 text-white hover:bg-blue-500 transition-all"
