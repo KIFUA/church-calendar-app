@@ -1637,12 +1637,12 @@ export default function App() {
                           
                           {/* Col 1: Location & Time */}
                           <div className="col-span-1 flex flex-col gap-0 border rounded-lg md:rounded-xl px-1 md:px-2 py-0.5 md:py-1 min-w-0" style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
-                            <div className="flex items-center gap-0 md:gap-1 text-blue-600 font-normal text-[4px] md:text-[9px] lg:text-[10px] uppercase tracking-tight">
-                              <MapPin size={5} className="shrink-0 md:w-2 md:h-2 lg:w-2.5 lg:h-2.5" />
-                              <span className="break-words min-w-0 flex-1">{ev.place || '—'}</span>
+                            <div className="flex items-center gap-0 md:gap-1 text-blue-600 font-normal text-[4px] md:text-[9px] lg:text-[8px] uppercase tracking-tight">
+                              <MapPin size={5} className="shrink-0 md:w-2 md:h-2 lg:w-2 lg:h-2" />
+                              <span className="whitespace-nowrap min-w-0 flex-1">{ev.place || '—'}</span>
                             </div>
-                            <div className="flex items-center gap-0 md:gap-1 text-slate-600 font-bold text-[4px] md:text-[9px] lg:text-[10px]">
-                              <Clock size={5} className="text-blue-500 shrink-0 md:w-2 md:h-2 lg:w-2.5 lg:h-2.5" />
+                            <div className="flex items-center gap-0 md:gap-1 text-slate-600 font-bold text-[4px] md:text-[9px] lg:text-[8px]">
+                              <Clock size={5} className="text-blue-500 shrink-0 md:w-2 md:h-2 lg:w-2 lg:h-2" />
                               <span className="whitespace-nowrap">{ev.startTime}{ev.endTime ? `-${ev.endTime}` : ''}</span>
                             </div>
                           </div>
