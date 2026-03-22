@@ -43,6 +43,7 @@ import {
   Settings,
   Minus
 } from 'lucide-react';
+import { PreacherAssignment } from './components/PreacherAssignment';
 
 // Firebase configuration from environment variables
 const firebaseConfig = {
@@ -504,6 +505,7 @@ export default function App() {
   const [dayViewPivotDate, setDayViewPivotDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month' | 'year'>('month');
   const [selectedDayForEvent, setSelectedDayForEvent] = useState(null);
+  const [showPreacherTable, setShowPreacherTable] = useState(false);
   
   const updateThemeFontSize = async (delta: number) => {
     const newSize = Math.max(8, Math.min(48, (appSettings.themeFontSize || 16) + delta));
@@ -875,6 +877,11 @@ export default function App() {
         current.setDate(current.getDate() + 1);
       }
     }
+    
+    if (showPreacherTable) {
+      return days.filter(d => [3, 5, 0].includes(d.weekdayIndex));
+    }
+    
     return days;
   })();
 
@@ -1040,9 +1047,17 @@ export default function App() {
             </button>
             {isAdminAuthenticated && isSubMenuOpen && (
               <div className="flex flex-col gap-1 mt-1 bg-slate-800 p-1 rounded-lg border border-slate-700">
-                <button onClick={() => { setActiveTab('lists'); setIsSubMenuOpen(true); }} className={`px-2 py-1 rounded text-[8px] font-bold uppercase ${activeTab === 'lists' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>Списки</button>
+                <button onClick={() => { setActiveTab('lists'); setShowPreacherTable(false); setIsSubMenuOpen(true); }} className={`px-2 py-1 rounded text-[8px] font-bold uppercase ${activeTab === 'lists' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>Списки</button>
                 <button onClick={() => { setIsEditingSettings(true); setIsSubMenuOpen(true); }} className="px-2 py-1 rounded text-[8px] font-bold uppercase text-slate-400 hover:text-white">Налаштування</button>
-                <button onClick={() => { setActiveTab('view'); window.scrollTo({ top: 0, behavior: 'smooth' }); setIsSubMenuOpen(false); }} className={`px-2 py-1 rounded text-[8px] font-bold uppercase ${activeTab === 'view' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>Графік</button>
+                <button onClick={() => { setActiveTab('view'); setShowPreacherTable(false); window.scrollTo({ top: 0, behavior: 'smooth' }); setIsSubMenuOpen(false); }} className={`px-2 py-1 rounded text-[8px] font-bold uppercase ${activeTab === 'view' && !showPreacherTable ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>Графік</button>
+                <button onClick={() => { 
+                  setActiveTab('view'); 
+                  setViewMode('month'); 
+                  setShowPreacherTable(true);
+                  const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+                  setSelectedDate(nextMonth);
+                  setIsSubMenuOpen(false); 
+                }} className="px-2 py-1 rounded text-[8px] font-bold uppercase text-blue-400 hover:text-white border border-blue-900/50 bg-blue-900/20">Призначення проповідників</button>
               </div>
             )}
           </div>
@@ -1089,12 +1104,25 @@ export default function App() {
         {/* Dynamic Navigation Row */}
         {activeTab !== 'lists' && (
           <div className="w-full flex flex-col items-center gap-2">
-            <div className="flex items-center justify-center gap-1 bg-slate-800 p-0.5 rounded-lg border border-slate-700">
+            {activeTab === 'preachers' ? (
+              <div className="w-full py-2 flex items-center justify-center">
+                <span 
+                  className="text-xl font-black uppercase tracking-widest"
+                  style={{ 
+                    color: parseInt(appSettings.backgroundColor.replace('#', ''), 16) > 0xffffff / 2 ? '#000000' : '#ffffff' 
+                  }}
+                >
+                  ПРИЗНАЧЕННЯ ПРОПОВІДНИКІВ
+                </span>
+              </div>
+            ) : (
+                <div className="flex items-center justify-center gap-1 bg-slate-800 p-0.5 rounded-lg border border-slate-700">
               <button onClick={() => setViewMode('day')} className={`px-2 py-1 rounded-md text-[8px] font-bold uppercase tracking-wider transition-all ${viewMode === 'day' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>День</button>
               <button onClick={() => setViewMode('week')} className={`px-2 py-1 rounded-md text-[8px] font-bold uppercase tracking-wider transition-all ${viewMode === 'week' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>Тиждень</button>
               <button onClick={() => setViewMode('month')} className={`px-2 py-1 rounded-md text-[8px] font-bold uppercase tracking-wider transition-all ${viewMode === 'month' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>Місяць</button>
               <button onClick={() => setViewMode('year')} className={`px-2 py-1 rounded-md text-[8px] font-bold uppercase tracking-wider transition-all ${viewMode === 'year' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>Рік</button>
             </div>
+          )}
           {viewMode === 'day' && (
             <div className="flex items-center justify-between w-full max-w-[500px] mx-auto px-2">
               <button 
@@ -1209,7 +1237,7 @@ export default function App() {
             </div>
           )}
 
-          {viewMode === 'month' && (
+          {false && viewMode === 'month' && (
             <div className="flex items-center justify-center gap-2 w-full">
               <div className="flex items-center bg-slate-800/50 px-4 py-1.5 rounded-xl border border-slate-700/50 backdrop-blur-sm gap-4">
                 <button 
@@ -1431,10 +1459,11 @@ export default function App() {
         )}
 
         {(activeTab === 'view' || activeTab === 'admin') && (
-          <div className="flex flex-col gap-4">
+          <div className={showPreacherTable ? "flex flex-row gap-4 p-4 items-start" : "flex flex-col gap-4"}>
+            <div className={showPreacherTable ? "w-1/3 shrink-0 flex flex-col gap-4" : "flex flex-col gap-4 w-full"}>
             {/* Theme of the Month Display */}
             {viewMode !== 'year' && (currentTheme || activeTab === 'admin') && (
-              <div className={`w-full ${viewMode === 'day' || viewMode === 'week' ? 'max-w-full md:max-w-[500px]' : 'max-w-7xl'} mx-auto px-4 py-1 relative group flex flex-col items-center`}>
+              <div className={`w-full ${viewMode === 'day' || viewMode === 'week' ? (showPreacherTable ? 'max-w-full' : 'max-w-full md:max-w-[500px]') : 'max-w-7xl'} ${showPreacherTable ? '' : 'mx-auto'} px-4 py-1 relative group flex flex-col items-center`}>
                 {appSettings.themeBackground && appSettings.themeBackground !== 'none' ? (
                   <div 
                     className="relative w-full flex items-center justify-center overflow-hidden shadow-xl"
@@ -1532,9 +1561,9 @@ export default function App() {
               </div>
             )}
           <div className={`
-            ${viewMode === 'month' ? 'grid grid-cols-1 lg:grid-cols-2 gap-3 print:grid-cols-1 print:gap-0' : ''}
+            ${viewMode === 'month' ? (showPreacherTable ? 'flex flex-col gap-3' : 'grid grid-cols-1 lg:grid-cols-2 gap-3 print:grid-cols-1 print:gap-0') : ''}
             ${viewMode === 'week' ? 'grid grid-cols-1 lg:grid-cols-2 gap-3 w-full max-w-full lg:max-w-[1000px] mx-auto' : ''}
-            ${viewMode === 'day' ? 'flex flex-col gap-3 w-full max-w-full md:max-w-[500px] mx-auto' : ''}
+            ${viewMode === 'day' ? `flex flex-col gap-3 w-full max-w-full ${showPreacherTable ? '' : 'md:max-w-[500px] mx-auto'}` : ''}
             ${viewMode === 'year' ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 print:grid-cols-1 print:gap-0' : ''}
           `}>
             {viewMode === 'year' ? (
@@ -1626,21 +1655,21 @@ export default function App() {
                     setDayViewPivotDate(new Date(d.dateKey));
                     setViewMode('day');
                   }}
-                  className={`relative flex flex-row overflow-hidden border-l-[12px] shadow-md transition-all cursor-pointer min-h-[110px] rounded-3xl w-full ${viewMode === 'month' || viewMode === 'week' ? 'max-w-[500px] mx-auto' : 'max-w-full'} ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
+                  className={`relative flex flex-row overflow-hidden ${showPreacherTable ? 'border-l-[6px]' : 'border-l-[12px]'} shadow-md transition-all cursor-pointer ${showPreacherTable ? 'min-h-[60px]' : 'min-h-[110px]'} ${showPreacherTable ? 'rounded-xl' : 'rounded-3xl'} w-full ${(viewMode === 'month' || viewMode === 'week') && !showPreacherTable ? 'max-w-[500px] mx-auto' : 'max-w-full'} ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
                   style={{ 
                     borderLeftColor: (d.isOtherMonth && activeTab === 'view') ? '#f1f5f9' : BORDER_COLORS[d.weekdayIndex],
                     backgroundColor: (d.isOtherMonth && activeTab === 'view') ? '#f8fafc' : WEEKDAY_COLORS[d.weekdayIndex]
                   }}
                 >
                   {/* Left Column: Date & Day */}
-                  <div className={`${viewMode === 'month' ? 'w-8 md:w-10' : 'w-10 md:w-12'} shrink-0 flex flex-col items-center justify-center border-r border-slate-100/50 bg-white/50 gap-0.5 md:gap-1 py-1 md:py-2`}>
-                    <span className={`text-[16px] md:text-[20px] font-bold uppercase leading-none ${d.isToday ? 'text-blue-600' : 'text-slate-900'}`}>
+                  <div className={`${showPreacherTable ? 'w-6' : (viewMode === 'month' ? 'w-8 md:w-10' : 'w-10 md:w-12')} shrink-0 flex flex-col items-center justify-center border-r border-slate-100/50 bg-white/50 gap-0.5 md:gap-1 py-1 md:py-2`}>
+                    <span className={`${showPreacherTable ? 'text-[10px]' : 'text-[16px] md:text-[20px]'} font-bold uppercase leading-none ${d.isToday ? 'text-blue-600' : 'text-slate-900'}`}>
                       {String(d.day).padStart(2, '0')}
                     </span>
-                    <span className="text-[7px] md:text-[9px] font-bold text-slate-500 uppercase leading-none tracking-tighter">
+                    <span className={`${showPreacherTable ? 'text-[5px]' : 'text-[7px] md:text-[9px]'} font-bold text-slate-500 uppercase leading-none tracking-tighter`}>
                       {d.monthName}
                     </span>
-                    <span className="text-[7px] md:text-[9px] font-bold text-slate-500 uppercase leading-none tracking-tighter">
+                    <span className={`${showPreacherTable ? 'text-[5px]' : 'text-[7px] md:text-[9px]'} font-bold text-slate-500 uppercase leading-none tracking-tighter`}>
                       {SHORT_WEEKDAYS[d.weekdayIndex]}
                     </span>
                   </div>
@@ -1655,39 +1684,39 @@ export default function App() {
                   )}
 
                   {/* Right Column: Events */}
-                  <div className="flex-grow p-3 space-y-1 min-h-[40px] min-w-0">
+                  <div className={`flex-grow ${showPreacherTable ? 'p-1 space-y-0.5' : 'p-3 space-y-1'} min-h-[40px] min-w-0`}>
                     {dayEvents.length > 0 ? dayEvents.map((ev, i) => {
                       const isCleaning = ev.title?.toUpperCase().replace(/\s+/g, '').includes('ПРИБИРАННЯ');
                       const leadsCount = ev.leads?.filter(l => l).length || 0;
                       
                       return (
-                        <div key={i} className={`grid grid-cols-4 items-stretch gap-0.5 md:gap-2 py-1 md:py-2 pl-1 md:pl-2 pr-0.5 md:pr-1 rounded-xl md:rounded-2xl border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}>
+                        <div key={i} className={`grid grid-cols-4 items-stretch ${showPreacherTable ? 'gap-0.5' : 'gap-0.5 md:gap-2'} ${showPreacherTable ? 'py-0.5 px-1' : 'py-1 md:py-2 pl-1 md:pl-2 pr-0.5 md:pr-1'} ${showPreacherTable ? 'rounded-lg' : 'rounded-xl md:rounded-2xl'} border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}>
                           {/* Accent line */}
-                          <div className="absolute left-0 top-0 bottom-0 w-[2px] md:w-[3px] opacity-80 group-hover/event:opacity-100 transition-opacity rounded-l-xl md:rounded-l-2xl" style={{ backgroundColor: ev.textColor }} />
+                          <div className={`absolute left-0 top-0 bottom-0 ${showPreacherTable ? 'w-[1.5px]' : 'w-[2px] md:w-[3px]'} opacity-80 group-hover/event:opacity-100 transition-opacity ${showPreacherTable ? 'rounded-l-lg' : 'rounded-l-xl md:rounded-l-2xl'}`} style={{ backgroundColor: ev.textColor }} />
                           
                           {/* Col 1: Location & Time */}
-                          <div className="col-span-1 flex flex-col gap-0 border rounded-lg md:rounded-xl px-1 md:px-2 py-0.5 md:py-1 min-w-0" style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
-                            <div className="flex items-center gap-0 md:gap-1 text-blue-600 font-normal text-[4px] md:text-[9px] lg:text-[8px] uppercase tracking-tight">
-                              <MapPin size={5} className="shrink-0 md:w-2 md:h-2 lg:w-2 lg:h-2" />
+                          <div className={`col-span-1 flex flex-col gap-0 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl'} ${showPreacherTable ? 'px-0.5 py-0' : 'px-1 md:px-2 py-0.5 md:py-1'} min-w-0`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                            <div className={`flex items-center gap-0 md:gap-1 text-blue-600 font-normal ${showPreacherTable ? 'text-[5px]' : 'text-[4px] md:text-[9px] lg:text-[8px]'} uppercase tracking-tight`}>
+                              <MapPin size={showPreacherTable ? 4 : 5} className="shrink-0 md:w-2 md:h-2 lg:w-2 lg:h-2" />
                               <span className="whitespace-nowrap min-w-0 flex-1">{ev.place || '—'}</span>
                             </div>
-                            <div className="flex items-center gap-0 md:gap-1 text-slate-600 font-bold text-[4px] md:text-[9px] lg:text-[8px]">
-                              <Clock size={5} className="text-blue-500 shrink-0 md:w-2 md:h-2 lg:w-2 lg:h-2" />
+                            <div className={`flex items-center gap-0 md:gap-1 text-slate-600 font-bold ${showPreacherTable ? 'text-[5px]' : 'text-[4px] md:text-[9px] lg:text-[8px]'}`}>
+                              <Clock size={showPreacherTable ? 4 : 5} className="text-blue-500 shrink-0 md:w-2 md:h-2 lg:w-2 lg:h-2" />
                               <span className="whitespace-nowrap">{ev.startTime}{ev.endTime ? `-${ev.endTime}` : ''}</span>
                             </div>
                           </div>
 
                           {/* Col 2: Event & Music */}
-                          <div className={`${isCleaning ? 'col-span-3' : 'col-span-2'} flex flex-col gap-0.5 md:gap-1 border rounded-lg md:rounded-xl px-1.5 md:px-2 py-1 md:py-1.5 min-w-0 ${ev.align === 'center' ? 'text-center items-center' : ev.align === 'right' ? 'text-right items-end' : 'text-left items-start'}`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                          <div className={`${isCleaning ? 'col-span-3' : 'col-span-2'} flex flex-col gap-0.5 md:gap-1 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl'} ${showPreacherTable ? 'px-1 py-0.5' : 'px-1.5 md:px-2 py-1 md:py-1.5'} min-w-0 ${ev.align === 'center' ? 'text-center items-center' : ev.align === 'right' ? 'text-right items-end' : 'text-left items-start'}`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                             <div 
-                              className={`text-[8px] md:text-[11px] xl:text-[13px] leading-tight tracking-tight group-hover/event:scale-[1.01] transition-transform w-full whitespace-pre-wrap break-words min-w-0 ${ev.isBold !== false ? 'font-black' : 'font-medium'} ${ev.isItalic === true ? 'italic' : ''} ${ev.isUnderline === true ? 'underline' : ''} ${ev.isUppercase !== false ? 'uppercase' : ''}`}
+                              className={`${showPreacherTable ? 'text-[7px]' : 'text-[8px] md:text-[11px] xl:text-[13px]'} leading-tight tracking-tight group-hover/event:scale-[1.01] transition-transform w-full whitespace-pre-wrap break-words min-w-0 ${ev.isBold !== false ? 'font-black' : 'font-medium'} ${ev.isItalic === true ? 'italic' : ''} ${ev.isUnderline === true ? 'underline' : ''} ${ev.isUppercase !== false ? 'uppercase' : ''}`}
                               style={{ color: ev.textColor }}
                             >
                               {ev.title || ''}
                             </div>
                             {ev.music && (
-                              <div className="text-slate-500 italic text-[6px] md:text-[9px] lg:text-[10px] leading-tight font-semibold flex items-center gap-0.5 md:gap-1 bg-blue-50/30 px-1 md:px-1.5 py-0.5 rounded-md md:rounded-lg w-fit max-w-full">
-                                <Music size={6} className="shrink-0 text-blue-400 md:w-2 md:h-2 lg:w-2.5 lg:h-2.5" />
+                              <div className={`${showPreacherTable ? 'text-[5px]' : 'text-slate-500 italic text-[6px] md:text-[9px] lg:text-[10px]'} leading-tight font-semibold flex items-center gap-0.5 md:gap-1 bg-blue-50/30 px-1 md:px-1.5 py-0.5 rounded-md md:rounded-lg w-fit max-w-full`}>
+                                <Music size={showPreacherTable ? 4 : 6} className={`shrink-0 ${showPreacherTable ? '' : 'text-blue-400 md:w-2 md:h-2 lg:w-2.5 lg:h-2.5'}`} />
                                 <span className="break-words min-w-0 flex-1">{ev.music}</span>
                               </div>
                             )}
@@ -1695,9 +1724,9 @@ export default function App() {
 
                           {/* Col 3: Ministers - Tight List */}
                           {!isCleaning && (
-                            <div className="col-span-1 flex flex-col gap-0.5 border rounded-lg md:rounded-xl px-1 md:px-2 py-0.5 md:py-1 min-w-0" style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                            <div className={`col-span-1 flex flex-col gap-0.5 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl'} ${showPreacherTable ? 'px-0.5 py-0' : 'px-1 md:px-2 py-0.5 md:py-1'} min-w-0`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                               {ev.leads?.filter(l => l).map((lead, lIdx) => (
-                                <div key={lIdx} className="text-[#003366] font-medium text-[4px] md:text-[9px] lg:text-[10px] leading-none flex items-start gap-1 md:gap-1.5 py-0.5 break-words min-w-0">
+                                <div key={lIdx} className={`text-[#003366] font-medium ${showPreacherTable ? 'text-[5px]' : 'text-[4px] md:text-[9px] lg:text-[10px]'} leading-none flex items-start gap-1 md:gap-1.5 py-0.5 break-words min-w-0`}>
                                   <span className="break-words min-w-0 flex-1">{lead}</span>
                                 </div>
                               ))}
@@ -1713,6 +1742,12 @@ export default function App() {
               );
             })}
           </div>
+          </div>
+          {showPreacherTable && (
+            <div className="w-2/3">
+              <PreacherAssignment staffGroups={staffGroups} events={events} db={db} appId={appId} doc={doc} setDoc={setDoc} backgroundColor={appSettings.backgroundColor} />
+            </div>
+          )}
           </div>
         )}
         </main>
@@ -2088,8 +2123,6 @@ export default function App() {
           </div>
         </div>
       )}
-
-
     </div>
   );
 }
