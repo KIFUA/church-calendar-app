@@ -65,6 +65,11 @@ export const DayView = ({ events, date, onDateChange, backgroundColor, applyFilt
                   <span>{ev.music}</span>
                 </div>
               )}
+              {dayData?.leads && (
+                <div className="text-blue-200 text-[10px] mt-2 pt-2 border-t border-slate-700">
+                  {dayData.leads.map((lead: string, i: number) => <div key={i}>● {lead}</div>)}
+                </div>
+              )}
             </div>
           );
         }) : (

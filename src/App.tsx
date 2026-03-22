@@ -177,7 +177,7 @@ const darkenHex = (hex: string, percent: number) => {
   return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 };
 
-const CustomSelect = ({ value, options = [], onChange, placeholder, groups = null, onEditGroup = null, className = "w-full", title }: {
+const CustomSelect = ({ value, options = [], onChange, placeholder, groups = null, onEditGroup = null, className = "w-full", title, disabled = false, onAssignPreachers = null }: {
   value: any;
   options?: string[];
   onChange: (val: any) => void;
@@ -186,6 +186,8 @@ const CustomSelect = ({ value, options = [], onChange, placeholder, groups = nul
   onEditGroup?: ((group: any) => void) | null;
   className?: string;
   title?: string;
+  disabled?: boolean;
+  onAssignPreachers?: (() => void) | null;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeGroupIndex, setActiveGroupIndex] = useState(0);
@@ -240,7 +242,12 @@ const CustomSelect = ({ value, options = [], onChange, placeholder, groups = nul
       >
         <div className="px-3 py-1.5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
            <span className="text-[9px] font-black uppercase text-slate-400 tracking-widest">{title || "Виберіть значення"}</span>
-           <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-slate-200 rounded-full transition-colors"><X size={14} className="text-slate-400"/></button>
+           <div className="flex items-center gap-1">
+             {onAssignPreachers && title === "СЛУЖІННЯ" && (
+               <button onClick={() => { onAssignPreachers(); setIsOpen(false); }} className="px-2 py-0.5 bg-blue-600 text-white text-[9px] font-black uppercase rounded hover:bg-blue-700 transition-colors">ПРИЗНАЧЕННЯ ПРОПОВІДНИКІВ</button>
+             )}
+             <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-slate-200 rounded-full transition-colors"><X size={14} className="text-slate-400"/></button>
+           </div>
         </div>
 
         {/* Manual Input / Search */}
@@ -400,22 +407,23 @@ const CustomSelect = ({ value, options = [], onChange, placeholder, groups = nul
       <button 
         type="button"
         ref={triggerRef}
-        onClick={() => setIsOpen(true)}
-        className="w-full bg-white text-[9px] px-2 py-0 border border-slate-200 font-bold text-slate-900 flex justify-between items-center cursor-pointer hover:border-blue-400 h-6 shadow-sm rounded transition-colors text-left"
+        onClick={() => !disabled && setIsOpen(true)}
+        className={`w-full bg-white text-[9px] px-2 py-0 border border-slate-200 font-bold text-slate-900 flex justify-between items-center cursor-pointer hover:border-blue-400 h-6 shadow-sm rounded transition-colors text-left ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         <span className="truncate">{value || placeholder}</span>
-        <ChevronDown size={10} className="text-slate-400 shrink-0 ml-1" />
+        {!disabled && <ChevronDown size={10} className="text-slate-400 shrink-0 ml-1" />}
       </button>
       {isOpen && createPortal(content, document.body)}
     </div>
   );
 };
 
-const TimeInput = ({ value, onChange, label }) => {
+const TimeInput = ({ value, onChange, label, disabled = false }) => {
   const [hh, mm] = (value || "").split(':');
   const mmRef = useRef(null);
 
   const handleHHChange = (e) => {
+    if (disabled) return;
     let val = e.target.value.replace(/\D/g, '').slice(0, 2);
     if (parseInt(val) > 23) val = "23";
     onChange(`${val}:${mm || "00"}`);
@@ -423,6 +431,7 @@ const TimeInput = ({ value, onChange, label }) => {
   };
 
   const handleMMChange = (e) => {
+    if (disabled) return;
     let val = e.target.value.replace(/\D/g, '').slice(0, 2);
     if (parseInt(val) > 59) val = "59";
     onChange(`${hh || "00"}:${val}`);
@@ -438,10 +447,10 @@ const TimeInput = ({ value, onChange, label }) => {
   return (
     <div className="flex flex-col">
       <label className="text-[7px] font-black text-slate-500 uppercase block mb-0.5 leading-none">{label}</label>
-      <div className="flex items-center bg-white border border-slate-200 px-1 h-6 shadow-sm">
-        <input type="text" value={hh || ""} onChange={handleHHChange} onKeyDown={handleKeyDown} placeholder="00" onFocus={(e) => e.target.select()} className="w-4 bg-transparent text-slate-900 text-[10px] text-center outline-none font-bold p-0" />
+      <div className={`flex items-center bg-white border border-slate-200 px-1 h-6 shadow-sm ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
+        <input type="text" disabled={disabled} value={hh || ""} onChange={handleHHChange} onKeyDown={handleKeyDown} placeholder="00" onFocus={(e) => e.target.select()} className="w-4 bg-transparent text-slate-900 text-[10px] text-center outline-none font-bold p-0" />
         <span className="text-slate-400 text-[10px] font-bold">:</span>
-        <input ref={mmRef} type="text" value={mm || ""} onChange={handleMMChange} onKeyDown={handleKeyDown} placeholder="00" onFocus={(e) => e.target.select()} className="w-4 bg-transparent text-slate-900 text-[10px] text-center outline-none font-bold p-0" />
+        <input ref={mmRef} type="text" disabled={disabled} value={mm || ""} onChange={handleMMChange} onKeyDown={handleKeyDown} placeholder="00" onFocus={(e) => e.target.select()} className="w-4 bg-transparent text-slate-900 text-[10px] text-center outline-none font-bold p-0" />
       </div>
     </div>
   );
@@ -505,6 +514,8 @@ export default function App() {
   const [dayViewPivotDate, setDayViewPivotDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month' | 'year'>('month');
   const [selectedDayForEvent, setSelectedDayForEvent] = useState(null);
+  const [isAssignmentModalOpen, setIsAssignmentModalOpen] = useState(false);
+  const [pendingAssignmentCallback, setPendingAssignmentCallback] = useState<((val: string) => void) | null>(null);
   const [showPreacherTable, setShowPreacherTable] = useState(false);
   
   const updateThemeFontSize = async (delta: number) => {
@@ -916,7 +927,7 @@ export default function App() {
   };
 
   const floatingDate = getFloatingDate();
-  const isEditingTarget = activeTab === 'admin' && selectedDayForEvent;
+  const isEditingTarget = !!selectedDayForEvent;
   const currentMonthKey = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}`;
   const currentTheme = monthlyThemes[currentMonthKey] || "";
 
@@ -1459,8 +1470,8 @@ export default function App() {
         )}
 
         {(activeTab === 'view' || activeTab === 'admin') && (
-          <div className={showPreacherTable ? "flex flex-row gap-4 p-4 items-start" : "flex flex-col gap-4"}>
-            <div className={showPreacherTable ? "w-1/3 shrink-0 flex flex-col gap-4" : "flex flex-col gap-4 w-full"}>
+          <div className={showPreacherTable ? "flex flex-row gap-4 p-4 items-start h-[calc(100vh-120px)] overflow-hidden" : "flex flex-col gap-4"}>
+            <div className={showPreacherTable ? "w-1/3 shrink-0 flex flex-col gap-4 h-full overflow-y-auto pr-2 custom-scrollbar" : "flex flex-col gap-4 w-full"}>
             {/* Theme of the Month Display */}
             {viewMode !== 'year' && (currentTheme || activeTab === 'admin') && (
               <div className={`w-full ${viewMode === 'day' || viewMode === 'week' ? (showPreacherTable ? 'max-w-full' : 'max-w-full md:max-w-[500px]') : 'max-w-7xl'} ${showPreacherTable ? '' : 'mx-auto'} px-4 py-1 relative group flex flex-col items-center`}>
@@ -1651,9 +1662,9 @@ export default function App() {
                     if (viewMode === 'day') setDayViewPivotDate(new Date(d.dateKey));
                   }}
                   onDoubleClick={() => {
-                    setSelectedDate(new Date(d.dateKey));
-                    setDayViewPivotDate(new Date(d.dateKey));
-                    setViewMode('day');
+                    const dateObj = new Date(d.dateKey);
+                    setSelectedDate(dateObj);
+                    setSelectedDayForEvent(d.dateKey);
                   }}
                   className={`relative flex flex-row overflow-hidden ${showPreacherTable ? 'border-l-[6px]' : 'border-l-[12px]'} shadow-md transition-all cursor-pointer ${showPreacherTable ? 'min-h-[60px]' : 'min-h-[110px]'} ${showPreacherTable ? 'rounded-xl' : 'rounded-3xl'} w-full ${(viewMode === 'month' || viewMode === 'week') && !showPreacherTable ? 'max-w-[500px] mx-auto' : 'max-w-full'} ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
                   style={{ 
@@ -1745,7 +1756,17 @@ export default function App() {
           </div>
           {showPreacherTable && (
             <div className="w-2/3">
-              <PreacherAssignment staffGroups={staffGroups} events={events} db={db} appId={appId} doc={doc} setDoc={setDoc} backgroundColor={appSettings.backgroundColor} />
+              <PreacherAssignment 
+                staffGroups={staffGroups} 
+                events={events} 
+                db={db} 
+                appId={appId} 
+                doc={doc} 
+                setDoc={setDoc} 
+                backgroundColor={appSettings.backgroundColor} 
+                isWaitingForTableSelection={false}
+                selectedCalendarCell={null}
+              />
             </div>
           )}
           </div>
@@ -1867,12 +1888,14 @@ export default function App() {
                   <>
                     {dayData.events.map((ev, i) => {
                       const isEditing = editingEventIndex === i;
+                      const isMainEvent = eventGroups.find(g => g.items.includes(ev.title))?.label.includes('ОСНОВНІ ТА СВЯТА');
+                      const isAssignmentDisabled = isAssignmentModalOpen && !isMainEvent;
                       
                       if (!isEditing) {
                         return (
                           <div key={i} className="relative group">
                             <div 
-                              className="flex flex-col overflow-hidden border-[2px] shadow-md rounded-xl bg-white/90 p-2 space-y-1"
+                              className={`flex flex-col overflow-hidden border-[2px] shadow-md rounded-xl bg-white/90 p-2 space-y-1 ${isAssignmentDisabled ? 'opacity-50' : ''}`}
                               style={{ borderColor: ev.textColor || '#cbd5e1' }}
                             >
                               {/* Row 1: Place + Time */}
@@ -1890,7 +1913,8 @@ export default function App() {
                                 <div className="flex gap-1 ml-auto">
                                     <button 
                                       onClick={() => setEditingEventIndex(i)}
-                                      className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                      className={`p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors ${isAssignmentDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                      disabled={isAssignmentDisabled}
                                     >
                                       <Pencil size={12}/>
                                     </button>
@@ -1900,7 +1924,8 @@ export default function App() {
                                         setEvents(prev => prev.map(d => d.id === selectedDayForEvent ? { ...d, events: updated } : d));
                                         commitToDB(selectedDayForEvent, updated, false);
                                       }}
-                                      className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
+                                      className={`p-1 text-red-600 hover:bg-red-50 rounded transition-colors ${isAssignmentDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                      disabled={isAssignmentDisabled}
                                     >
                                       <Trash2 size={12}/>
                                     </button>
@@ -1991,18 +2016,19 @@ export default function App() {
                                   onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'title', v)} 
                                   placeholder="..." 
                                   className="w-full"
+                                  disabled={activeTab !== 'admin' || isAssignmentModalOpen}
                                 />
                              </div>
                              <div className="space-y-0.5">
                                 <label className="text-[8px] font-black text-white uppercase ml-0.5">Місце</label>
-                                <CustomSelect title="МІСЦЕ" value={ev.place} options={locations} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'place', v)} placeholder="..." className="w-full" />
+                                <CustomSelect title="МІСЦЕ" value={ev.place} options={locations} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'place', v)} placeholder="..." className="w-full" disabled={activeTab !== 'admin' || isAssignmentModalOpen} />
                              </div>
                              <div className="space-y-0.5">
                                 <label className="text-[8px] font-black text-white uppercase ml-0.5">Час</label>
                                 <div className="flex gap-2 w-full">
-                                  <div className="text-white flex-1"><TimeInput label="" value={ev.startTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'startTime', v)} /></div>
+                                  <div className="text-white flex-1"><TimeInput label="" value={ev.startTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'startTime', v)} disabled={activeTab !== 'admin' || isAssignmentModalOpen} /></div>
                                   <span className="text-white/50 font-bold self-center">-</span>
-                                  <div className="text-white flex-1"><TimeInput label="" value={ev.endTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'endTime', v)} /></div>
+                                  <div className="text-white flex-1"><TimeInput label="" value={ev.endTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'endTime', v)} disabled={activeTab !== 'admin' || isAssignmentModalOpen} /></div>
                                 </div>
                              </div>
                           </div>
@@ -2014,7 +2040,14 @@ export default function App() {
                                  <div className="flex flex-col gap-2">
                                    {ev.leads?.map((l, lIdx) => (
                                      <div key={lIdx} className="flex gap-1 items-center w-full">
-                                        <CustomSelect title="СЛУЖІННЯ" value={l} groups={staffGroups.filter(g => g.label !== "Хто співає / грає")} onEditGroup={(g) => setEditingGroup({...g, type: 'staff'})} onChange={(v) => { const nL = [...ev.leads]; nL[lIdx] = v; updateLocalDetails(selectedDayForEvent, i, 'leads', nL); }} placeholder="Хто..." className="w-full" />
+                                        <CustomSelect title="СЛУЖІННЯ" value={l} groups={staffGroups.filter(g => g.label !== "Хто співає / грає")} onEditGroup={(g) => setEditingGroup({...g, type: 'staff'})} onChange={(v) => { const nL = [...ev.leads]; nL[lIdx] = v; updateLocalDetails(selectedDayForEvent, i, 'leads', nL); }} placeholder="Хто..." className="w-full" onAssignPreachers={() => {
+                                          setPendingAssignmentCallback(() => (val: string) => {
+                                            const nL = [...ev.leads];
+                                            nL[lIdx] = val;
+                                            updateLocalDetails(selectedDayForEvent, i, 'leads', nL);
+                                          });
+                                          setIsAssignmentModalOpen(true);
+                                        }} />
                                         {ev.leads.length > 1 && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'leads', ev.leads.filter((_, idx) => idx !== lIdx))} className="text-red-200 p-0.5 hover:text-white"><X size={14}/></button>}
                                      </div>
                                    ))}
@@ -2024,7 +2057,7 @@ export default function App() {
 
                               <div className="space-y-0.5">
                                  <label className="text-[8px] font-black text-white uppercase ml-0.5">Музика</label>
-                                 <CustomSelect title="МУЗИКА" value={ev.music} groups={musicGroups} onEditGroup={(g) => setEditingGroup({...g, type: 'music'})} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'music', v)} placeholder="..." className="w-full" />
+                                 <CustomSelect title="МУЗИКА" value={ev.music} groups={musicGroups} onEditGroup={(g) => setEditingGroup({...g, type: 'music'})} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'music', v)} placeholder="..." className="w-full" disabled={activeTab !== 'admin' || isAssignmentModalOpen} />
                               </div>
                             </>
                           )}
@@ -2120,6 +2153,34 @@ export default function App() {
                </div>
                <button onClick={() => setEditingGroup(null)} className="w-full bg-slate-700/50 text-slate-300 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-slate-700 transition-colors">Закрити</button>
             </div>
+          </div>
+        </div>
+      )}
+      {isAssignmentModalOpen && (
+        <div className="fixed inset-0 z-[3000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="bg-slate-900 p-6 rounded-2xl border border-slate-700 w-full max-w-4xl max-h-[90vh] overflow-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-white font-black uppercase text-sm">Призначення проповідників</h3>
+              <button onClick={() => setIsAssignmentModalOpen(false)} className="text-slate-400 hover:text-white">✕</button>
+            </div>
+            <PreacherAssignment 
+              staffGroups={staffGroups} 
+              events={events} 
+              db={db} 
+              appId={appId} 
+              doc={doc} 
+              setDoc={setDoc} 
+              backgroundColor={appSettings.backgroundColor} 
+              isWaitingForTableSelection={true}
+              selectedCalendarCell={{ dateKey: selectedDayForEvent }}
+              onAssignmentComplete={(data) => {
+                if (pendingAssignmentCallback && data?.assignment) {
+                  pendingAssignmentCallback(data.assignment);
+                  setPendingAssignmentCallback(null);
+                  setIsAssignmentModalOpen(false); // Close modal only after callback is executed
+                }
+              }}
+            />
           </div>
         </div>
       )}
