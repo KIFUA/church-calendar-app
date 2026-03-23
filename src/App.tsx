@@ -636,6 +636,7 @@ export default function App() {
   const [isEditingSettings, setIsEditingSettings] = useState(false);
   const [themeText, setThemeText] = useState("");
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState<'admin' | 'preacher_manager' | 'singer_manager' | null>(null);
   const [password, setPassword] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [dayViewPivotDate, setDayViewPivotDate] = useState(new Date());
@@ -1241,17 +1242,23 @@ export default function App() {
             </button>
             {isAdminAuthenticated && isSubMenuOpen && (
               <div className="flex flex-col gap-1 mt-1 bg-slate-800 p-1 rounded-lg border border-slate-700">
-                <button onClick={() => { setActiveTab('lists'); setShowPreacherTable(false); setIsSubMenuOpen(true); }} className={`px-2 py-1 rounded text-[8px] font-bold uppercase ${activeTab === 'lists' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>Списки</button>
-                <button onClick={() => { setIsEditingSettings(true); setIsSubMenuOpen(true); }} className="px-2 py-1 rounded text-[8px] font-bold uppercase text-slate-400 hover:text-white">Налаштування</button>
+                {userRole === 'admin' && (
+                  <>
+                    <button onClick={() => { setActiveTab('lists'); setShowPreacherTable(false); setIsSubMenuOpen(true); }} className={`px-2 py-1 rounded text-[8px] font-bold uppercase ${activeTab === 'lists' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>Списки</button>
+                    <button onClick={() => { setIsEditingSettings(true); setIsSubMenuOpen(true); }} className="px-2 py-1 rounded text-[8px] font-bold uppercase text-slate-400 hover:text-white">Налаштування</button>
+                  </>
+                )}
                 <button onClick={() => { setActiveTab('view'); setShowPreacherTable(false); window.scrollTo({ top: 0, behavior: 'smooth' }); setIsSubMenuOpen(false); }} className={`px-2 py-1 rounded text-[8px] font-bold uppercase ${activeTab === 'view' && !showPreacherTable ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}>Графік</button>
-                <button onClick={() => { 
-                  setActiveTab('view'); 
-                  setViewMode('month'); 
-                  setShowPreacherTable(true);
-                  const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-                  setSelectedDate(nextMonth);
-                  setIsSubMenuOpen(false); 
-                }} className="px-2 py-1 rounded text-[8px] font-bold uppercase text-blue-400 hover:text-white border border-blue-900/50 bg-blue-900/20">Призначення проповідників</button>
+                {(userRole === 'admin' || userRole === 'preacher_manager') && (
+                  <button onClick={() => { 
+                    setActiveTab('view'); 
+                    setViewMode('month'); 
+                    setShowPreacherTable(true);
+                    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+                    setSelectedDate(nextMonth);
+                    setIsSubMenuOpen(false); 
+                  }} className="px-2 py-1 rounded text-[8px] font-bold uppercase text-blue-400 hover:text-white border border-blue-900/50 bg-blue-900/20">Призначення проповідників</button>
+                )}
               </div>
             )}
           </div>
@@ -1268,22 +1275,64 @@ export default function App() {
                 className="w-14 md:w-24 bg-slate-900/50 border border-slate-700 rounded-md px-1 md:px-2 py-0.5 md:py-1 text-white text-[7px] md:text-[9px] font-bold outline-none focus:border-blue-500 transition-colors"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
-                    if (password === (initialAuthToken || '2026')) {
+                    const enteredPassword = password.trim();
+                    const adminPass = initialAuthToken || '2026';
+                    
+                    if (enteredPassword === adminPass) {
+                      console.log("Logged in as Admin (Default Password)");
                       setIsAdminAuthenticated(true);
+                      setUserRole('admin');
                       setPassword('');
                     } else {
-                      alert('Невірний пароль');
+                      const level = (appSettings.accessLevels || []).find((l: any) => (l.password || '').trim() === enteredPassword);
+                      if (level) {
+                        console.log("Logged in via Access Level:", level.level);
+                        setIsAdminAuthenticated(true);
+                        const levelName = (level.level || '').toLowerCase();
+                        if (levelName.includes('проповід')) {
+                          setUserRole('preacher_manager');
+                        } else if (levelName.includes('співа')) {
+                          setUserRole('singer_manager');
+                        } else {
+                          setUserRole('admin');
+                        }
+                        setPassword('');
+                      } else {
+                        console.log("Login failed: Invalid password");
+                        alert('Невірний пароль');
+                      }
                     }
                   }
                 }}
               />
               <button 
                 onClick={() => {
-                  if (password === (initialAuthToken || '2026')) {
+                  const enteredPassword = password.trim();
+                  const adminPass = initialAuthToken || '2026';
+                  
+                  if (enteredPassword === adminPass) {
+                    console.log("Logged in as Admin (Default Password)");
                     setIsAdminAuthenticated(true);
+                    setUserRole('admin');
                     setPassword('');
                   } else {
-                    alert('Невірний пароль');
+                    const level = (appSettings.accessLevels || []).find((l: any) => (l.password || '').trim() === enteredPassword);
+                    if (level) {
+                      console.log("Logged in via Access Level:", level.level);
+                      setIsAdminAuthenticated(true);
+                      const levelName = (level.level || '').toLowerCase();
+                      if (levelName.includes('проповід')) {
+                        setUserRole('preacher_manager');
+                      } else if (levelName.includes('співа')) {
+                        setUserRole('singer_manager');
+                      } else {
+                        setUserRole('admin');
+                      }
+                      setPassword('');
+                    } else {
+                      console.log("Login failed: Invalid password");
+                      alert('Невірний пароль');
+                    }
                   }
                 }}
                 className="bg-blue-600 text-white px-1.5 md:px-2 py-0.5 md:py-1 rounded-md text-[6px] md:text-[9px] font-black uppercase hover:bg-blue-500 transition-colors"
@@ -2129,7 +2178,8 @@ export default function App() {
                               });
                               setEditingEventIndex(null);
                             }} 
-                            className="absolute -top-2 -right-2 bg-red-500 text-white p-1.5 rounded-full shadow-md hover:scale-110 transition-transform z-10"
+                            disabled={userRole === 'singer_manager'}
+                            className={`absolute -top-2 -right-2 bg-red-500 text-white p-1.5 rounded-full shadow-md hover:scale-110 transition-transform z-10 ${userRole === 'singer_manager' ? 'opacity-0 pointer-events-none' : ''}`}
                           >
                             <Trash2 size={12}/>
                           </button>
@@ -2140,7 +2190,8 @@ export default function App() {
                                    <button 
                                      key={c} 
                                      onClick={() => updateLocalDetails(selectedDayForEvent, i, 'textColor', c)} 
-                                     className={`w-4 h-4 rounded-full transition-all ${ev.textColor?.toLowerCase() === c.toLowerCase() ? 'scale-125 ring-2 ring-offset-2 ring-blue-400' : 'hover:scale-110'}`} 
+                                     disabled={userRole === 'singer_manager'}
+                                     className={`w-4 h-4 rounded-full transition-all ${ev.textColor?.toLowerCase() === c.toLowerCase() ? 'scale-125 ring-2 ring-offset-2 ring-blue-400' : 'hover:scale-110'} ${userRole === 'singer_manager' ? 'opacity-50 cursor-not-allowed' : ''}`} 
                                      style={{ backgroundColor: c }} 
                                    />
                                  ))}
@@ -2155,7 +2206,8 @@ export default function App() {
                                      <button
                                        key={a.id}
                                        onClick={() => updateLocalDetails(selectedDayForEvent, i, 'align', a.id)}
-                                       className={`p-1 rounded transition-colors ${ev.align === a.id ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'}`}
+                                       disabled={userRole === 'singer_manager'}
+                                       className={`p-1 rounded transition-colors ${ev.align === a.id ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'} ${userRole === 'singer_manager' ? 'opacity-50 cursor-not-allowed' : ''}`}
                                      >
                                        <a.icon size={12} />
                                      </button>
@@ -2163,10 +2215,10 @@ export default function App() {
                                  </div>
                                  <div className="w-px h-4 bg-black/10 mx-1" />
                                  <div className="flex gap-1 bg-black/10 p-0.5 rounded-lg">
-                                   <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'isBold', ev.isBold === false ? true : false)} className={`p-1 rounded transition-colors ${ev.isBold !== false ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'}`}><Bold size={12} /></button>
-                                   <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'isItalic', ev.isItalic === true ? false : true)} className={`p-1 rounded transition-colors ${ev.isItalic === true ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'}`}><Italic size={12} /></button>
-                                   <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'isUnderline', ev.isUnderline === true ? false : true)} className={`p-1 rounded transition-colors ${ev.isUnderline === true ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'}`}><Underline size={12} /></button>
-                                   <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'isUppercase', ev.isUppercase === false ? true : false)} className={`p-1 rounded transition-colors ${ev.isUppercase !== false ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'}`}><Type size={12} /></button>
+                                   <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'isBold', ev.isBold === false ? true : false)} disabled={userRole === 'singer_manager'} className={`p-1 rounded transition-colors ${ev.isBold !== false ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'} ${userRole === 'singer_manager' ? 'opacity-50 cursor-not-allowed' : ''}`}><Bold size={12} /></button>
+                                   <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'isItalic', ev.isItalic === true ? false : true)} disabled={userRole === 'singer_manager'} className={`p-1 rounded transition-colors ${ev.isItalic === true ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'} ${userRole === 'singer_manager' ? 'opacity-50 cursor-not-allowed' : ''}`}><Italic size={12} /></button>
+                                   <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'isUnderline', ev.isUnderline === true ? false : true)} disabled={userRole === 'singer_manager'} className={`p-1 rounded transition-colors ${ev.isUnderline === true ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'} ${userRole === 'singer_manager' ? 'opacity-50 cursor-not-allowed' : ''}`}><Underline size={12} /></button>
+                                   <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'isUppercase', ev.isUppercase === false ? true : false)} disabled={userRole === 'singer_manager'} className={`p-1 rounded transition-colors ${ev.isUppercase !== false ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'} ${userRole === 'singer_manager' ? 'opacity-50 cursor-not-allowed' : ''}`}><Type size={12} /></button>
                                  </div>
                                </div>
                           </div>
@@ -2183,29 +2235,29 @@ export default function App() {
                                     onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'title', v)} 
                                     placeholder="..." 
                                     className="flex-1"
-                                    disabled={activeTab !== 'admin' || isAssignmentModalOpen}
+                                    disabled={isAdminAuthenticated && userRole === 'singer_manager' || activeTab !== 'admin' || isAssignmentModalOpen}
                                   />
-                                  {ev.title && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'title', "")} className="text-white/50 hover:text-white transition-colors"><X size={14}/></button>}
+                                  {ev.title && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'title', "")} disabled={userRole === 'singer_manager'} className={`text-white/50 hover:text-white transition-colors ${userRole === 'singer_manager' ? 'opacity-0 pointer-events-none' : ''}`}><X size={14}/></button>}
                                 </div>
                              </div>
                              <div className="space-y-0.5">
                                 <label className="text-[8px] font-black text-white uppercase ml-0.5">Місце</label>
                                 <div className="flex items-center gap-1">
-                                  <CustomSelect title="МІСЦЕ" value={ev.place} options={locations} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'place', v)} placeholder="..." className="flex-1" disabled={activeTab !== 'admin' || isAssignmentModalOpen} />
-                                  {ev.place && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'place', "")} className="text-white/50 hover:text-white transition-colors"><X size={14}/></button>}
+                                  <CustomSelect title="МІСЦЕ" value={ev.place} options={locations} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'place', v)} placeholder="..." className="flex-1" disabled={isAdminAuthenticated && userRole === 'singer_manager' || activeTab !== 'admin' || isAssignmentModalOpen} />
+                                  {ev.place && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'place', "")} disabled={userRole === 'singer_manager'} className={`text-white/50 hover:text-white transition-colors ${userRole === 'singer_manager' ? 'opacity-0 pointer-events-none' : ''}`}><X size={14}/></button>}
                                 </div>
                              </div>
                              <div className="space-y-0.5">
                                 <label className="text-[8px] font-black text-white uppercase ml-0.5">Час</label>
                                 <div className="flex gap-2 w-full items-center">
                                   <div className="text-white flex-1 flex items-center gap-1">
-                                    <TimeInput label="" value={ev.startTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'startTime', v)} disabled={activeTab !== 'admin' || isAssignmentModalOpen} />
-                                    {ev.startTime && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'startTime', "")} className="text-white/50 hover:text-white transition-colors mt-2"><X size={12}/></button>}
+                                    <TimeInput label="" value={ev.startTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'startTime', v)} disabled={isAdminAuthenticated && userRole === 'singer_manager' || activeTab !== 'admin' || isAssignmentModalOpen} />
+                                    {ev.startTime && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'startTime', "")} disabled={userRole === 'singer_manager'} className={`text-white/50 hover:text-white transition-colors mt-2 ${userRole === 'singer_manager' ? 'opacity-0 pointer-events-none' : ''}`}><X size={12}/></button>}
                                   </div>
                                   <span className="text-white/50 font-bold self-center mt-2">-</span>
                                   <div className="text-white flex-1 flex items-center gap-1">
-                                    <TimeInput label="" value={ev.endTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'endTime', v)} disabled={activeTab !== 'admin' || isAssignmentModalOpen} />
-                                    {ev.endTime && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'endTime', "")} className="text-white/50 hover:text-white transition-colors mt-2"><X size={12}/></button>}
+                                    <TimeInput label="" value={ev.endTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'endTime', v)} disabled={isAdminAuthenticated && userRole === 'singer_manager' || activeTab !== 'admin' || isAssignmentModalOpen} />
+                                    {ev.endTime && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'endTime', "")} disabled={userRole === 'singer_manager'} className={`text-white/50 hover:text-white transition-colors mt-2 ${userRole === 'singer_manager' ? 'opacity-0 pointer-events-none' : ''}`}><X size={12}/></button>}
                                   </div>
                                 </div>
                              </div>
@@ -2218,7 +2270,7 @@ export default function App() {
                                  <div className="flex flex-col gap-2">
                                    {ev.leads?.map((l, lIdx) => (
                                      <div key={lIdx} className="flex gap-1 items-center w-full">
-                                        <CustomSelect title="СЛУЖІННЯ" value={l} groups={staffGroups.filter(g => g.label !== "Хто співає / грає")} onEditGroup={(g) => setEditingGroup({...g, type: 'staff'})} onChange={(v) => { const nL = [...ev.leads]; nL[lIdx] = v; updateLocalDetails(selectedDayForEvent, i, 'leads', nL); }} placeholder="Хто..." className="flex-1" onAssignPreachers={() => {
+                                        <CustomSelect title="СЛУЖІННЯ" value={l} groups={staffGroups.filter(g => g.label !== "Хто співає / грає")} onEditGroup={(g) => setEditingGroup({...g, type: 'staff'})} onChange={(v) => { const nL = [...ev.leads]; nL[lIdx] = v; updateLocalDetails(selectedDayForEvent, i, 'leads', nL); }} placeholder="Хто..." className="flex-1" disabled={userRole === 'singer_manager'} onAssignPreachers={() => {
                                           setPendingAssignmentCallback(() => (val: string) => {
                                             const nL = [...ev.leads];
                                             nL[lIdx] = val;
@@ -2226,11 +2278,11 @@ export default function App() {
                                           });
                                           setIsAssignmentModalOpen(true);
                                         }} />
-                                        {l && <button onClick={() => { const nL = [...ev.leads]; nL[lIdx] = ""; updateLocalDetails(selectedDayForEvent, i, 'leads', nL); }} className="text-white/50 hover:text-white transition-colors"><X size={14}/></button>}
-                                        {ev.leads.length > 1 && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'leads', ev.leads.filter((_, idx) => idx !== lIdx))} className="text-red-200 p-0.5 hover:text-white"><X size={14}/></button>}
+                                        {l && <button onClick={() => { const nL = [...ev.leads]; nL[lIdx] = ""; updateLocalDetails(selectedDayForEvent, i, 'leads', nL); }} disabled={userRole === 'singer_manager'} className={`text-white/50 hover:text-white transition-colors ${userRole === 'singer_manager' ? 'opacity-0 pointer-events-none' : ''}`}><X size={14}/></button>}
+                                        {ev.leads.length > 1 && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'leads', ev.leads.filter((_, idx) => idx !== lIdx))} className="text-red-200 p-0.5 hover:text-white" disabled={userRole === 'singer_manager'}><X size={14}/></button>}
                                      </div>
                                    ))}
-                                   <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'leads', [...(ev.leads || []), ""])} className="text-[9px] text-white/80 font-black hover:text-white ml-0.5 tracking-wide flex items-center gap-1 h-6"><Plus size={10}/> Додати</button>
+                                   <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'leads', [...(ev.leads || []), ""])} className="text-[9px] text-white/80 font-black hover:text-white ml-0.5 tracking-wide flex items-center gap-1 h-6" disabled={userRole === 'singer_manager'}><Plus size={10}/> Додати</button>
                                  </div>
                               </div>
 
@@ -2262,7 +2314,8 @@ export default function App() {
               
               <button 
                 onClick={() => addEventToDay(selectedDayForEvent)} 
-                className="w-full border-2 border-dashed border-slate-600 py-3 rounded-xl text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 tracking-wider text-slate-400 hover:bg-slate-700/50 hover:text-white hover:border-slate-500"
+                disabled={userRole === 'singer_manager'}
+                className={`w-full border-2 border-dashed border-slate-600 py-3 rounded-xl text-[10px] font-black uppercase transition-all flex items-center justify-center gap-2 tracking-wider text-slate-400 hover:bg-slate-700/50 hover:text-white hover:border-slate-500 ${userRole === 'singer_manager' ? 'opacity-0 pointer-events-none' : ''}`}
               >
                 <Plus size={14}/> ДОДАТИ ПОДІЮ
               </button>
