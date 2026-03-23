@@ -2,7 +2,11 @@ import React from 'react';
 import { DayView } from './DayView';
 
 export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc, backgroundColor, isWaitingForTableSelection, selectedCalendarCell, onAssignmentComplete }: { staffGroups: any[], events: any[], db: any, appId: string, doc: any, setDoc: any, backgroundColor: string, isWaitingForTableSelection: boolean, selectedCalendarCell: { dateKey: string } | null, onAssignmentComplete?: (data?: { dateKey: string, assignment: string }) => void }) => {
-  const [currentDate, setCurrentDate] = React.useState(new Date());
+  const [currentDate, setCurrentDate] = React.useState(() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() + 1);
+    return d;
+  });
   
   const changeMonth = (delta: number) => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + delta, 1));

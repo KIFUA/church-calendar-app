@@ -45,6 +45,129 @@ import {
 } from 'lucide-react';
 import { PreacherAssignment } from './components/PreacherAssignment';
 
+const SettingsModal = ({ appSettings, setAppSettings, setIsEditingSettings, handleSaveSettings, ColorPicker, X }: any) => {
+  const [activeTab, setActiveTab] = useState<'name' | 'appearance' | 'access'>('name');
+  return (
+    <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" onClick={() => setIsEditingSettings(false)}>
+      <div className="bg-slate-900 w-full max-w-sm rounded-2xl border border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
+        <div className="px-4 py-3 border-b border-slate-800 flex justify-between items-center bg-slate-900/50 shrink-0">
+          <h3 className="text-white font-black uppercase text-[10px] tracking-widest">НАЛАШТУВАННЯ</h3>
+          <button onClick={() => setIsEditingSettings(false)} className="text-slate-500 hover:text-white transition-colors p-1"><X size={16}/></button>
+        </div>
+        
+        {/* Tabs */}
+        <div className="flex border-b border-slate-800 shrink-0">
+          <button onClick={() => setActiveTab('name')} className={`flex-1 py-2 text-[8px] font-black uppercase tracking-widest ${activeTab === 'name' ? 'text-white border-b-2 border-blue-500' : 'text-slate-500'}`}>Назва додатку</button>
+          <button onClick={() => setActiveTab('appearance')} className={`flex-1 py-2 text-[8px] font-black uppercase tracking-widest ${activeTab === 'appearance' ? 'text-white border-b-2 border-blue-500' : 'text-slate-500'}`}>Зовнішній вигляд</button>
+          <button onClick={() => setActiveTab('access')} className={`flex-1 py-2 text-[8px] font-black uppercase tracking-widest ${activeTab === 'access' ? 'text-white border-b-2 border-blue-500' : 'text-slate-500'}`}>Доступ</button>
+        </div>
+
+        <div className="p-4 space-y-3 overflow-y-auto hide-scrollbar flex-1">
+          {activeTab === 'name' && (
+            <>
+              <div>
+                <label className="text-[8px] font-black text-slate-500 uppercase block mb-1">Назва додатку</label>
+                <input 
+                  type="text" 
+                  value={appSettings.name} 
+                  onChange={(e) => setAppSettings((prev: any) => ({ ...prev, name: e.target.value }))}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-xs font-bold outline-none focus:border-blue-500 transition-colors"
+                />
+              </div>
+              <div>
+                <label className="text-[8px] font-black text-slate-500 uppercase block mb-1">Підзаголовок</label>
+                <input 
+                  type="text" 
+                  value={appSettings.subtitle} 
+                  onChange={(e) => setAppSettings((prev: any) => ({ ...prev, subtitle: e.target.value }))}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-[10px] font-bold outline-none focus:border-blue-500 transition-colors"
+                />
+              </div>
+            </>
+          )}
+          {activeTab === 'appearance' && (
+            <>
+              <ColorPicker label="Колір фону" value={appSettings.backgroundColor} onChange={(c: string) => setAppSettings((prev: any) => ({ ...prev, backgroundColor: c }))} />
+              <ColorPicker label="Колір назви" value={appSettings.titleColor} onChange={(c: string) => setAppSettings((prev: any) => ({ ...prev, titleColor: c }))} />
+              <ColorPicker label="Колір підзаголовка" value={appSettings.subtitleColor} onChange={(c: string) => setAppSettings((prev: any) => ({ ...prev, subtitleColor: c }))} />
+              <ColorPicker label="Колір логотипу" value={appSettings.logoColor} onChange={(c: string) => setAppSettings((prev: any) => ({ ...prev, logoColor: c }))} />
+            </>
+          )}
+          {activeTab === 'access' && (
+            <div className="text-white text-[10px] space-y-3">
+              <div className="grid grid-cols-3 gap-2 font-black uppercase text-slate-500 mb-2">
+                <span>Рівень</span>
+                <span>Пароль</span>
+                <span>Опис</span>
+              </div>
+              {(appSettings.accessLevels || [{ level: '', password: '', description: '' }]).map((item: any, index: number) => (
+                <div key={index} className="grid grid-cols-3 gap-2">
+                  <input 
+                    type="text" 
+                    value={item.level} 
+                    onChange={(e) => {
+                      const newLevels = [...(appSettings.accessLevels || [])];
+                      newLevels[index] = { ...newLevels[index], level: e.target.value };
+                      setAppSettings((prev: any) => ({ ...prev, accessLevels: newLevels }));
+                    }}
+                    className="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-[10px] font-bold outline-none focus:border-blue-500 transition-colors"
+                  />
+                  <input 
+                    type="text" 
+                    value={item.password} 
+                    onChange={(e) => {
+                      const newLevels = [...(appSettings.accessLevels || [])];
+                      newLevels[index] = { ...newLevels[index], password: e.target.value };
+                      setAppSettings((prev: any) => ({ ...prev, accessLevels: newLevels }));
+                    }}
+                    className="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-[10px] font-bold outline-none focus:border-blue-500 transition-colors"
+                  />
+                  <input 
+                    type="text" 
+                    value={item.description} 
+                    onChange={(e) => {
+                      const newLevels = [...(appSettings.accessLevels || [])];
+                      newLevels[index] = { ...newLevels[index], description: e.target.value };
+                      setAppSettings((prev: any) => ({ ...prev, accessLevels: newLevels }));
+                    }}
+                    className="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-[10px] font-bold outline-none focus:border-blue-500 transition-colors"
+                  />
+                </div>
+              ))}
+              <button 
+                onClick={() => {
+                  const newLevels = [...(appSettings.accessLevels || []), { level: '', password: '', description: '' }];
+                  setAppSettings((prev: any) => ({ ...prev, accessLevels: newLevels }));
+                }}
+                className="w-full py-2 rounded-lg text-[8px] font-black uppercase tracking-widest bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all"
+              >
+                + Додати рівень
+              </button>
+            </div>
+          )}
+        </div>
+        <div className="p-3 border-t border-slate-800 bg-slate-900/50 flex gap-2 shrink-0">
+          <button 
+            onClick={() => setIsEditingSettings(false)}
+            className="flex-1 py-2 rounded-lg text-[8px] font-black uppercase tracking-widest bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all"
+          >
+            Скасувати
+          </button>
+          <button 
+            onClick={() => {
+              handleSaveSettings(appSettings.name, appSettings.subtitle, appSettings.themeBackground, appSettings.backgroundColor, appSettings.titleColor, appSettings.subtitleColor, appSettings.logoColor, appSettings.accessLevels);
+              setIsEditingSettings(false);
+            }}
+            className="flex-1 py-2 rounded-lg text-[8px] font-black uppercase tracking-widest bg-blue-600 text-white hover:bg-blue-500 transition-all"
+          >
+            Зберегти
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Firebase configuration from environment variables
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -300,7 +423,7 @@ const CustomSelect = ({ value, options = [], onChange, placeholder, groups = nul
                       onClick={() => { tabsRef.current?.scrollBy({ left: -150, behavior: 'smooth' }); setTimeout(checkScroll, 300); }}
                       className="p-2 text-slate-400 hover:text-blue-600 hover:bg-slate-100 transition-colors shrink-0 absolute left-0 z-10 bg-gradient-to-r from-slate-50 to-transparent"
                   >
-                      <ChevronLeft size={12} />
+                      <ChevronLeft size={12} className="text-white" />
                   </button>
                   )}
                   <div ref={tabsRef} onScroll={checkScroll} className="flex-1 flex overflow-x-auto [&::-webkit-scrollbar]:hidden snap-x">
@@ -336,7 +459,7 @@ const CustomSelect = ({ value, options = [], onChange, placeholder, groups = nul
                       onClick={() => { tabsRef.current?.scrollBy({ left: 150, behavior: 'smooth' }); setTimeout(checkScroll, 300); }}
                       className="p-2 text-slate-400 hover:text-blue-600 hover:bg-slate-100 transition-colors shrink-0 absolute right-0 z-10 bg-gradient-to-l from-slate-50 to-transparent"
                   >
-                      <ChevronRight size={12} />
+                      <ChevronRight size={12} className="text-white" />
                   </button>
                   )}
               </div>
@@ -648,10 +771,10 @@ export default function App() {
     }
   };
 
-  const handleSaveSettings = async (name: string, subtitle: string, themeBackground: string, backgroundColor: string, titleColor: string, subtitleColor: string, logoColor: string) => {
-    setAppSettings(prev => ({ ...prev, name, subtitle, themeBackground, backgroundColor, titleColor, subtitleColor, logoColor }));
+  const handleSaveSettings = async (name: string, subtitle: string, themeBackground: string, backgroundColor: string, titleColor: string, subtitleColor: string, logoColor: string, accessLevels: any[]) => {
+    setAppSettings(prev => ({ ...prev, name, subtitle, themeBackground, backgroundColor, titleColor, subtitleColor, logoColor, accessLevels }));
     if (isAdminAuthenticated && db) {
-      await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'general'), { name, subtitle, themeBackground, backgroundColor, titleColor, subtitleColor, logoColor }, { merge: true });
+      await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'general'), { name, subtitle, themeBackground, backgroundColor, titleColor, subtitleColor, logoColor, accessLevels }, { merge: true });
     }
   };
 
@@ -1145,7 +1268,7 @@ export default function App() {
                 }}
                 className="p-4 text-blue-500 hover:bg-blue-500/10 rounded-full transition-colors"
               >
-                <ChevronLeft size={32}/>
+                <ChevronLeft size={32} className="text-white"/>
               </button>
               
               <div 
@@ -1185,7 +1308,7 @@ export default function App() {
                 }}
                 className="p-4 text-blue-500 hover:bg-blue-500/10 rounded-full transition-colors"
               >
-                <ChevronRight size={32}/>
+                <ChevronRight size={32} className="text-white"/>
               </button>
             </div>
           )}
@@ -1200,7 +1323,7 @@ export default function App() {
                 }}
                 className="p-1 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors"
               >
-                <ChevronLeft size={20}/>
+                <ChevronLeft size={20} className="text-white"/>
               </button>
               <div className="text-[11px] font-black text-white tracking-widest uppercase">
                 {weekRangeLabel}
@@ -1213,7 +1336,7 @@ export default function App() {
                 }}
                 className="p-1 text-blue-500 hover:bg-blue-500/10 rounded-lg transition-colors"
               >
-                <ChevronRight size={20}/>
+                <ChevronRight size={20} className="text-white"/>
               </button>
             </div>
           )}
@@ -1229,7 +1352,7 @@ export default function App() {
                   }}
                   className="text-blue-500 hover:text-blue-400 transition-colors"
                 >
-                  <ChevronLeft size={20}/>
+                  <ChevronLeft size={20} className="text-white"/>
                 </button>
                 <span className="text-[11px] font-black uppercase text-white tracking-wider min-w-[140px] text-center">
                   {selectedDate.getFullYear()} РІК
@@ -1242,26 +1365,24 @@ export default function App() {
                   }}
                   className="text-blue-500 hover:text-blue-400 transition-colors"
                 >
-                  <ChevronRight size={20}/>
+                  <ChevronRight size={20} className="text-white"/>
                 </button>
               </div>
             </div>
           )}
 
-          {false && viewMode === 'month' && (
+          {viewMode === 'month' && (
             <div className="flex items-center justify-center gap-2 w-full">
-              <div className="flex items-center bg-slate-800/50 px-4 py-1.5 rounded-xl border border-slate-700/50 backdrop-blur-sm gap-4">
+              <div className="flex items-center px-4 py-1.5 gap-4">
                 <button 
                   onClick={() => {
                     const d = new Date(selectedDate);
-                    if (viewMode === 'month') d.setMonth(d.getMonth() - 1);
-                    else if (viewMode === 'week') d.setDate(d.getDate() - 7);
-                    else d.setDate(d.getDate() - 1);
+                    d.setMonth(d.getMonth() - 1);
                     setSelectedDate(d);
                   }}
                   className="text-blue-500 hover:text-blue-400 transition-colors"
                 >
-                  <ChevronLeft size={20}/>
+                  <ChevronLeft size={20} className="text-white"/>
                 </button>
                 <span className="text-[11px] font-black uppercase text-white tracking-wider min-w-[140px] text-center">
                   {selectedDate.toLocaleDateString('uk-UA', { month: 'long', year: 'numeric' })}
@@ -1269,14 +1390,12 @@ export default function App() {
                 <button 
                   onClick={() => {
                     const d = new Date(selectedDate);
-                    if (viewMode === 'month') d.setMonth(d.getMonth() + 1);
-                    else if (viewMode === 'week') d.setDate(d.getDate() + 7);
-                    else d.setDate(d.getDate() + 1);
+                    d.setMonth(d.getMonth() + 1);
                     setSelectedDate(d);
                   }}
                   className="text-blue-500 hover:text-blue-400 transition-colors"
                 >
-                  <ChevronRight size={20}/>
+                  <ChevronRight size={20} className="text-white"/>
                 </button>
               </div>
             </div>
@@ -1701,7 +1820,7 @@ export default function App() {
                       const leadsCount = ev.leads?.filter(l => l).length || 0;
                       
                       return (
-                        <div key={i} className={`grid grid-cols-4 items-stretch ${showPreacherTable ? 'gap-0.5' : 'gap-0.5 md:gap-2'} ${showPreacherTable ? 'py-0.5 px-1' : 'py-1 md:py-2 pl-1 md:pl-2 pr-0.5 md:pr-1'} ${showPreacherTable ? 'rounded-lg' : 'rounded-xl md:rounded-2xl'} border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}>
+                        <div key={i} className={`grid grid-cols-[1fr_1.6fr_1.4fr] items-stretch ${showPreacherTable ? 'gap-0.5' : 'gap-0.5 md:gap-2'} ${showPreacherTable ? 'py-px px-1' : 'py-0.5 md:py-1 pl-1 md:pl-2 pr-0.5 md:pr-1'} ${showPreacherTable ? 'rounded-lg' : 'rounded-xl md:rounded-2xl'} border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}>
                           {/* Accent line */}
                           <div className={`absolute left-0 top-0 bottom-0 ${showPreacherTable ? 'w-[1.5px]' : 'w-[2px] md:w-[3px]'} opacity-80 group-hover/event:opacity-100 transition-opacity ${showPreacherTable ? 'rounded-l-lg' : 'rounded-l-xl md:rounded-l-2xl'}`} style={{ backgroundColor: ev.textColor }} />
                           
@@ -1718,7 +1837,7 @@ export default function App() {
                           </div>
 
                           {/* Col 2: Event & Music */}
-                          <div className={`${isCleaning ? 'col-span-3' : 'col-span-2'} flex flex-col gap-0.5 md:gap-1 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl'} ${showPreacherTable ? 'px-1 py-0.5' : 'px-1.5 md:px-2 py-1 md:py-1.5'} min-w-0 ${ev.align === 'center' ? 'text-center items-center' : ev.align === 'right' ? 'text-right items-end' : 'text-left items-start'}`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                          <div className={`${isCleaning ? 'col-span-2' : 'col-span-1'} flex flex-col gap-0.5 md:gap-1 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl'} ${showPreacherTable ? 'px-1 py-0.5' : 'px-1.5 md:px-2 py-1 md:py-1.5'} min-w-0 ${ev.align === 'center' ? 'text-center items-center' : ev.align === 'right' ? 'text-right items-end' : 'text-left items-start'}`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                             <div 
                               className={`${showPreacherTable ? 'text-[7px]' : 'text-[8px] md:text-[11px] xl:text-[13px]'} leading-tight tracking-tight group-hover/event:scale-[1.01] transition-transform w-full whitespace-pre-wrap break-words min-w-0 ${ev.isBold !== false ? 'font-black' : 'font-medium'} ${ev.isItalic === true ? 'italic' : ''} ${ev.isUnderline === true ? 'underline' : ''} ${ev.isUppercase !== false ? 'uppercase' : ''}`}
                               style={{ color: ev.textColor }}
@@ -1735,9 +1854,9 @@ export default function App() {
 
                           {/* Col 3: Ministers - Tight List */}
                           {!isCleaning && (
-                            <div className={`col-span-1 flex flex-col gap-0.5 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl'} ${showPreacherTable ? 'px-0.5 py-0' : 'px-1 md:px-2 py-0.5 md:py-1'} min-w-0`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                            <div className={`col-span-1 flex flex-col gap-0.5 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl'} ${showPreacherTable ? 'px-0.5 pt-0.5' : 'px-1 md:px-2 pt-0.5 md:pt-1'} min-w-0`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                               {ev.leads?.filter(l => l).map((lead, lIdx) => (
-                                <div key={lIdx} className={`text-[#003366] font-medium ${showPreacherTable ? 'text-[5px]' : 'text-[4px] md:text-[9px] lg:text-[10px]'} leading-none flex items-start gap-1 md:gap-1.5 py-0.5 break-words min-w-0`}>
+                                <div key={lIdx} className={`text-[#003366] font-medium ${showPreacherTable ? 'text-[5px]' : 'text-[4px] md:text-[9px] lg:text-[10px]'} leading-none flex items-start gap-1 md:gap-1.5 py-px break-words min-w-0`}>
                                   <span className="break-words min-w-0 flex-1">{lead}</span>
                                 </div>
                               ))}
@@ -1776,55 +1895,14 @@ export default function App() {
 
       {/* Settings Modal */}
       {isEditingSettings && createPortal(
-        <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" onClick={() => setIsEditingSettings(false)}>
-          <div className="bg-slate-900 w-full max-w-sm rounded-2xl border border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
-            <div className="px-4 py-3 border-b border-slate-800 flex justify-between items-center bg-slate-900/50 shrink-0">
-              <h3 className="text-white font-black uppercase text-[10px] tracking-widest">НАЗВА ТА ЛОГОТИП</h3>
-              <button onClick={() => setIsEditingSettings(false)} className="text-slate-500 hover:text-white transition-colors p-1"><X size={16}/></button>
-            </div>
-            <div className="p-4 space-y-3 overflow-y-auto hide-scrollbar">
-              <div>
-                <label className="text-[8px] font-black text-slate-500 uppercase block mb-1">Назва додатку</label>
-                <input 
-                  type="text" 
-                  value={appSettings.name} 
-                  onChange={(e) => setAppSettings(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-xs font-bold outline-none focus:border-blue-500 transition-colors"
-                />
-              </div>
-              <div>
-                <label className="text-[8px] font-black text-slate-500 uppercase block mb-1">Підзаголовок</label>
-                <input 
-                  type="text" 
-                  value={appSettings.subtitle} 
-                  onChange={(e) => setAppSettings(prev => ({ ...prev, subtitle: e.target.value }))}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-[10px] font-bold outline-none focus:border-blue-500 transition-colors"
-                />
-              </div>
-              <ColorPicker label="Колір фону" value={appSettings.backgroundColor} onChange={(c) => setAppSettings(prev => ({ ...prev, backgroundColor: c }))} />
-              <ColorPicker label="Колір назви" value={appSettings.titleColor} onChange={(c) => setAppSettings(prev => ({ ...prev, titleColor: c }))} />
-              <ColorPicker label="Колір підзаголовка" value={appSettings.subtitleColor} onChange={(c) => setAppSettings(prev => ({ ...prev, subtitleColor: c }))} />
-              <ColorPicker label="Колір логотипу" value={appSettings.logoColor} onChange={(c) => setAppSettings(prev => ({ ...prev, logoColor: c }))} />
-            </div>
-            <div className="p-3 border-t border-slate-800 bg-slate-900/50 flex gap-2 shrink-0">
-              <button 
-                onClick={() => setIsEditingSettings(false)}
-                className="flex-1 py-2 rounded-lg text-[8px] font-black uppercase tracking-widest bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all"
-              >
-                Скасувати
-              </button>
-              <button 
-                onClick={() => {
-                  handleSaveSettings(appSettings.name, appSettings.subtitle, appSettings.themeBackground, appSettings.backgroundColor, appSettings.titleColor, appSettings.subtitleColor, appSettings.logoColor);
-                  setIsEditingSettings(false);
-                }}
-                className="flex-1 py-2 rounded-lg text-[8px] font-black uppercase tracking-widest bg-blue-600 text-white hover:bg-blue-500 transition-all"
-              >
-                Зберегти
-              </button>
-            </div>
-          </div>
-        </div>,
+        <SettingsModal 
+          appSettings={appSettings} 
+          setAppSettings={setAppSettings} 
+          setIsEditingSettings={setIsEditingSettings} 
+          handleSaveSettings={handleSaveSettings}
+          ColorPicker={ColorPicker}
+          X={X}
+        />,
         document.body
       )}
 
