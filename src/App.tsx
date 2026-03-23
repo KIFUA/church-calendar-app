@@ -49,7 +49,17 @@ import {
 import { PreacherAssignment } from './components/PreacherAssignment';
 
 const SettingsModal = ({ appSettings, setAppSettings, setIsEditingSettings, handleSaveSettings, ColorPicker, X }: any) => {
-  const [activeTab, setActiveTab] = useState<'name' | 'appearance' | 'access'>('name');
+  const [activeTab, setActiveTab] = useState<'name' | 'appearance' | 'access' | 'fields'>('name');
+  const ALL_FIELDS = [
+    { id: 'startTime', label: 'Час початку' },
+    { id: 'endTime', label: 'Час закінчення' },
+    { id: 'place', label: 'Місце' },
+    { id: 'leads', label: 'Служителі' },
+    { id: 'music', label: 'Музика' },
+    { id: 'formatting', label: 'Форматування' },
+    { id: 'colors', label: 'Кольори' }
+  ];
+
   return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md" onClick={() => setIsEditingSettings(false)}>
       <div className="bg-slate-900 w-full max-w-sm rounded-2xl border border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
@@ -60,8 +70,9 @@ const SettingsModal = ({ appSettings, setAppSettings, setIsEditingSettings, hand
         
         {/* Tabs */}
         <div className="flex border-b border-slate-800 shrink-0">
-          <button onClick={() => setActiveTab('name')} className={`flex-1 py-2 text-[8px] font-black uppercase tracking-widest ${activeTab === 'name' ? 'text-white border-b-2 border-blue-500' : 'text-slate-500'}`}>Назва додатку</button>
-          <button onClick={() => setActiveTab('appearance')} className={`flex-1 py-2 text-[8px] font-black uppercase tracking-widest ${activeTab === 'appearance' ? 'text-white border-b-2 border-blue-500' : 'text-slate-500'}`}>Зовнішній вигляд</button>
+          <button onClick={() => setActiveTab('name')} className={`flex-1 py-2 text-[8px] font-black uppercase tracking-widest ${activeTab === 'name' ? 'text-white border-b-2 border-blue-500' : 'text-slate-500'}`}>Назва</button>
+          <button onClick={() => setActiveTab('appearance')} className={`flex-1 py-2 text-[8px] font-black uppercase tracking-widest ${activeTab === 'appearance' ? 'text-white border-b-2 border-blue-500' : 'text-slate-500'}`}>Вигляд</button>
+          <button onClick={() => setActiveTab('fields')} className={`flex-1 py-2 text-[8px] font-black uppercase tracking-widest ${activeTab === 'fields' ? 'text-white border-b-2 border-blue-500' : 'text-slate-500'}`}>Поля</button>
           <button onClick={() => setActiveTab('access')} className={`flex-1 py-2 text-[8px] font-black uppercase tracking-widest ${activeTab === 'access' ? 'text-white border-b-2 border-blue-500' : 'text-slate-500'}`}>Доступ</button>
         </div>
 
@@ -95,6 +106,66 @@ const SettingsModal = ({ appSettings, setAppSettings, setIsEditingSettings, hand
               <ColorPicker label="Колір підзаголовка" value={appSettings.subtitleColor} onChange={(c: string) => setAppSettings((prev: any) => ({ ...prev, subtitleColor: c }))} />
               <ColorPicker label="Колір логотипу" value={appSettings.logoColor} onChange={(c: string) => setAppSettings((prev: any) => ({ ...prev, logoColor: c }))} />
             </>
+          )}
+          {activeTab === 'fields' && (
+            <div className="text-white text-[10px] space-y-4">
+              <p className="text-slate-400 text-[8px] italic">Створіть шаблони з різним набором полів для різних типів подій.</p>
+              {(appSettings.eventTemplates || []).map((template: any, tIdx: number) => (
+                <div key={tIdx} className="p-3 bg-slate-800/50 border border-slate-700 rounded-xl space-y-2">
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="text" 
+                      value={template.name} 
+                      onChange={(e) => {
+                        const newTemplates = [...appSettings.eventTemplates];
+                        newTemplates[tIdx] = { ...newTemplates[tIdx], name: e.target.value };
+                        setAppSettings((prev: any) => ({ ...prev, eventTemplates: newTemplates }));
+                      }}
+                      className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-white font-bold outline-none focus:border-blue-500"
+                      placeholder="Назва шаблону..."
+                    />
+                    <button 
+                      onClick={() => {
+                        const newTemplates = appSettings.eventTemplates.filter((_: any, i: number) => i !== tIdx);
+                        setAppSettings((prev: any) => ({ ...prev, eventTemplates: newTemplates }));
+                      }}
+                      className="text-red-500 hover:bg-red-500/10 p-1 rounded"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                    {ALL_FIELDS.map(field => (
+                      <label key={field.id} className="flex items-center gap-2 cursor-pointer group">
+                        <input 
+                          type="checkbox" 
+                          checked={template.fields.includes(field.id)}
+                          onChange={(e) => {
+                            const newTemplates = [...appSettings.eventTemplates];
+                            const fields = e.target.checked 
+                              ? [...template.fields, field.id]
+                              : template.fields.filter((f: string) => f !== field.id);
+                            newTemplates[tIdx] = { ...newTemplates[tIdx], fields };
+                            setAppSettings((prev: any) => ({ ...prev, eventTemplates: newTemplates }));
+                          }}
+                          className="w-3 h-3 rounded border-slate-600 bg-slate-900 text-blue-600 focus:ring-0 focus:ring-offset-0"
+                        />
+                        <span className="text-slate-400 group-hover:text-white transition-colors">{field.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <button 
+                onClick={() => {
+                  const newTemplates = [...(appSettings.eventTemplates || []), { id: Date.now().toString(), name: 'Новий шаблон', fields: ['startTime', 'place'] }];
+                  setAppSettings((prev: any) => ({ ...prev, eventTemplates: newTemplates }));
+                }}
+                className="w-full py-2 rounded-lg text-[8px] font-black uppercase tracking-widest bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all border border-slate-700"
+              >
+                + Додати шаблон
+              </button>
+            </div>
           )}
           {activeTab === 'access' && (
             <div className="text-white text-[10px] space-y-3">
@@ -158,7 +229,7 @@ const SettingsModal = ({ appSettings, setAppSettings, setIsEditingSettings, hand
           </button>
           <button 
             onClick={() => {
-              handleSaveSettings(appSettings.name, appSettings.subtitle, appSettings.themeBackground, appSettings.backgroundColor, appSettings.titleColor, appSettings.subtitleColor, appSettings.logoColor, appSettings.accessLevels);
+              handleSaveSettings(appSettings.name, appSettings.subtitle, appSettings.themeBackground, appSettings.backgroundColor, appSettings.titleColor, appSettings.subtitleColor, appSettings.logoColor, appSettings.accessLevels, appSettings.eventTemplates);
               setIsEditingSettings(false);
             }}
             className="flex-1 py-2 rounded-lg text-[8px] font-black uppercase tracking-widest bg-blue-600 text-white hover:bg-blue-500 transition-all"
@@ -630,7 +701,12 @@ export default function App() {
     backgroundColor: '#0a1120',
     titleColor: '#ffffff',
     subtitleColor: '#3b82f6',
-    logoColor: '#ffffff'
+    logoColor: '#ffffff',
+    eventTemplates: [
+      { id: 'full', name: 'Повний набір', fields: ['startTime', 'endTime', 'place', 'leads', 'music', 'formatting', 'colors'] },
+      { id: 'short', name: 'Скорочений', fields: ['startTime', 'place', 'leads'] },
+      { id: 'title', name: 'Тільки назва', fields: [] }
+    ]
   });
   const [isEditingTheme, setIsEditingTheme] = useState(false);
   const [isEditingSettings, setIsEditingSettings] = useState(false);
@@ -809,10 +885,10 @@ export default function App() {
     }
   };
 
-  const handleSaveSettings = async (name: string, subtitle: string, themeBackground: string, backgroundColor: string, titleColor: string, subtitleColor: string, logoColor: string, accessLevels: any[]) => {
-    setAppSettings(prev => ({ ...prev, name, subtitle, themeBackground, backgroundColor, titleColor, subtitleColor, logoColor, accessLevels }));
+  const handleSaveSettings = async (name: string, subtitle: string, themeBackground: string, backgroundColor: string, titleColor: string, subtitleColor: string, logoColor: string, accessLevels: any[], eventTemplates: any[]) => {
+    setAppSettings(prev => ({ ...prev, name, subtitle, themeBackground, backgroundColor, titleColor, subtitleColor, logoColor, accessLevels, eventTemplates }));
     if (isAdminAuthenticated && db) {
-      await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'general'), { name, subtitle, themeBackground, backgroundColor, titleColor, subtitleColor, logoColor, accessLevels }, { merge: true });
+      await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'general'), { name, subtitle, themeBackground, backgroundColor, titleColor, subtitleColor, logoColor, accessLevels, eventTemplates }, { merge: true });
     }
   };
 
@@ -942,7 +1018,8 @@ export default function App() {
     const [year, month, day] = dateKey.split('-').map(Number);
     const date = new Date(year, month - 1, day);
     const dayEvents = getDayEvents(dateKey, date);
-    const newEvents = [...dayEvents, { title: "", startTime: "", endTime: "", place: "", leads: [""], music: "", textColor: textColors[0] || "#0077cc", align: "left", isBold: true, isItalic: false, isUnderline: false, isUppercase: true }];
+    const defaultTemplateId = appSettings.eventTemplates?.[0]?.id || 'full';
+    const newEvents = [...dayEvents, { title: "", startTime: "", endTime: "", place: "", leads: [""], music: "", textColor: textColors[0] || "#0077cc", align: "left", isBold: true, isItalic: false, isUnderline: false, isUppercase: true, templateId: defaultTemplateId }];
     setEvents(prev => {
         const existing = prev.find(d => d.id === dateKey);
         if (existing) return prev.map(d => d.id === dateKey ? { ...d, events: newEvents } : d);
@@ -1928,9 +2005,12 @@ export default function App() {
                       const leadsCount = ev.leads?.filter(l => l).length || 0;
                       
                       return (
-                        <div key={i} className={`grid grid-cols-[1fr_1.6fr_1.4fr] items-stretch ${showPreacherTable ? 'gap-0.5' : 'gap-0.5 md:gap-2'} ${showPreacherTable ? 'py-px px-1' : 'py-0.5 md:py-1 pl-1 md:pl-2 pr-0.5 md:pr-1'} ${showPreacherTable ? 'rounded-lg' : 'rounded-xl md:rounded-2xl'} border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}>
-                          {/* Accent line */}
-                          <div className={`absolute left-0 top-0 bottom-0 ${showPreacherTable ? 'w-[1.5px]' : 'w-[2px] md:w-[3px]'} opacity-80 group-hover/event:opacity-100 transition-opacity ${showPreacherTable ? 'rounded-l-lg' : 'rounded-l-xl md:rounded-l-2xl'}`} style={{ backgroundColor: ev.textColor }} />
+                        <div 
+                          key={i} 
+                          className={`grid grid-cols-[auto_1.6fr_1.4fr] items-stretch ${showPreacherTable ? 'gap-0.5' : 'gap-0.5 md:gap-2'} ${showPreacherTable ? 'py-px px-1 pl-1' : 'py-0.5 md:py-1 pl-1 md:pl-1.5 pr-0.5 md:pr-1'} ${showPreacherTable ? 'rounded-lg' : 'rounded-xl md:rounded-2xl'} border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event overflow-hidden ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}
+                        >
+                          {/* Accent line - following the curve */}
+                          <div className={`absolute left-0 top-0 bottom-0 ${showPreacherTable ? 'w-[1.5px]' : 'w-[2px] md:w-[2.5px]'} opacity-90`} style={{ backgroundColor: ev.textColor }} />
                           
                           {/* Col 1: Location & Time */}
                           <div className={`col-span-1 flex flex-col gap-0 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl'} ${showPreacherTable ? 'px-0.5 py-0' : 'px-1 md:px-2 py-0.5 md:py-1'} min-w-0`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
@@ -2081,9 +2161,11 @@ export default function App() {
                         return (
                           <div key={i} className="relative group">
                             <div 
-                              className={`flex flex-col overflow-hidden border-[2px] shadow-md rounded-xl bg-white/90 p-2 space-y-1 ${isAssignmentDisabled ? 'opacity-50' : ''}`}
-                              style={{ borderColor: ev.textColor || '#cbd5e1' }}
+                              className={`flex flex-col overflow-hidden border border-slate-200 shadow-md rounded-xl bg-white/90 p-2 pl-1.5 space-y-1 relative ${isAssignmentDisabled ? 'opacity-50' : ''}`}
                             >
+                              {/* Accent line - following the curve */}
+                              <div className="absolute left-0 top-0 bottom-0 w-[2px] opacity-90" style={{ backgroundColor: ev.textColor || '#cbd5e1' }} />
+                              
                               {/* Row 1: Place + Time */}
                               <div className="flex justify-between items-center gap-2">
                                 <div className="flex flex-row flex-wrap gap-1.5 items-center">
@@ -2165,63 +2247,85 @@ export default function App() {
                         );
                       }
 
+                      const currentTemplate = (appSettings.eventTemplates || []).find(t => t.id === ev.templateId) || (appSettings.eventTemplates || [])[0] || { fields: ['startTime', 'endTime', 'place', 'leads', 'music', 'formatting', 'colors'] };
+
                       return (
                         <div key={i} className="p-3 rounded-xl border border-black/20 relative space-y-2 shadow-lg bg-[#7c8f9b]">
-                          <button 
-                            onClick={() => {
-                              const dayEvents = getDayEvents(selectedDayForEvent, floatingDate);
-                              const updated = dayEvents.filter((_, idx) => idx !== i);
-                              setEvents(prev => {
-                                const existing = prev.find(d => d.id === selectedDayForEvent);
-                                if (existing) return prev.map(d => d.id === selectedDayForEvent ? { ...d, events: updated } : d);
-                                return [...prev, { id: selectedDayForEvent, events: updated }];
-                              });
-                              setEditingEventIndex(null);
-                            }} 
-                            disabled={userRole === 'singer_manager'}
-                            className={`absolute -top-2 -right-2 bg-red-500 text-white p-1.5 rounded-full shadow-md hover:scale-110 transition-transform z-10 ${userRole === 'singer_manager' ? 'opacity-0 pointer-events-none' : ''}`}
-                          >
-                            <Trash2 size={12}/>
-                          </button>
-                          
-                          <div className="flex flex-col gap-2 pb-1.5 border-b border-black/10">
-                               <div className="flex flex-wrap gap-1 justify-center">
-                                 {textColors.map(c => (
-                                   <button 
-                                     key={c} 
-                                     onClick={() => updateLocalDetails(selectedDayForEvent, i, 'textColor', c)} 
-                                     disabled={userRole === 'singer_manager'}
-                                     className={`w-4 h-4 rounded-full transition-all ${ev.textColor?.toLowerCase() === c.toLowerCase() ? 'scale-125 ring-2 ring-offset-2 ring-blue-400' : 'hover:scale-110'} ${userRole === 'singer_manager' ? 'opacity-50 cursor-not-allowed' : ''}`} 
-                                     style={{ backgroundColor: c }} 
-                                   />
-                                 ))}
-                               </div>
-                               <div className="flex flex-wrap gap-2 items-center justify-center">
-                                 <div className="flex gap-1 bg-black/10 p-0.5 rounded-lg">
-                                   {[
-                                     { id: 'left', icon: AlignLeft },
-                                     { id: 'center', icon: AlignCenter },
-                                     { id: 'right', icon: AlignRight }
-                                   ].map(a => (
-                                     <button
-                                       key={a.id}
-                                       onClick={() => updateLocalDetails(selectedDayForEvent, i, 'align', a.id)}
-                                       disabled={userRole === 'singer_manager'}
-                                       className={`p-1 rounded transition-colors ${ev.align === a.id ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'} ${userRole === 'singer_manager' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                     >
-                                       <a.icon size={12} />
-                                     </button>
-                                   ))}
-                                 </div>
-                                 <div className="w-px h-4 bg-black/10 mx-1" />
-                                 <div className="flex gap-1 bg-black/10 p-0.5 rounded-lg">
-                                   <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'isBold', ev.isBold === false ? true : false)} disabled={userRole === 'singer_manager'} className={`p-1 rounded transition-colors ${ev.isBold !== false ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'} ${userRole === 'singer_manager' ? 'opacity-50 cursor-not-allowed' : ''}`}><Bold size={12} /></button>
-                                   <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'isItalic', ev.isItalic === true ? false : true)} disabled={userRole === 'singer_manager'} className={`p-1 rounded transition-colors ${ev.isItalic === true ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'} ${userRole === 'singer_manager' ? 'opacity-50 cursor-not-allowed' : ''}`}><Italic size={12} /></button>
-                                   <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'isUnderline', ev.isUnderline === true ? false : true)} disabled={userRole === 'singer_manager'} className={`p-1 rounded transition-colors ${ev.isUnderline === true ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'} ${userRole === 'singer_manager' ? 'opacity-50 cursor-not-allowed' : ''}`}><Underline size={12} /></button>
-                                   <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'isUppercase', ev.isUppercase === false ? true : false)} disabled={userRole === 'singer_manager'} className={`p-1 rounded transition-colors ${ev.isUppercase !== false ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'} ${userRole === 'singer_manager' ? 'opacity-50 cursor-not-allowed' : ''}`}><Type size={12} /></button>
-                                 </div>
-                               </div>
+                          <div className="flex justify-between items-center mb-2 pb-1.5 border-b border-white/10">
+                            <div className="flex items-center gap-1.5">
+                              <label className="text-[7px] font-black text-white/50 uppercase tracking-tighter">Шаблон:</label>
+                              <select 
+                                value={ev.templateId || ''} 
+                                onChange={(e) => updateLocalDetails(selectedDayForEvent, i, 'templateId', e.target.value)}
+                                className="bg-black/30 text-white text-[8px] font-bold rounded-md px-1.5 py-0.5 outline-none border border-white/5 hover:bg-black/40 transition-colors"
+                              >
+                                {(appSettings.eventTemplates || []).map((t: any) => (
+                                  <option key={t.id} value={t.id} className="bg-slate-800">{t.name}</option>
+                                ))}
+                              </select>
+                            </div>
+                            <button 
+                              onClick={() => {
+                                const dayEvents = getDayEvents(selectedDayForEvent, floatingDate);
+                                const updated = dayEvents.filter((_, idx) => idx !== i);
+                                setEvents(prev => {
+                                  const existing = prev.find(d => d.id === selectedDayForEvent);
+                                  if (existing) return prev.map(d => d.id === selectedDayForEvent ? { ...d, events: updated } : d);
+                                  return [...prev, { id: selectedDayForEvent, events: updated }];
+                                });
+                                setEditingEventIndex(null);
+                              }} 
+                              disabled={userRole === 'singer_manager'}
+                              className={`bg-red-500/80 text-white p-1 rounded-full shadow-md hover:bg-red-500 transition-all ${userRole === 'singer_manager' ? 'opacity-0 pointer-events-none' : ''}`}
+                            >
+                              <Trash2 size={9}/>
+                            </button>
                           </div>
+                          
+                          {currentTemplate.fields.some(f => ['colors', 'formatting'].includes(f)) && (
+                            <div className="flex flex-col gap-2 pb-1.5 border-b border-black/10">
+                                 {currentTemplate.fields.includes('colors') && (
+                                   <div className="flex flex-wrap gap-1 justify-center">
+                                     {textColors.map(c => (
+                                       <button 
+                                         key={c} 
+                                         onClick={() => updateLocalDetails(selectedDayForEvent, i, 'textColor', c)} 
+                                         disabled={userRole === 'singer_manager'}
+                                         className={`w-3 h-3 rounded-full transition-all ${ev.textColor?.toLowerCase() === c.toLowerCase() ? 'scale-125 ring-2 ring-offset-1 ring-blue-400' : 'hover:scale-110'} ${userRole === 'singer_manager' ? 'opacity-50 cursor-not-allowed' : ''}`} 
+                                         style={{ backgroundColor: c }} 
+                                       />
+                                     ))}
+                                   </div>
+                                 )}
+                                 {currentTemplate.fields.includes('formatting') && (
+                                   <div className="flex flex-wrap gap-2 items-center justify-center">
+                                     <div className="flex gap-1 bg-black/10 p-0.5 rounded-lg">
+                                       {[
+                                         { id: 'left', icon: AlignLeft },
+                                         { id: 'center', icon: AlignCenter },
+                                         { id: 'right', icon: AlignRight }
+                                       ].map(a => (
+                                         <button
+                                           key={a.id}
+                                           onClick={() => updateLocalDetails(selectedDayForEvent, i, 'align', a.id)}
+                                           disabled={userRole === 'singer_manager'}
+                                           className={`p-1 rounded transition-colors ${ev.align === a.id ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'} ${userRole === 'singer_manager' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                         >
+                                           <a.icon size={12} />
+                                         </button>
+                                       ))}
+                                     </div>
+                                     <div className="w-px h-4 bg-black/10 mx-1" />
+                                     <div className="flex gap-1 bg-black/10 p-0.5 rounded-lg">
+                                       <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'isBold', ev.isBold === false ? true : false)} disabled={userRole === 'singer_manager'} className={`p-1 rounded transition-colors ${ev.isBold !== false ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'} ${userRole === 'singer_manager' ? 'opacity-50 cursor-not-allowed' : ''}`}><Bold size={12} /></button>
+                                       <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'isItalic', ev.isItalic === true ? false : true)} disabled={userRole === 'singer_manager'} className={`p-1 rounded transition-colors ${ev.isItalic === true ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'} ${userRole === 'singer_manager' ? 'opacity-50 cursor-not-allowed' : ''}`}><Italic size={12} /></button>
+                                       <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'isUnderline', ev.isUnderline === true ? false : true)} disabled={userRole === 'singer_manager'} className={`p-1 rounded transition-colors ${ev.isUnderline === true ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'} ${userRole === 'singer_manager' ? 'opacity-50 cursor-not-allowed' : ''}`}><Underline size={12} /></button>
+                                       <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'isUppercase', ev.isUppercase === false ? true : false)} disabled={userRole === 'singer_manager'} className={`p-1 rounded transition-colors ${ev.isUppercase !== false ? 'bg-white text-blue-600 shadow-sm' : 'text-white/60 hover:text-white'} ${userRole === 'singer_manager' ? 'opacity-50 cursor-not-allowed' : ''}`}><Type size={12} /></button>
+                                     </div>
+                                   </div>
+                                 )}
+                            </div>
+                          )}
 
                           <div className="flex flex-col gap-2">
                              <div className="space-y-0.5">
@@ -2240,59 +2344,73 @@ export default function App() {
                                   {ev.title && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'title', "")} disabled={userRole === 'singer_manager'} className={`text-white/50 hover:text-white transition-colors ${userRole === 'singer_manager' ? 'opacity-0 pointer-events-none' : ''}`}><X size={14}/></button>}
                                 </div>
                              </div>
-                             <div className="space-y-0.5">
-                                <label className="text-[8px] font-black text-white uppercase ml-0.5">Місце</label>
-                                <div className="flex items-center gap-1">
-                                  <CustomSelect title="МІСЦЕ" value={ev.place} options={locations} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'place', v)} placeholder="..." className="flex-1" disabled={isAdminAuthenticated && userRole === 'singer_manager' || activeTab !== 'admin' || isAssignmentModalOpen} />
-                                  {ev.place && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'place', "")} disabled={userRole === 'singer_manager'} className={`text-white/50 hover:text-white transition-colors ${userRole === 'singer_manager' ? 'opacity-0 pointer-events-none' : ''}`}><X size={14}/></button>}
-                                </div>
-                             </div>
-                             <div className="space-y-0.5">
-                                <label className="text-[8px] font-black text-white uppercase ml-0.5">Час</label>
-                                <div className="flex gap-2 w-full items-center">
-                                  <div className="text-white flex-1 flex items-center gap-1">
-                                    <TimeInput label="" value={ev.startTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'startTime', v)} disabled={isAdminAuthenticated && userRole === 'singer_manager' || activeTab !== 'admin' || isAssignmentModalOpen} />
-                                    {ev.startTime && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'startTime', "")} disabled={userRole === 'singer_manager'} className={`text-white/50 hover:text-white transition-colors mt-2 ${userRole === 'singer_manager' ? 'opacity-0 pointer-events-none' : ''}`}><X size={12}/></button>}
+                             {currentTemplate.fields.includes('place') && (
+                               <div className="space-y-0.5">
+                                  <label className="text-[8px] font-black text-white uppercase ml-0.5">Місце</label>
+                                  <div className="flex items-center gap-1">
+                                    <CustomSelect title="МІСЦЕ" value={ev.place} options={locations} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'place', v)} placeholder="..." className="flex-1" disabled={isAdminAuthenticated && userRole === 'singer_manager' || activeTab !== 'admin' || isAssignmentModalOpen} />
+                                    {ev.place && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'place', "")} disabled={userRole === 'singer_manager'} className={`text-white/50 hover:text-white transition-colors ${userRole === 'singer_manager' ? 'opacity-0 pointer-events-none' : ''}`}><X size={14}/></button>}
                                   </div>
-                                  <span className="text-white/50 font-bold self-center mt-2">-</span>
-                                  <div className="text-white flex-1 flex items-center gap-1">
-                                    <TimeInput label="" value={ev.endTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'endTime', v)} disabled={isAdminAuthenticated && userRole === 'singer_manager' || activeTab !== 'admin' || isAssignmentModalOpen} />
-                                    {ev.endTime && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'endTime', "")} disabled={userRole === 'singer_manager'} className={`text-white/50 hover:text-white transition-colors mt-2 ${userRole === 'singer_manager' ? 'opacity-0 pointer-events-none' : ''}`}><X size={12}/></button>}
+                               </div>
+                             )}
+                             {(currentTemplate.fields.includes('startTime') || currentTemplate.fields.includes('endTime')) && (
+                               <div className="space-y-0.5">
+                                  <label className="text-[8px] font-black text-white uppercase ml-0.5">Час</label>
+                                  <div className="flex gap-2 w-full items-center">
+                                    {currentTemplate.fields.includes('startTime') && (
+                                      <div className="text-white flex-1 flex items-center gap-1">
+                                        <TimeInput label="" value={ev.startTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'startTime', v)} disabled={isAdminAuthenticated && userRole === 'singer_manager' || activeTab !== 'admin' || isAssignmentModalOpen} />
+                                        {ev.startTime && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'startTime', "")} disabled={userRole === 'singer_manager'} className={`text-white/50 hover:text-white transition-colors mt-2 ${userRole === 'singer_manager' ? 'opacity-0 pointer-events-none' : ''}`}><X size={12}/></button>}
+                                      </div>
+                                    )}
+                                    {currentTemplate.fields.includes('startTime') && currentTemplate.fields.includes('endTime') && (
+                                      <span className="text-white/50 font-bold self-center mt-2">-</span>
+                                    )}
+                                    {currentTemplate.fields.includes('endTime') && (
+                                      <div className="text-white flex-1 flex items-center gap-1">
+                                        <TimeInput label="" value={ev.endTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'endTime', v)} disabled={isAdminAuthenticated && userRole === 'singer_manager' || activeTab !== 'admin' || isAssignmentModalOpen} />
+                                        {ev.endTime && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'endTime', "")} disabled={userRole === 'singer_manager'} className={`text-white/50 hover:text-white transition-colors mt-2 ${userRole === 'singer_manager' ? 'opacity-0 pointer-events-none' : ''}`}><X size={12}/></button>}
+                                      </div>
+                                    )}
                                   </div>
-                                </div>
-                             </div>
+                               </div>
+                             )}
                           </div>
 
                           {!ev.title?.toUpperCase().includes('ПРИБИРАННЯ') && (
                             <>
-                              <div className="space-y-1 pt-1.5 border-t border-black/10">
-                                 <label className="text-[8px] font-black text-white uppercase ml-0.5">Служителі (Хто)</label>
-                                 <div className="flex flex-col gap-2">
-                                   {ev.leads?.map((l, lIdx) => (
-                                     <div key={lIdx} className="flex gap-1 items-center w-full">
-                                        <CustomSelect title="СЛУЖІННЯ" value={l} groups={staffGroups.filter(g => g.label !== "Хто співає / грає")} onEditGroup={(g) => setEditingGroup({...g, type: 'staff'})} onChange={(v) => { const nL = [...ev.leads]; nL[lIdx] = v; updateLocalDetails(selectedDayForEvent, i, 'leads', nL); }} placeholder="Хто..." className="flex-1" disabled={userRole === 'singer_manager'} onAssignPreachers={() => {
-                                          setPendingAssignmentCallback(() => (val: string) => {
-                                            const nL = [...ev.leads];
-                                            nL[lIdx] = val;
-                                            updateLocalDetails(selectedDayForEvent, i, 'leads', nL);
-                                          });
-                                          setIsAssignmentModalOpen(true);
-                                        }} />
-                                        {l && <button onClick={() => { const nL = [...ev.leads]; nL[lIdx] = ""; updateLocalDetails(selectedDayForEvent, i, 'leads', nL); }} disabled={userRole === 'singer_manager'} className={`text-white/50 hover:text-white transition-colors ${userRole === 'singer_manager' ? 'opacity-0 pointer-events-none' : ''}`}><X size={14}/></button>}
-                                        {ev.leads.length > 1 && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'leads', ev.leads.filter((_, idx) => idx !== lIdx))} className="text-red-200 p-0.5 hover:text-white" disabled={userRole === 'singer_manager'}><X size={14}/></button>}
-                                     </div>
-                                   ))}
-                                   <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'leads', [...(ev.leads || []), ""])} className="text-[9px] text-white/80 font-black hover:text-white ml-0.5 tracking-wide flex items-center gap-1 h-6" disabled={userRole === 'singer_manager'}><Plus size={10}/> Додати</button>
-                                 </div>
-                              </div>
+                              {currentTemplate.fields.includes('leads') && (
+                                <div className="space-y-1 pt-1.5 border-t border-black/10">
+                                   <label className="text-[8px] font-black text-white uppercase ml-0.5">Служителі (Хто)</label>
+                                   <div className="flex flex-col gap-2">
+                                     {ev.leads?.map((l, lIdx) => (
+                                       <div key={lIdx} className="flex gap-1 items-center w-full">
+                                          <CustomSelect title="СЛУЖІННЯ" value={l} groups={staffGroups.filter(g => g.label !== "Хто співає / грає")} onEditGroup={(g) => setEditingGroup({...g, type: 'staff'})} onChange={(v) => { const nL = [...ev.leads]; nL[lIdx] = v; updateLocalDetails(selectedDayForEvent, i, 'leads', nL); }} placeholder="Хто..." className="flex-1" disabled={userRole === 'singer_manager'} onAssignPreachers={() => {
+                                            setPendingAssignmentCallback(() => (val: string) => {
+                                              const nL = [...ev.leads];
+                                              nL[lIdx] = val;
+                                              updateLocalDetails(selectedDayForEvent, i, 'leads', nL);
+                                            });
+                                            setIsAssignmentModalOpen(true);
+                                          }} />
+                                          {l && <button onClick={() => { const nL = [...ev.leads]; nL[lIdx] = ""; updateLocalDetails(selectedDayForEvent, i, 'leads', nL); }} disabled={userRole === 'singer_manager'} className={`text-white/50 hover:text-white transition-colors ${userRole === 'singer_manager' ? 'opacity-0 pointer-events-none' : ''}`}><X size={14}/></button>}
+                                          {ev.leads.length > 1 && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'leads', ev.leads.filter((_, idx) => idx !== lIdx))} className="text-red-200 p-0.5 hover:text-white" disabled={userRole === 'singer_manager'}><X size={14}/></button>}
+                                       </div>
+                                     ))}
+                                     <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'leads', [...(ev.leads || []), ""])} className="text-[9px] text-white/80 font-black hover:text-white ml-0.5 tracking-wide flex items-center gap-1 h-6" disabled={userRole === 'singer_manager'}><Plus size={10}/> Додати</button>
+                                   </div>
+                                </div>
+                              )}
 
-                              <div className="space-y-0.5">
-                                 <label className="text-[8px] font-black text-white uppercase ml-0.5">Музика</label>
-                                 <div className="flex items-center gap-1">
-                                   <CustomSelect title="МУЗИКА" value={ev.music} groups={musicGroups} onEditGroup={(g) => setEditingGroup({...g, type: 'music'})} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'music', v)} placeholder="..." className="flex-1" disabled={activeTab !== 'admin' || isAssignmentModalOpen} />
-                                   {ev.music && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'music', "")} className="text-white/50 hover:text-white transition-colors"><X size={14}/></button>}
-                                 </div>
-                              </div>
+                              {currentTemplate.fields.includes('music') && (
+                                <div className="space-y-0.5">
+                                   <label className="text-[8px] font-black text-white uppercase ml-0.5">Музика</label>
+                                   <div className="flex items-center gap-1">
+                                     <CustomSelect title="МУЗИКА" value={ev.music} groups={musicGroups} onEditGroup={(g) => setEditingGroup({...g, type: 'music'})} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'music', v)} placeholder="..." className="flex-1" disabled={activeTab !== 'admin' || isAssignmentModalOpen} />
+                                     {ev.music && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'music', "")} className="text-white/50 hover:text-white transition-colors"><X size={14}/></button>}
+                                   </div>
+                                </div>
+                              )}
                             </>
                           )}
 
