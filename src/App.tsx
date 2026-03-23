@@ -12,7 +12,9 @@ import {
   collection, 
   onSnapshot, 
   doc, 
-  setDoc 
+  setDoc,
+  deleteDoc,
+  getDoc 
 } from 'firebase/firestore';
 import { 
   Plus, 
@@ -41,7 +43,8 @@ import {
   Underline,
   Type,
   Settings,
-  Minus
+  Minus,
+  Pin
 } from 'lucide-react';
 import { PreacherAssignment } from './components/PreacherAssignment';
 
@@ -616,6 +619,7 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('view');
   const [events, setEvents] = useState([]);
+  const [pinnedEvents, setPinnedEvents] = useState([]);
   const [monthlyThemes, setMonthlyThemes] = useState({});
   const [appSettings, setAppSettings] = useState({ 
     name: "КАЛЕНДАРНИЙ ПЛАН", 
@@ -748,13 +752,46 @@ export default function App() {
       }
     }, (err) => console.error(err));
 
+    const qPinned = collection(db, 'artifacts', appId, 'public', 'data', 'pinned_events');
+    const unsubscribePinned = onSnapshot(qPinned, (snapshot) => {
+      setPinnedEvents(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+    }, (err) => console.error(err));
+
     return () => {
       unsubscribe();
       unsubscribeThemes();
       unsubscribeLists();
       unsubscribeSettings();
+      unsubscribePinned();
     };
   }, [db]);
+
+  const togglePinEvent = async (event: any, weekday: number) => {
+    if (!isAdminAuthenticated || !db) return;
+    
+    const docId = `${weekday}_${event.title}_${event.startTime}_${event.place}`.replace(/[^a-zA-Z0-9]/g, '_');
+    const isPinned = pinnedEvents.some(p => p.id === docId);
+
+    if (isPinned) {
+      await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'pinned_events', docId));
+    } else {
+      await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'pinned_events', docId), {
+        weekday,
+        title: event.title,
+        startTime: event.startTime,
+        endTime: event.endTime || "",
+        place: event.place || "",
+        leads: event.leads || [],
+        music: event.music || "",
+        textColor: event.textColor || "#0077cc",
+        isBold: event.isBold !== false,
+        isItalic: event.isItalic === true,
+        isUnderline: event.isUnderline === true,
+        isUppercase: event.isUppercase !== false,
+        align: event.align || "left"
+      });
+    }
+  };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -815,6 +852,23 @@ export default function App() {
     }
   };
 
+  const getDayEvents = (dateKey: string, date: Date) => {
+    const dayData = events.find(e => e.id === dateKey);
+    const weekday = date.getDay();
+    const pinnedForThisDay = pinnedEvents.filter(p => p.weekday === weekday);
+    
+    const dayEvents = [...(dayData?.events || [])];
+    
+    // Merge pinned events that are not already in dayData.events
+    pinnedForThisDay.forEach(p => {
+      if (!dayEvents.some(e => e.title === p.title && e.startTime === p.startTime)) {
+        dayEvents.push({ ...p, isFromTemplate: true });
+      }
+    });
+    
+    return dayEvents;
+  };
+
   const moveGroup = (idx, fromType, toType) => {
     let group;
     if (fromType === 'event') {
@@ -862,26 +916,32 @@ export default function App() {
   };
 
   const updateLocalDetails = (dateKey, index, field, value) => {
-    setEvents(prev => prev.map(day => {
-      if (day.id === dateKey) {
-        const newEvents = [...day.events];
-        const updatedEvent = { ...newEvents[index], [field]: value };
-        if (field === 'title' && !updatedEvent.isColorManuallySet) {
-          updatedEvent.textColor = getAutoColor(value);
-        }
-        if (field === 'textColor') {
-          updatedEvent.isColorManuallySet = true;
-        }
-        newEvents[index] = updatedEvent;
-        return { ...day, events: newEvents };
-      }
-      return day;
-    }));
+    const [year, month, day] = dateKey.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    const dayEvents = getDayEvents(dateKey, date);
+    
+    const newEvents = [...dayEvents];
+    const updatedEvent = { ...newEvents[index], [field]: value };
+    if (field === 'title' && !updatedEvent.isColorManuallySet) {
+      updatedEvent.textColor = getAutoColor(value);
+    }
+    if (field === 'textColor') {
+      updatedEvent.isColorManuallySet = true;
+    }
+    newEvents[index] = updatedEvent;
+
+    setEvents(prev => {
+      const existing = prev.find(d => d.id === dateKey);
+      if (existing) return prev.map(d => d.id === dateKey ? { ...d, events: newEvents } : d);
+      return [...prev, { id: dateKey, events: newEvents }];
+    });
   };
 
   const addEventToDay = (dateKey) => {
-    const dayData = events.find(e => e.id === dateKey) || { id: dateKey, events: [] };
-    const newEvents = [...dayData.events, { title: "", startTime: "", endTime: "", place: "", leads: [""], music: "", textColor: textColors[0] || "#0077cc", align: "left", isBold: true, isItalic: false, isUnderline: false, isUppercase: true }];
+    const [year, month, day] = dateKey.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+    const dayEvents = getDayEvents(dateKey, date);
+    const newEvents = [...dayEvents, { title: "", startTime: "", endTime: "", place: "", leads: [""], music: "", textColor: textColors[0] || "#0077cc", align: "left", isBold: true, isItalic: false, isUnderline: false, isUppercase: true }];
     setEvents(prev => {
         const existing = prev.find(d => d.id === dateKey);
         if (existing) return prev.map(d => d.id === dateKey ? { ...d, events: newEvents } : d);
@@ -1743,14 +1803,14 @@ export default function App() {
                     <div className="flex flex-col gap-2">
                       {monthDays.map((d) => {
                         const dateKey = formatDateKey(d);
-                        const dayData = events.find(e => e.id === dateKey);
-                        if (!dayData || dayData.events.length === 0) return null;
+                        const dayEvents = getDayEvents(dateKey, d);
+                        if (dayEvents.length === 0) return null;
                         
                         return (
                           <div key={dateKey} className="flex gap-2 items-start">
                             <div className="w-6 shrink-0 text-[10px] font-black text-slate-500">{d.getDate()}</div>
                             <div className="flex-1 flex flex-col gap-1">
-                              {dayData.events.map((ev, i) => {
+                              {dayEvents.map((ev, i) => {
                                 const isCleaning = ev.title?.toUpperCase().includes('ПРИБИРАННЯ');
                                 return (
                                   <div key={i} className={`text-[9px] leading-tight flex gap-1 items-baseline px-1 rounded ${isCleaning ? 'bg-slate-200' : ''}`}>
@@ -1770,8 +1830,7 @@ export default function App() {
                 );
               })
             ) : visibleDays.map((d, index) => {
-              const dayData = events.find(e => e.id === d.dateKey);
-              const dayEvents = [...(dayData?.events || [])].sort((a, b) => (a.startTime || "99:99").localeCompare(b.startTime || "99:99"));
+              const dayEvents = getDayEvents(d.dateKey, new Date(d.dateKey)).sort((a, b) => (a.startTime || "99:99").localeCompare(b.startTime || "99:99"));
               
               return (
                 <div 
@@ -1961,10 +2020,10 @@ export default function App() {
             
             <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-slate-800/50">
               {(() => {
-                const dayData = events.find(e => e.id === selectedDayForEvent) || { id: selectedDayForEvent, events: [] };
+                const dayEvents = getDayEvents(selectedDayForEvent, floatingDate);
                 return (
                   <>
-                    {dayData.events.map((ev, i) => {
+                    {dayEvents.map((ev, i) => {
                       const isEditing = editingEventIndex === i;
                       const isMainEvent = eventGroups.find(g => g.items.includes(ev.title))?.label.includes('ОСНОВНІ ТА СВЯТА');
                       const isAssignmentDisabled = isAssignmentModalOpen && !isMainEvent;
@@ -1998,8 +2057,13 @@ export default function App() {
                                     </button>
                                     <button 
                                       onClick={() => {
-                                        const updated = dayData.events.filter((_, idx) => idx !== i);
-                                        setEvents(prev => prev.map(d => d.id === selectedDayForEvent ? { ...d, events: updated } : d));
+                                        const dayEvents = getDayEvents(selectedDayForEvent, floatingDate);
+                                        const updated = dayEvents.filter((_, idx) => idx !== i);
+                                        setEvents(prev => {
+                                          const existing = prev.find(d => d.id === selectedDayForEvent);
+                                          if (existing) return prev.map(d => d.id === selectedDayForEvent ? { ...d, events: updated } : d);
+                                          return [...prev, { id: selectedDayForEvent, events: updated }];
+                                        });
                                         commitToDB(selectedDayForEvent, updated, false);
                                       }}
                                       className={`p-1 text-red-600 hover:bg-red-50 rounded transition-colors ${isAssignmentDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -2028,6 +2092,25 @@ export default function App() {
                                   ♫ {ev.music}
                                 </div>
                               )}
+
+                              {/* Pin Icon */}
+                              {(() => {
+                                const isPinned = pinnedEvents.some(p => 
+                                  p.weekday === floatingDate.getDay() && 
+                                  p.title === ev.title && 
+                                  p.startTime === ev.startTime &&
+                                  p.place === ev.place
+                                );
+                                return (
+                                  <button 
+                                    onClick={() => togglePinEvent(ev, floatingDate.getDay())}
+                                    className={`absolute bottom-1 right-1 p-1 rounded-full transition-all ${isPinned ? 'text-red-600 bg-red-100 shadow-md' : 'text-slate-400 hover:text-blue-600 hover:bg-blue-100'}`}
+                                    title={isPinned ? "Відкріпити" : "Закріпити на кожен місяць"}
+                                  >
+                                    <Pin size={10} className={isPinned ? "fill-current" : ""}/>
+                                  </button>
+                                );
+                              })()}
                             </div>
                           </div>
                         );
@@ -2037,8 +2120,13 @@ export default function App() {
                         <div key={i} className="p-3 rounded-xl border border-black/20 relative space-y-2 shadow-lg bg-[#7c8f9b]">
                           <button 
                             onClick={() => {
-                              const updated = dayData.events.filter((_, idx) => idx !== i);
-                              setEvents(prev => prev.map(d => d.id === selectedDayForEvent ? { ...d, events: updated } : d));
+                              const dayEvents = getDayEvents(selectedDayForEvent, floatingDate);
+                              const updated = dayEvents.filter((_, idx) => idx !== i);
+                              setEvents(prev => {
+                                const existing = prev.find(d => d.id === selectedDayForEvent);
+                                if (existing) return prev.map(d => d.id === selectedDayForEvent ? { ...d, events: updated } : d);
+                                return [...prev, { id: selectedDayForEvent, events: updated }];
+                              });
                               setEditingEventIndex(null);
                             }} 
                             className="absolute -top-2 -right-2 bg-red-500 text-white p-1.5 rounded-full shadow-md hover:scale-110 transition-transform z-10"
@@ -2086,27 +2174,39 @@ export default function App() {
                           <div className="flex flex-col gap-2">
                              <div className="space-y-0.5">
                                 <label className="text-[8px] font-black text-white uppercase ml-0.5">Подія</label>
-                                <CustomSelect 
-                                  title="ПОДІЯ"
-                                  value={ev.title} 
-                                  groups={eventGroups} 
-                                  onEditGroup={(g) => setEditingGroup({...g, type: 'event'})}
-                                  onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'title', v)} 
-                                  placeholder="..." 
-                                  className="w-full"
-                                  disabled={activeTab !== 'admin' || isAssignmentModalOpen}
-                                />
+                                <div className="flex items-center gap-1">
+                                  <CustomSelect 
+                                    title="ПОДІЯ"
+                                    value={ev.title} 
+                                    groups={eventGroups} 
+                                    onEditGroup={(g) => setEditingGroup({...g, type: 'event'})}
+                                    onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'title', v)} 
+                                    placeholder="..." 
+                                    className="flex-1"
+                                    disabled={activeTab !== 'admin' || isAssignmentModalOpen}
+                                  />
+                                  {ev.title && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'title', "")} className="text-white/50 hover:text-white transition-colors"><X size={14}/></button>}
+                                </div>
                              </div>
                              <div className="space-y-0.5">
                                 <label className="text-[8px] font-black text-white uppercase ml-0.5">Місце</label>
-                                <CustomSelect title="МІСЦЕ" value={ev.place} options={locations} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'place', v)} placeholder="..." className="w-full" disabled={activeTab !== 'admin' || isAssignmentModalOpen} />
+                                <div className="flex items-center gap-1">
+                                  <CustomSelect title="МІСЦЕ" value={ev.place} options={locations} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'place', v)} placeholder="..." className="flex-1" disabled={activeTab !== 'admin' || isAssignmentModalOpen} />
+                                  {ev.place && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'place', "")} className="text-white/50 hover:text-white transition-colors"><X size={14}/></button>}
+                                </div>
                              </div>
                              <div className="space-y-0.5">
                                 <label className="text-[8px] font-black text-white uppercase ml-0.5">Час</label>
-                                <div className="flex gap-2 w-full">
-                                  <div className="text-white flex-1"><TimeInput label="" value={ev.startTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'startTime', v)} disabled={activeTab !== 'admin' || isAssignmentModalOpen} /></div>
-                                  <span className="text-white/50 font-bold self-center">-</span>
-                                  <div className="text-white flex-1"><TimeInput label="" value={ev.endTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'endTime', v)} disabled={activeTab !== 'admin' || isAssignmentModalOpen} /></div>
+                                <div className="flex gap-2 w-full items-center">
+                                  <div className="text-white flex-1 flex items-center gap-1">
+                                    <TimeInput label="" value={ev.startTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'startTime', v)} disabled={activeTab !== 'admin' || isAssignmentModalOpen} />
+                                    {ev.startTime && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'startTime', "")} className="text-white/50 hover:text-white transition-colors mt-2"><X size={12}/></button>}
+                                  </div>
+                                  <span className="text-white/50 font-bold self-center mt-2">-</span>
+                                  <div className="text-white flex-1 flex items-center gap-1">
+                                    <TimeInput label="" value={ev.endTime} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'endTime', v)} disabled={activeTab !== 'admin' || isAssignmentModalOpen} />
+                                    {ev.endTime && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'endTime', "")} className="text-white/50 hover:text-white transition-colors mt-2"><X size={12}/></button>}
+                                  </div>
                                 </div>
                              </div>
                           </div>
@@ -2118,7 +2218,7 @@ export default function App() {
                                  <div className="flex flex-col gap-2">
                                    {ev.leads?.map((l, lIdx) => (
                                      <div key={lIdx} className="flex gap-1 items-center w-full">
-                                        <CustomSelect title="СЛУЖІННЯ" value={l} groups={staffGroups.filter(g => g.label !== "Хто співає / грає")} onEditGroup={(g) => setEditingGroup({...g, type: 'staff'})} onChange={(v) => { const nL = [...ev.leads]; nL[lIdx] = v; updateLocalDetails(selectedDayForEvent, i, 'leads', nL); }} placeholder="Хто..." className="w-full" onAssignPreachers={() => {
+                                        <CustomSelect title="СЛУЖІННЯ" value={l} groups={staffGroups.filter(g => g.label !== "Хто співає / грає")} onEditGroup={(g) => setEditingGroup({...g, type: 'staff'})} onChange={(v) => { const nL = [...ev.leads]; nL[lIdx] = v; updateLocalDetails(selectedDayForEvent, i, 'leads', nL); }} placeholder="Хто..." className="flex-1" onAssignPreachers={() => {
                                           setPendingAssignmentCallback(() => (val: string) => {
                                             const nL = [...ev.leads];
                                             nL[lIdx] = val;
@@ -2126,6 +2226,7 @@ export default function App() {
                                           });
                                           setIsAssignmentModalOpen(true);
                                         }} />
+                                        {l && <button onClick={() => { const nL = [...ev.leads]; nL[lIdx] = ""; updateLocalDetails(selectedDayForEvent, i, 'leads', nL); }} className="text-white/50 hover:text-white transition-colors"><X size={14}/></button>}
                                         {ev.leads.length > 1 && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'leads', ev.leads.filter((_, idx) => idx !== lIdx))} className="text-red-200 p-0.5 hover:text-white"><X size={14}/></button>}
                                      </div>
                                    ))}
@@ -2135,14 +2236,17 @@ export default function App() {
 
                               <div className="space-y-0.5">
                                  <label className="text-[8px] font-black text-white uppercase ml-0.5">Музика</label>
-                                 <CustomSelect title="МУЗИКА" value={ev.music} groups={musicGroups} onEditGroup={(g) => setEditingGroup({...g, type: 'music'})} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'music', v)} placeholder="..." className="w-full" disabled={activeTab !== 'admin' || isAssignmentModalOpen} />
+                                 <div className="flex items-center gap-1">
+                                   <CustomSelect title="МУЗИКА" value={ev.music} groups={musicGroups} onEditGroup={(g) => setEditingGroup({...g, type: 'music'})} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'music', v)} placeholder="..." className="flex-1" disabled={activeTab !== 'admin' || isAssignmentModalOpen} />
+                                   {ev.music && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'music', "")} className="text-white/50 hover:text-white transition-colors"><X size={14}/></button>}
+                                 </div>
                               </div>
                             </>
                           )}
 
                           <button 
                             onClick={() => {
-                              commitToDB(selectedDayForEvent, dayData.events, false);
+                              commitToDB(selectedDayForEvent, dayEvents, false);
                               setEditingEventIndex(null);
                             }} 
                             className="w-full bg-slate-900 text-white py-1.5 text-[8px] font-black uppercase flex items-center justify-center gap-1.5 mt-1 hover:bg-black transition-colors active:scale-[0.98] shadow-md"
@@ -2173,10 +2277,8 @@ export default function App() {
                </button>
                <button 
                  onClick={async () => {
-                   const dayData = events.find(e => e.id === selectedDayForEvent);
-                   if (dayData) {
-                     await commitToDB(selectedDayForEvent, dayData.events, false);
-                   }
+                   const dayEvents = getDayEvents(selectedDayForEvent, floatingDate);
+                   await commitToDB(selectedDayForEvent, dayEvents, false);
                    setSelectedDayForEvent(null);
                  }} 
                  className="flex-1 bg-blue-600 text-white py-2.5 rounded-xl text-[10px] font-black uppercase flex items-center justify-center gap-2 hover:bg-blue-500 transition-colors shadow-lg shadow-blue-600/20"
