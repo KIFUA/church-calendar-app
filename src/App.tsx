@@ -374,13 +374,14 @@ const darkenHex = (hex: string, percent: number) => {
   return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 };
 
-const CustomSelect = ({ value, options = [], onChange, placeholder, groups = null, onEditGroup = null, className = "w-full", title, disabled = false, onAssignPreachers = null }: {
+const CustomSelect = ({ value, options = [], onChange, placeholder, groups = null, onEditGroup = null, onAddItem = null, className = "w-full", title, disabled = false, onAssignPreachers = null }: {
   value: any;
   options?: string[];
   onChange: (val: any) => void;
   placeholder?: string;
   groups?: { label: string; items: string[] }[] | null;
   onEditGroup?: ((group: any) => void) | null;
+  onAddItem?: ((item: string, groupIndex: number) => void) | null;
   className?: string;
   title?: string;
   disabled?: boolean;
@@ -471,18 +472,35 @@ const CustomSelect = ({ value, options = [], onChange, placeholder, groups = nul
               className="w-full bg-slate-100 border-none rounded-lg px-3 py-2 text-[11px] font-bold text-slate-900 outline-none focus:ring-2 focus:ring-blue-500/20 resize-none"
             />
             {searchValue.trim() && (
-              <button 
-                onClick={() => { 
-                  onChange(searchValue.trim()); 
-                  setIsOpen(false); 
-                  setTimeout(() => {
-                    if (triggerRef.current) focusNextElement(triggerRef.current);
-                  }, 50);
-                }}
-                className="w-full bg-blue-600 text-white py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-blue-700 shadow-md shadow-blue-600/20 transition-all active:scale-95"
-              >
-                Підтвердити
-              </button>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => { 
+                    onChange(searchValue.trim()); 
+                    setIsOpen(false); 
+                    setTimeout(() => {
+                      if (triggerRef.current) focusNextElement(triggerRef.current);
+                    }, 50);
+                  }}
+                  className="flex-1 bg-blue-600 text-white py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-blue-700 shadow-md shadow-blue-600/20 transition-all active:scale-95"
+                >
+                  Підтвердити
+                </button>
+                {onAddItem && (groups || options.length > 0) && (
+                  <button 
+                    onClick={() => { 
+                      onAddItem(searchValue.trim(), activeGroupIndex);
+                      // After adding, we don't necessarily close the modal, 
+                      // but maybe we should to show it's done or just clear search
+                      // Let's just confirm it's added by selecting it
+                      onChange(searchValue.trim());
+                      setIsOpen(false);
+                    }}
+                    className="flex-1 bg-emerald-600 text-white py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-emerald-700 shadow-md shadow-emerald-600/20 transition-all active:scale-95 flex items-center justify-center gap-1"
+                  >
+                    <Plus size={10} /> Додати в список
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -1012,6 +1030,43 @@ export default function App() {
       if (existing) return prev.map(d => d.id === dateKey ? { ...d, events: newEvents } : d);
       return [...prev, { id: dateKey, events: newEvents }];
     });
+  };
+
+  const handleAddValueToGroup = (item: string, groupIndex: number, type: 'staff' | 'music' | 'location' | 'event') => {
+    if (!item.trim()) return;
+    const val = item.trim();
+
+    if (type === 'staff') {
+      const filteredGroups = staffGroups.filter(g => g.label !== "Хто співає / грає");
+      if (groupIndex >= filteredGroups.length) return;
+      const targetGroupLabel = filteredGroups[groupIndex].label;
+      setStaffGroups(prev => prev.map(g => {
+        if (g.label === targetGroupLabel && !g.items.includes(val)) {
+          return { ...g, items: [...g.items, val] };
+        }
+        return g;
+      }));
+    } else if (type === 'music') {
+      if (groupIndex >= musicGroups.length) return;
+      const targetGroupLabel = musicGroups[groupIndex].label;
+      setMusicGroups(prev => prev.map(g => {
+        if (g.label === targetGroupLabel && !g.items.includes(val)) {
+          return { ...g, items: [...g.items, val] };
+        }
+        return g;
+      }));
+    } else if (type === 'event') {
+      if (groupIndex >= eventGroups.length) return;
+      const targetGroupLabel = eventGroups[groupIndex].label;
+      setEventGroups(prev => prev.map(g => {
+        if (g.label === targetGroupLabel && !g.items.includes(val)) {
+          return { ...g, items: [...g.items, val] };
+        }
+        return g;
+      }));
+    } else if (type === 'location') {
+      setLocations(prev => prev.includes(val) ? prev : [...prev, val]);
+    }
   };
 
   const addEventToDay = (dateKey) => {
@@ -2336,6 +2391,7 @@ export default function App() {
                                     value={ev.title} 
                                     groups={eventGroups} 
                                     onEditGroup={(g) => setEditingGroup({...g, type: 'event'})}
+                                    onAddItem={(item, idx) => handleAddValueToGroup(item, idx, 'event')}
                                     onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'title', v)} 
                                     placeholder="..." 
                                     className="flex-1"
@@ -2348,7 +2404,7 @@ export default function App() {
                                <div className="space-y-0.5">
                                   <label className="text-[8px] font-black text-white uppercase ml-0.5">Місце</label>
                                   <div className="flex items-center gap-1">
-                                    <CustomSelect title="МІСЦЕ" value={ev.place} options={locations} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'place', v)} placeholder="..." className="flex-1" disabled={isAdminAuthenticated && userRole === 'singer_manager' || activeTab !== 'admin' || isAssignmentModalOpen} />
+                                    <CustomSelect title="МІСЦЕ" value={ev.place} options={locations} onAddItem={(item) => handleAddValueToGroup(item, 0, 'location')} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'place', v)} placeholder="..." className="flex-1" disabled={isAdminAuthenticated && userRole === 'singer_manager' || activeTab !== 'admin' || isAssignmentModalOpen} />
                                     {ev.place && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'place', "")} disabled={userRole === 'singer_manager'} className={`text-white/50 hover:text-white transition-colors ${userRole === 'singer_manager' ? 'opacity-0 pointer-events-none' : ''}`}><X size={14}/></button>}
                                   </div>
                                </div>
@@ -2385,7 +2441,7 @@ export default function App() {
                                    <div className="flex flex-col gap-2">
                                      {ev.leads?.map((l, lIdx) => (
                                        <div key={lIdx} className="flex gap-1 items-center w-full">
-                                          <CustomSelect title="СЛУЖІННЯ" value={l} groups={staffGroups.filter(g => g.label !== "Хто співає / грає")} onEditGroup={(g) => setEditingGroup({...g, type: 'staff'})} onChange={(v) => { const nL = [...ev.leads]; nL[lIdx] = v; updateLocalDetails(selectedDayForEvent, i, 'leads', nL); }} placeholder="Хто..." className="flex-1" disabled={userRole === 'singer_manager'} onAssignPreachers={() => {
+                                          <CustomSelect title="СЛУЖІННЯ" value={l} groups={staffGroups.filter(g => g.label !== "Хто співає / грає")} onEditGroup={(g) => setEditingGroup({...g, type: 'staff'})} onAddItem={(item, idx) => handleAddValueToGroup(item, idx, 'staff')} onChange={(v) => { const nL = [...ev.leads]; nL[lIdx] = v; updateLocalDetails(selectedDayForEvent, i, 'leads', nL); }} placeholder="Хто..." className="flex-1" disabled={userRole === 'singer_manager'} onAssignPreachers={() => {
                                             setPendingAssignmentCallback(() => (val: string) => {
                                               const nL = [...ev.leads];
                                               nL[lIdx] = val;
@@ -2406,7 +2462,7 @@ export default function App() {
                                 <div className="space-y-0.5">
                                    <label className="text-[8px] font-black text-white uppercase ml-0.5">Музика</label>
                                    <div className="flex items-center gap-1">
-                                     <CustomSelect title="МУЗИКА" value={ev.music} groups={musicGroups} onEditGroup={(g) => setEditingGroup({...g, type: 'music'})} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'music', v)} placeholder="..." className="flex-1" disabled={activeTab !== 'admin' || isAssignmentModalOpen} />
+                                     <CustomSelect title="МУЗИКА" value={ev.music} groups={musicGroups} onEditGroup={(g) => setEditingGroup({...g, type: 'music'})} onAddItem={(item, idx) => handleAddValueToGroup(item, idx, 'music')} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'music', v)} placeholder="..." className="flex-1" disabled={activeTab !== 'admin' || isAssignmentModalOpen} />
                                      {ev.music && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'music', "")} className="text-white/50 hover:text-white transition-colors"><X size={14}/></button>}
                                    </div>
                                 </div>
