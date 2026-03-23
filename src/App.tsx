@@ -2388,9 +2388,17 @@ export default function App() {
                               </select>
                             </div>
                             <button 
-                              onClick={() => {
+                              onClick={async () => {
                                 const dayEvents = getDayEvents(selectedDayForEvent, floatingDate);
                                 const updated = dayEvents.filter((_, idx) => idx !== i);
+                                
+                                const weekday = floatingDate.getDay();
+                                const docId = `${weekday}_${ev.title}_${ev.startTime}_${ev.place}`.replace(/[^a-zA-Z0-9]/g, '_');
+                                const isPinned = pinnedEvents.some(p => p.id === docId);
+                                if (isPinned) {
+                                  await togglePinEvent(ev, weekday);
+                                }
+                                
                                 setEvents(prev => {
                                   const existing = prev.find(d => d.id === selectedDayForEvent);
                                   if (existing) return prev.map(d => d.id === selectedDayForEvent ? { ...d, events: updated } : d);
