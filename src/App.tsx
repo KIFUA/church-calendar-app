@@ -29,6 +29,7 @@ import {
   Calendar,
   ChevronDown,
   ChevronUp,
+  Copy,
   Pencil,
   Music,
   Users,
@@ -374,7 +375,7 @@ const darkenHex = (hex: string, percent: number) => {
   return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 };
 
-const CustomSelect = ({ value, options = [], onChange, placeholder, groups = null, onEditGroup = null, onAddItem = null, className = "w-full", title, disabled = false, onAssignPreachers = null }: {
+const CustomSelect = ({ value, options = [], onChange, placeholder, groups = null, onEditGroup = null, onAddItem = null, className = "w-full", title, disabled = false, onAssignPreachers = null, allowAppend = false }: {
   value: any;
   options?: string[];
   onChange: (val: any) => void;
@@ -386,6 +387,7 @@ const CustomSelect = ({ value, options = [], onChange, placeholder, groups = nul
   title?: string;
   disabled?: boolean;
   onAssignPreachers?: (() => void) | null;
+  allowAppend?: boolean;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeGroupIndex, setActiveGroupIndex] = useState(0);
@@ -432,6 +434,18 @@ const CustomSelect = ({ value, options = [], onChange, placeholder, groups = nul
     ? currentItems.filter(item => item.toLowerCase().includes(searchValue.toLowerCase()))
     : currentItems;
 
+  const handleSelect = (opt: string, append: boolean = false) => {
+    if (append && value) {
+      onChange(`${value} + ${opt}`);
+    } else {
+      onChange(opt);
+      setIsOpen(false);
+      setTimeout(() => {
+        if (triggerRef.current) focusNextElement(triggerRef.current);
+      }, 50);
+    }
+  };
+
   const content = (
     <div className="fixed inset-0 z-[1300] flex items-center justify-center px-4 bg-black/60 backdrop-blur-[2px] animate-in fade-in duration-150" onClick={() => setIsOpen(false)}>
       <div 
@@ -474,17 +488,19 @@ const CustomSelect = ({ value, options = [], onChange, placeholder, groups = nul
             {searchValue.trim() && (
               <div className="flex gap-2">
                 <button 
-                  onClick={() => { 
-                    onChange(searchValue.trim()); 
-                    setIsOpen(false); 
-                    setTimeout(() => {
-                      if (triggerRef.current) focusNextElement(triggerRef.current);
-                    }, 50);
-                  }}
+                  onClick={() => handleSelect(searchValue.trim())}
                   className="flex-1 bg-blue-600 text-white py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-blue-700 shadow-md shadow-blue-600/20 transition-all active:scale-95"
                 >
                   Підтвердити
                 </button>
+                {allowAppend && value && (
+                  <button 
+                    onClick={() => handleSelect(searchValue.trim(), true)}
+                    className="flex-1 bg-amber-600 text-white py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-amber-700 shadow-md shadow-amber-600/20 transition-all active:scale-95 flex items-center justify-center gap-1"
+                  >
+                    <Plus size={10} /> Додати до існуючого
+                  </button>
+                )}
                 {onAddItem && (groups || options.length > 0) && (
                   <button 
                     onClick={() => { 
@@ -563,18 +579,22 @@ const CustomSelect = ({ value, options = [], onChange, placeholder, groups = nul
                     {sortAlphabetically(filteredItems).map((opt) => (
                         <div
                             key={opt}
-                            onClick={() => { 
-                              onChange(opt); 
-                              setIsOpen(false); 
-                              setTimeout(() => {
-                                if (triggerRef.current) focusNextElement(triggerRef.current);
-                              }, 50);
-                            }}
-                            className={`px-3 py-[2px] text-[10px] font-bold cursor-pointer transition-colors border-b border-slate-50 last:border-0 text-left leading-tight ${
+                            className={`px-3 py-[2px] text-[10px] font-bold cursor-pointer transition-colors border-b border-slate-50 last:border-0 text-left leading-tight flex items-center justify-between group ${
                                 value === opt ? 'bg-blue-50 text-blue-700' : 'text-slate-700 hover:bg-slate-50'
                             }`}
                         >
-                            {opt}
+                            <div className="flex-1 py-1" onClick={() => handleSelect(opt)}>
+                              {opt}
+                            </div>
+                            {allowAppend && value && value !== opt && (
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); handleSelect(opt, true); }}
+                                className="p-1 opacity-0 group-hover:opacity-100 hover:bg-amber-100 text-amber-600 rounded transition-all"
+                                title="Додати до існуючого"
+                              >
+                                <Plus size={10} />
+                              </button>
+                            )}
                         </div>
                     ))}
                     {searchValue && filteredItems.length === 0 && (
@@ -591,18 +611,22 @@ const CustomSelect = ({ value, options = [], onChange, placeholder, groups = nul
               {sortAlphabetically(filteredItems).map((opt) => (
                 <div
                   key={opt}
-                  onClick={() => { 
-                    onChange(opt); 
-                    setIsOpen(false); 
-                    setTimeout(() => {
-                      if (triggerRef.current) focusNextElement(triggerRef.current);
-                    }, 50);
-                  }}
-                  className={`px-3 py-[2px] text-[10px] font-bold cursor-pointer transition-colors border-b border-slate-50 last:border-0 text-left leading-tight ${
+                  className={`px-3 py-[2px] text-[10px] font-bold cursor-pointer transition-colors border-b border-slate-50 last:border-0 text-left leading-tight flex items-center justify-between group ${
                     value === opt ? 'bg-blue-50 text-blue-700' : 'text-slate-700 hover:bg-slate-50'
                   }`}
                 >
-                  <span className="truncate">{opt}</span>
+                  <div className="flex-1 py-1 truncate" onClick={() => handleSelect(opt)}>
+                    {opt}
+                  </div>
+                  {allowAppend && value && value !== opt && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handleSelect(opt, true); }}
+                      className="p-1 opacity-0 group-hover:opacity-100 hover:bg-amber-100 text-amber-600 rounded transition-all"
+                      title="Додати до існуючого"
+                    >
+                      <Plus size={10} />
+                    </button>
+                  )}
                 </div>
               ))}
               {searchValue && filteredItems.length === 0 && (
@@ -759,6 +783,7 @@ export default function App() {
   const listsRef = useRef(null);
   
   const [editingGroup, setEditingGroup] = useState(null);
+  const [confirmAction, setConfirmAction] = useState<{ title: string; message: string; onConfirm: () => void } | null>(null);
   const [newItemName, setNewItemName] = useState("");
   const [editingEventIndex, setEditingEventIndex] = useState<number | null>(null);
   const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
@@ -1096,6 +1121,34 @@ export default function App() {
       setEditingGroup(prev => ({...prev, items: [...prev.items, newItemName.trim()]}));
     }
     setNewItemName("");
+  };
+
+  const handleDuplicateGroupTo = (targetType: 'event' | 'music' | 'staff') => {
+    if (!editingGroup || editingGroup.type === 'location') return;
+    
+    const newGroup = { 
+      label: editingGroup.label, 
+      items: [...editingGroup.items] 
+    };
+
+    if (targetType === 'event') {
+      setEventGroups(prev => {
+        if (prev.some(g => g.label === newGroup.label)) return prev;
+        return [...prev, newGroup];
+      });
+    } else if (targetType === 'music') {
+      setMusicGroups(prev => {
+        if (prev.some(g => g.label === newGroup.label)) return prev;
+        return [...prev, newGroup];
+      });
+    } else if (targetType === 'staff') {
+      setStaffGroups(prev => {
+        if (prev.some(g => g.label === newGroup.label)) return prev;
+        return [...prev, newGroup];
+      });
+    }
+    
+    setEditingGroup(null);
   };
 
   const handleRemoveItemFromGroup = (itemToRemove) => {
@@ -1694,9 +1747,14 @@ export default function App() {
                         <button onClick={() => setEditingGroup({...g, type: 'event'})} className="text-slate-500 hover:text-white ml-1 p-1"><Pencil size={14}/></button>
                         <button 
                           onClick={() => {
-                            if (window.confirm(`Видалити категорію "${g.label}"?`)) {
-                              setEventGroups(prev => prev.filter((_, i) => i !== idx));
-                            }
+                            setConfirmAction({
+                              title: "Видалення категорії",
+                              message: `Ви впевнені, що хочете видалити категорію "${g.label}"?`,
+                              onConfirm: () => {
+                                setEventGroups(prev => prev.filter((_, i) => i !== idx));
+                                setConfirmAction(null);
+                              }
+                            });
                           }} 
                           className="text-slate-500 hover:text-red-500 ml-auto p-1"
                         >
@@ -1742,9 +1800,14 @@ export default function App() {
                         <button onClick={() => setEditingGroup({...g, type: 'music'})} className="text-slate-500 hover:text-white ml-1 p-1"><Pencil size={14}/></button>
                         <button 
                           onClick={() => {
-                            if (window.confirm(`Видалити категорію "${g.label}"?`)) {
-                              setMusicGroups(prev => prev.filter((_, i) => i !== idx));
-                            }
+                            setConfirmAction({
+                              title: "Видалення категорії",
+                              message: `Ви впевнені, що хочете видалити категорію "${g.label}"?`,
+                              onConfirm: () => {
+                                setMusicGroups(prev => prev.filter((_, i) => i !== idx));
+                                setConfirmAction(null);
+                              }
+                            });
                           }} 
                           className="text-slate-500 hover:text-red-500 ml-auto p-1"
                         >
@@ -1790,14 +1853,19 @@ export default function App() {
                         <button onClick={() => setEditingGroup({...g, type: 'staff'})} className="text-slate-500 hover:text-white ml-1 p-1"><Pencil size={14}/></button>
                         <button 
                           onClick={() => {
-                            if (window.confirm(`Видалити категорію "${g.label}"?`)) {
-                              setStaffGroups(prev => prev.filter((_, i) => i !== idx));
-                            }
+                            setConfirmAction({
+                              title: "Видалення категорії",
+                              message: `Ви впевнені, що хочете видалити категорію "${g.label}"?`,
+                              onConfirm: () => {
+                                setStaffGroups(prev => prev.filter((_, i) => i !== idx));
+                                setConfirmAction(null);
+                              }
+                            });
                           }} 
                           className="text-slate-500 hover:text-red-500 ml-auto p-1"
                         >
                           <Trash2 size={14}/>
-                        </button>
+                         </button>
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-1.5">
@@ -2396,6 +2464,7 @@ export default function App() {
                                     placeholder="..." 
                                     className="flex-1"
                                     disabled={isAdminAuthenticated && userRole === 'singer_manager' || activeTab !== 'admin' || isAssignmentModalOpen}
+                                    allowAppend={true}
                                   />
                                   {ev.title && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'title', "")} disabled={userRole === 'singer_manager'} className={`text-white/50 hover:text-white transition-colors ${userRole === 'singer_manager' ? 'opacity-0 pointer-events-none' : ''}`}><X size={14}/></button>}
                                 </div>
@@ -2404,7 +2473,7 @@ export default function App() {
                                <div className="space-y-0.5">
                                   <label className="text-[8px] font-black text-white uppercase ml-0.5">Місце</label>
                                   <div className="flex items-center gap-1">
-                                    <CustomSelect title="МІСЦЕ" value={ev.place} options={locations} onAddItem={(item) => handleAddValueToGroup(item, 0, 'location')} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'place', v)} placeholder="..." className="flex-1" disabled={isAdminAuthenticated && userRole === 'singer_manager' || activeTab !== 'admin' || isAssignmentModalOpen} />
+                                    <CustomSelect title="МІСЦЕ" value={ev.place} options={locations} onAddItem={(item) => handleAddValueToGroup(item, 0, 'location')} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'place', v)} placeholder="..." className="flex-1" disabled={isAdminAuthenticated && userRole === 'singer_manager' || activeTab !== 'admin' || isAssignmentModalOpen} allowAppend={true} />
                                     {ev.place && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'place', "")} disabled={userRole === 'singer_manager'} className={`text-white/50 hover:text-white transition-colors ${userRole === 'singer_manager' ? 'opacity-0 pointer-events-none' : ''}`}><X size={14}/></button>}
                                   </div>
                                </div>
@@ -2441,7 +2510,7 @@ export default function App() {
                                    <div className="flex flex-col gap-2">
                                      {ev.leads?.map((l, lIdx) => (
                                        <div key={lIdx} className="flex gap-1 items-center w-full">
-                                          <CustomSelect title="СЛУЖІННЯ" value={l} groups={staffGroups.filter(g => g.label !== "Хто співає / грає")} onEditGroup={(g) => setEditingGroup({...g, type: 'staff'})} onAddItem={(item, idx) => handleAddValueToGroup(item, idx, 'staff')} onChange={(v) => { const nL = [...ev.leads]; nL[lIdx] = v; updateLocalDetails(selectedDayForEvent, i, 'leads', nL); }} placeholder="Хто..." className="flex-1" disabled={userRole === 'singer_manager'} onAssignPreachers={() => {
+                                          <CustomSelect title="СЛУЖІННЯ" value={l} groups={staffGroups.filter(g => g.label !== "Хто співає / грає")} onEditGroup={(g) => setEditingGroup({...g, type: 'staff'})} onAddItem={(item, idx) => handleAddValueToGroup(item, idx, 'staff')} onChange={(v) => { const nL = [...ev.leads]; nL[lIdx] = v; updateLocalDetails(selectedDayForEvent, i, 'leads', nL); }} placeholder="Хто..." className="flex-1" disabled={userRole === 'singer_manager'} allowAppend={true} onAssignPreachers={() => {
                                             setPendingAssignmentCallback(() => (val: string) => {
                                               const nL = [...ev.leads];
                                               nL[lIdx] = val;
@@ -2462,7 +2531,7 @@ export default function App() {
                                 <div className="space-y-0.5">
                                    <label className="text-[8px] font-black text-white uppercase ml-0.5">Музика</label>
                                    <div className="flex items-center gap-1">
-                                     <CustomSelect title="МУЗИКА" value={ev.music} groups={musicGroups} onEditGroup={(g) => setEditingGroup({...g, type: 'music'})} onAddItem={(item, idx) => handleAddValueToGroup(item, idx, 'music')} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'music', v)} placeholder="..." className="flex-1" disabled={activeTab !== 'admin' || isAssignmentModalOpen} />
+                                     <CustomSelect title="МУЗИКА" value={ev.music} groups={musicGroups} onEditGroup={(g) => setEditingGroup({...g, type: 'music'})} onAddItem={(item, idx) => handleAddValueToGroup(item, idx, 'music')} onChange={(v) => updateLocalDetails(selectedDayForEvent, i, 'music', v)} placeholder="..." className="flex-1" disabled={activeTab !== 'admin' || isAssignmentModalOpen} allowAppend={true} />
                                      {ev.music && <button onClick={() => updateLocalDetails(selectedDayForEvent, i, 'music', "")} className="text-white/50 hover:text-white transition-colors"><X size={14}/></button>}
                                    </div>
                                 </div>
@@ -2554,6 +2623,28 @@ export default function App() {
                </div>
             </div>
             <div className="p-3 bg-slate-800 border-t border-slate-700">
+               {editingGroup.type !== 'location' && (
+                 <div className="mb-3">
+                   <span className="text-slate-500 text-[7px] font-bold uppercase tracking-widest leading-none mb-2 block">Копіювати до:</span>
+                   <div className="flex gap-1.5 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden">
+                     {editingGroup.type !== 'event' && (
+                       <button onClick={() => handleDuplicateGroupTo('event')} className="flex items-center gap-1 bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded text-[7px] font-black uppercase tracking-wider transition-colors shrink-0">
+                         <Copy size={8} /> Події
+                       </button>
+                     )}
+                     {editingGroup.type !== 'music' && (
+                       <button onClick={() => handleDuplicateGroupTo('music')} className="flex items-center gap-1 bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded text-[7px] font-black uppercase tracking-wider transition-colors shrink-0">
+                         <Copy size={8} /> Музика
+                       </button>
+                     )}
+                     {editingGroup.type !== 'staff' && (
+                       <button onClick={() => handleDuplicateGroupTo('staff')} className="flex items-center gap-1 bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded text-[7px] font-black uppercase tracking-wider transition-colors shrink-0">
+                         <Copy size={8} /> Служіння
+                       </button>
+                     )}
+                   </div>
+                 </div>
+               )}
                <div className="flex gap-2 mb-3">
                  <input autoFocus type="text" value={newItemName} onChange={(e) => setNewItemName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleAddItemToGroup()} placeholder="Новий запис..." className="flex-1 bg-slate-900 border border-slate-700 rounded-md px-2 py-1 text-white text-[9px] font-bold outline-none focus:border-blue-500 transition-all" spellCheck={false} autoCorrect="off" autoComplete="off" autoCapitalize="off" />
                  <button onClick={handleAddItemToGroup} className="bg-blue-600 text-white px-3 rounded-md text-[8px] font-black uppercase"><Plus size={12}/></button>
@@ -2588,6 +2679,34 @@ export default function App() {
                 }
               }}
             />
+          </div>
+        </div>
+      )}
+
+      {confirmAction && (
+        <div className="fixed inset-0 z-[4000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-slate-800 border border-slate-700 w-full max-w-[320px] rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="p-5 text-center">
+              <div className="w-12 h-12 bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Trash2 size={24} />
+              </div>
+              <h3 className="text-white font-black uppercase text-xs mb-2 tracking-widest">{confirmAction.title}</h3>
+              <p className="text-slate-400 text-[10px] font-medium leading-relaxed">{confirmAction.message}</p>
+            </div>
+            <div className="flex border-t border-slate-700">
+              <button 
+                onClick={() => setConfirmAction(null)}
+                className="flex-1 px-4 py-3 text-slate-400 text-[9px] font-black uppercase tracking-widest hover:bg-slate-700/50 transition-colors border-r border-slate-700"
+              >
+                Скасувати
+              </button>
+              <button 
+                onClick={confirmAction.onConfirm}
+                className="flex-1 px-4 py-3 text-red-500 text-[9px] font-black uppercase tracking-widest hover:bg-red-500/10 transition-colors"
+              >
+                Видалити
+              </button>
+            </div>
           </div>
         </div>
       )}
