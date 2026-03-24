@@ -2104,11 +2104,11 @@ export default function App() {
                           {/* Col 1: Location & Time */}
                           <div className={`col-span-1 flex flex-col gap-0 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl'} ${showPreacherTable ? 'px-0.5 py-0' : 'px-1 md:px-2 py-0.5 md:py-1'} min-w-0 phone-landscape-no-wrap`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                             <div className={`flex items-center gap-0 md:gap-1 text-blue-600 font-normal ${showPreacherTable ? 'text-[3px]' : 'text-[4px] md:text-[6px] lg:text-[5px]'} uppercase tracking-tight`}>
-                              <MapPin size={showPreacherTable ? 4 : 5} className="shrink-0 md:w-2 md:h-2 lg:w-2 lg:h-2" />
+                              <MapPin size={showPreacherTable ? 3 : 4} className="shrink-0 md:w-1.5 md:h-1.5 lg:w-1.5 lg:h-1.5" />
                               <span className="whitespace-nowrap min-w-0 flex-1">{ev.place || '—'}</span>
                             </div>
                             <div className={`flex items-center gap-0 md:gap-1 text-slate-600 font-bold ${showPreacherTable ? 'text-[3px]' : 'text-[4px] md:text-[6px] lg:text-[5px]'}`}>
-                              <Clock size={showPreacherTable ? 4 : 5} className="text-blue-500 shrink-0 md:w-2 md:h-2 lg:w-2 lg:h-2" />
+                              <Clock size={showPreacherTable ? 3 : 4} className="text-blue-500 shrink-0 md:w-1.5 md:h-1.5 lg:w-1.5 lg:h-1.5" />
                               <span className="whitespace-nowrap">{ev.startTime}{ev.endTime ? `-${ev.endTime}` : ''}</span>
                             </div>
                           </div>
