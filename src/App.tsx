@@ -1637,7 +1637,7 @@ export default function App() {
 
           {viewMode === 'year' && (
             <div className="flex items-center justify-center gap-2 w-full">
-              <div className="flex items-center bg-slate-800/50 px-4 py-1.5 rounded-xl border border-slate-700/50 backdrop-blur-sm gap-0">
+              <div className="flex items-center bg-slate-800/50 px-4 py-1.5 rounded-xl border border-slate-700/50 backdrop-blur-sm gap-4">
                 <button 
                   onClick={() => {
                     const d = new Date(selectedDate);
@@ -1667,7 +1667,7 @@ export default function App() {
 
           {viewMode === 'month' && (
             <div className="flex items-center justify-center gap-2 w-full">
-              <div className="flex items-center px-4 py-1.5 gap-0">
+              <div className="flex items-center px-4 py-1.5 gap-4">
                 <button 
                   onClick={() => {
                     const d = new Date(selectedDate);
@@ -1966,8 +1966,8 @@ export default function App() {
           <div className={`
             calendar-container-scaling
             ${viewMode === 'month' ? (showPreacherTable ? 'flex flex-col gap-3' : 'grid grid-cols-1 gap-3 print:grid-cols-1 print:gap-0') : ''}
-            ${viewMode === 'week' ? 'grid grid-cols-1 lg:grid-cols-2 gap-3 w-full' : ''}
-            ${viewMode === 'day' ? `flex flex-col gap-3 w-full ${showPreacherTable ? '' : 'mx-auto'}` : ''}
+            ${viewMode === 'week' ? 'grid grid-cols-1 lg:grid-cols-2 gap-3 w-full max-w-full lg:max-w-[1000px] mx-auto' : ''}
+            ${viewMode === 'day' ? `flex flex-col gap-3 w-full max-w-full ${showPreacherTable ? '' : 'md:max-w-[500px] mx-auto'}` : ''}
             ${viewMode === 'year' ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 print:grid-cols-1 print:gap-0' : ''}
           `}>
             {viewMode === 'year' ? (
@@ -2059,7 +2059,7 @@ export default function App() {
                     setSelectedDate(dateObj);
                     setSelectedDayForEvent(d.dateKey);
                   }}
-                  className={`relative flex flex-row overflow-hidden ${showPreacherTable ? 'border-l-[6px]' : 'border-l-[12px]'} shadow-md transition-all cursor-pointer ${showPreacherTable ? 'min-h-[60px]' : 'min-h-[110px]'} ${showPreacherTable ? 'rounded-xl' : 'rounded-3xl'} w-full ${(viewMode === 'month' || viewMode === 'week') && !showPreacherTable ? 'max-w-[95%] md:max-w-[80%] lg:max-w-[60%] mx-auto' : 'max-w-full'} ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
+                  className={`relative flex flex-row overflow-hidden ${showPreacherTable ? 'border-l-[6px]' : 'border-l-[12px]'} shadow-md transition-all cursor-pointer ${showPreacherTable ? 'min-h-[60px]' : 'min-h-[110px]'} ${showPreacherTable ? 'rounded-xl' : 'rounded-3xl'} w-full ${(viewMode === 'month' || viewMode === 'week') && !showPreacherTable ? 'max-w-[500px] md:max-w-[60%] mx-auto' : 'max-w-full'} ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
                   style={{ 
                     borderLeftColor: (d.isOtherMonth && activeTab === 'view') ? '#f1f5f9' : BORDER_COLORS[d.weekdayIndex],
                     backgroundColor: (d.isOtherMonth && activeTab === 'view') ? '#f8fafc' : WEEKDAY_COLORS[d.weekdayIndex]
@@ -2116,13 +2116,13 @@ export default function App() {
                           {/* Col 2: Event & Music */}
                           <div className={`${isCleaning ? 'col-span-2' : 'col-span-1'} flex flex-col gap-0.5 md:gap-1 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl'} ${showPreacherTable ? 'px-1 py-0.5' : 'px-1.5 md:px-2 py-1 md:py-1.5'} min-w-0 ${ev.align === 'center' ? 'text-center items-center' : ev.align === 'right' ? 'text-right items-end' : 'text-left items-start'}`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                             <div 
-                              className={`${showPreacherTable ? 'text-[6px]' : 'text-[clamp(7px,1.5vw,14px)]'} leading-tight tracking-tight group-hover/event:scale-[1.01] transition-transform w-full whitespace-pre-wrap break-words min-w-0 ${ev.isBold !== false ? 'font-black' : 'font-medium'} ${ev.isItalic === true ? 'italic' : ''} ${ev.isUnderline === true ? 'underline' : ''} ${ev.isUppercase !== false ? 'uppercase' : ''}`}
+                              className={`${showPreacherTable ? 'text-[6px]' : 'text-[7px] md:text-[10px] xl:text-[12px]'} leading-tight tracking-tight group-hover/event:scale-[1.01] transition-transform w-full whitespace-pre-wrap break-words min-w-0 ${ev.isBold !== false ? 'font-black' : 'font-medium'} ${ev.isItalic === true ? 'italic' : ''} ${ev.isUnderline === true ? 'underline' : ''} ${ev.isUppercase !== false ? 'uppercase' : ''}`}
                               style={{ color: ev.textColor }}
                             >
                               {ev.title || ''}
                             </div>
                             {ev.music && (
-                              <div className={`${showPreacherTable ? 'text-[4px]' : 'text-slate-500 italic text-[clamp(5px,1vw,10px)]'} leading-tight font-semibold flex items-center gap-0.5 md:gap-1 bg-blue-50/30 px-1 md:px-1.5 py-0.5 rounded-md md:rounded-lg w-fit max-w-full`}>
+                              <div className={`${showPreacherTable ? 'text-[4px]' : 'text-slate-500 italic text-[5px] md:text-[8px] lg:text-[9px]'} leading-tight font-semibold flex items-center gap-0.5 md:gap-1 bg-blue-50/30 px-1 md:px-1.5 py-0.5 rounded-md md:rounded-lg w-fit max-w-full`}>
                                 <Music size={showPreacherTable ? 4 : 6} className={`shrink-0 ${showPreacherTable ? '' : 'text-blue-400 md:w-2 md:h-2 lg:w-2.5 lg:h-2.5'}`} />
                                 <span className="break-words min-w-0 flex-1">{ev.music}</span>
                               </div>
