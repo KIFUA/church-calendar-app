@@ -1637,7 +1637,7 @@ export default function App() {
 
           {viewMode === 'year' && (
             <div className="flex items-center justify-center gap-2 w-full">
-              <div className="flex items-center bg-slate-800/50 px-4 py-1.5 rounded-xl border border-slate-700/50 backdrop-blur-sm gap-4">
+              <div className="flex items-center bg-slate-800/50 px-4 py-1.5 rounded-xl border border-slate-700/50 backdrop-blur-sm gap-0">
                 <button 
                   onClick={() => {
                     const d = new Date(selectedDate);
@@ -1667,7 +1667,7 @@ export default function App() {
 
           {viewMode === 'month' && (
             <div className="flex items-center justify-center gap-2 w-full">
-              <div className="flex items-center px-4 py-1.5 gap-4">
+              <div className="flex items-center px-4 py-1.5 gap-0">
                 <button 
                   onClick={() => {
                     const d = new Date(selectedDate);
