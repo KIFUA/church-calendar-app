@@ -2054,6 +2054,7 @@ export default function App() {
                     if (viewMode === 'day') setDayViewPivotDate(new Date(d.dateKey));
                   }}
                   onDoubleClick={() => {
+                    if (!isAdminAuthenticated) return;
                     const dateObj = new Date(d.dateKey);
                     setSelectedDate(dateObj);
                     setSelectedDayForEvent(d.dateKey);
