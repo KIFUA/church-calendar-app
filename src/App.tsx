@@ -2115,13 +2115,13 @@ export default function App() {
                           {/* Col 2: Event & Music */}
                           <div className={`${isCleaning ? 'col-span-2' : 'col-span-1'} flex flex-col gap-0.5 md:gap-1 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl'} ${showPreacherTable ? 'px-1 py-0.5' : 'px-1.5 md:px-2 py-1 md:py-1.5'} min-w-0 ${ev.align === 'center' ? 'text-center items-center' : ev.align === 'right' ? 'text-right items-end' : 'text-left items-start'}`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                             <div 
-                              className={`${showPreacherTable ? 'text-[7px]' : 'text-[8px] md:text-[11px] xl:text-[13px]'} leading-tight tracking-tight group-hover/event:scale-[1.01] transition-transform w-full whitespace-pre-wrap break-words min-w-0 ${ev.isBold !== false ? 'font-black' : 'font-medium'} ${ev.isItalic === true ? 'italic' : ''} ${ev.isUnderline === true ? 'underline' : ''} ${ev.isUppercase !== false ? 'uppercase' : ''}`}
+                              className={`${showPreacherTable ? 'text-[6px]' : 'text-[7px] md:text-[10px] xl:text-[12px]'} leading-tight tracking-tight group-hover/event:scale-[1.01] transition-transform w-full whitespace-pre-wrap break-words min-w-0 ${ev.isBold !== false ? 'font-black' : 'font-medium'} ${ev.isItalic === true ? 'italic' : ''} ${ev.isUnderline === true ? 'underline' : ''} ${ev.isUppercase !== false ? 'uppercase' : ''}`}
                               style={{ color: ev.textColor }}
                             >
                               {ev.title || ''}
                             </div>
                             {ev.music && (
-                              <div className={`${showPreacherTable ? 'text-[5px]' : 'text-slate-500 italic text-[6px] md:text-[9px] lg:text-[10px]'} leading-tight font-semibold flex items-center gap-0.5 md:gap-1 bg-blue-50/30 px-1 md:px-1.5 py-0.5 rounded-md md:rounded-lg w-fit max-w-full`}>
+                              <div className={`${showPreacherTable ? 'text-[4px]' : 'text-slate-500 italic text-[5px] md:text-[8px] lg:text-[9px]'} leading-tight font-semibold flex items-center gap-0.5 md:gap-1 bg-blue-50/30 px-1 md:px-1.5 py-0.5 rounded-md md:rounded-lg w-fit max-w-full`}>
                                 <Music size={showPreacherTable ? 4 : 6} className={`shrink-0 ${showPreacherTable ? '' : 'text-blue-400 md:w-2 md:h-2 lg:w-2.5 lg:h-2.5'}`} />
                                 <span className="break-words min-w-0 flex-1">{ev.music}</span>
                               </div>
