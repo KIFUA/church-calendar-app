@@ -98,32 +98,19 @@
     white-space: nowrap !important;
   }
 
-  /* Scale up the entire calendar container */
+  /* Scale up the entire calendar container slightly but maintain hierarchy */
   .calendar-container-scaling {
-    --scale-factor: clamp(1, 1.2vw, 1.4);
+    --scale-factor: 1.1;
   }
   
-  /* Target specific text elements that are too small */
-  .calendar-container-scaling [class*="text-["] {
-    font-size: calc(var(--original-size, 10px) * var(--scale-factor, 1.2)) !important;
-    line-height: 1.2 !important;
+  /* Only scale if explicitly needed, but avoid forcing minimums that break hierarchy */
+  .calendar-container-scaling .event-title-text {
+    font-size: clamp(14px, 4vh, 18px) !important;
   }
 
-  /* Specific overrides for common small text sizes to ensure they scale up */
-  .calendar-container-scaling .text-\[4px\],
-  .calendar-container-scaling .text-\[5px\],
-  .calendar-container-scaling .text-\[6px\],
-  .calendar-container-scaling .text-\[7px\],
-  .calendar-container-scaling .text-\[8px\],
-  .calendar-container-scaling .text-\[9px\] {
-    font-size: clamp(10px, 2.5vh, 14px) !important;
-  }
-
-  .calendar-container-scaling .text-\[10px\],
-  .calendar-container-scaling .text-\[11px\],
-  .calendar-container-scaling .text-\[13px\],
-  .calendar-container-scaling .text-\[15px\] {
-    font-size: clamp(14px, 4vh, 20px) !important;
+  /* Ensure secondary elements stay small */
+  .calendar-container-scaling .secondary-indicator-text {
+    font-size: clamp(8px, 2vh, 10px) !important;
   }
 
   /* Increase padding and gaps */

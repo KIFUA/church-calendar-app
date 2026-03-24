@@ -2065,7 +2065,7 @@ export default function App() {
                   }}
                 >
                   {/* Left Column: Date & Day */}
-                  <div className={`${showPreacherTable ? 'w-6' : (viewMode === 'month' ? 'w-8 md:w-10' : 'w-10 md:w-12')} shrink-0 flex flex-col items-center justify-center border-r border-slate-100/50 bg-white/50 gap-0.5 md:gap-1 py-1 md:py-2`}>
+                  <div className={`${showPreacherTable ? 'w-5' : (viewMode === 'month' ? 'w-6 md:w-8' : 'w-8 md:w-10')} shrink-0 flex flex-col items-center justify-center border-r border-slate-100/50 bg-white/50 gap-0.5 md:gap-1 py-1 md:py-2`}>
                     <span className={`${showPreacherTable ? 'text-[7px]' : 'text-[11px] md:text-[13px]'} font-bold uppercase leading-none ${d.isToday ? 'text-blue-600' : 'text-slate-900'}`}>
                       {String(d.day).padStart(2, '0')}
                     </span>
@@ -2087,7 +2087,7 @@ export default function App() {
                   )}
 
                   {/* Right Column: Events */}
-                  <div className={`flex-grow ${showPreacherTable ? 'p-1 space-y-0.5' : 'p-3 space-y-1'} min-h-[40px] min-w-0`}>
+                  <div className={`flex-grow ${showPreacherTable ? 'pl-0.5 pr-1 py-1 space-y-0.5' : 'pl-1 pr-2 py-2 space-y-1'} min-h-[40px] min-w-0`}>
                     {dayEvents.length > 0 ? dayEvents.map((ev, i) => {
                       const isCleaning = ev.title?.toUpperCase().replace(/\s+/g, '').includes('ПРИБИРАННЯ');
                       const leadsCount = ev.leads?.filter(l => l).length || 0;
@@ -2132,7 +2132,7 @@ export default function App() {
                           {!isCleaning && (
                             <div className={`col-span-1 flex flex-col gap-0.5 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl'} ${showPreacherTable ? 'px-0.5 pt-0.5' : 'px-1 md:px-2 pt-0.5 md:pt-1'} min-w-0 phone-landscape-no-wrap`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                               {ev.leads?.filter(l => l).map((lead, lIdx) => (
-                                <div key={lIdx} className={`text-[#003366] font-medium ${showPreacherTable ? 'text-[5px]' : 'text-[4px] md:text-[9px] lg:text-[10px]'} leading-none flex items-start gap-1 md:gap-1.5 py-px min-w-0`}>
+                                <div key={lIdx} className={`text-[#003366] font-medium ${showPreacherTable ? 'text-[7px]' : 'text-[6px] md:text-[11px] lg:text-[12px]'} leading-none flex items-start gap-1 md:gap-1.5 py-px min-w-0`}>
                                   <span className="min-w-0 flex-1">{lead}</span>
                                 </div>
                               ))}
