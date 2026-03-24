@@ -101,3 +101,12 @@
     margin-right: auto !important;
   }
 }
+
+/* Portrait Mode Specific Restriction */
+@media (orientation: portrait) {
+  .calendar-container-scaling {
+    max-width: 500px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+}
