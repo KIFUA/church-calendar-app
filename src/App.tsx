@@ -1964,6 +1964,7 @@ export default function App() {
               </div>
             )}
           <div className={`
+            calendar-container-scaling
             ${viewMode === 'month' ? (showPreacherTable ? 'flex flex-col gap-3' : 'grid grid-cols-1 gap-3 print:grid-cols-1 print:gap-0') : ''}
             ${viewMode === 'week' ? 'grid grid-cols-1 lg:grid-cols-2 gap-3 w-full max-w-full lg:max-w-[1000px] mx-auto' : ''}
             ${viewMode === 'day' ? `flex flex-col gap-3 w-full max-w-full ${showPreacherTable ? '' : 'md:max-w-[500px] mx-auto'}` : ''}
@@ -1987,7 +1988,7 @@ export default function App() {
                 return (
                   <div key={monthIdx} className={`bg-slate-900/40 rounded-2xl p-4 border border-slate-800/50 print:bg-white print:border-none print:p-0 ${monthIdx === 6 ? 'print:page-break-before' : ''} md:min-w-[320px]`}>
                     <div className="flex justify-between items-start border-b border-slate-800 pb-2 mb-4 print:text-black print:border-black/10">
-                      <h3 className="text-white font-black uppercase text-xs tracking-widest print:text-black">
+                      <h3 className="text-white font-black uppercase text-[9px] tracking-widest print:text-black">
                         {monthDate.toLocaleDateString('uk-UA', { month: 'long' })}
                       </h3>
                       {activeTab === 'admin' && (
@@ -2021,13 +2022,13 @@ export default function App() {
                         
                         return (
                           <div key={dateKey} className="flex gap-2 items-start">
-                            <div className="w-6 shrink-0 text-[10px] font-black text-slate-500">{d.getDate()}</div>
+                            <div className="w-6 shrink-0 text-[7px] font-black text-slate-500">{d.getDate()}</div>
                             <div className="flex-1 flex flex-col gap-1">
                               {dayEvents.map((ev, i) => {
                                 const isCleaning = ev.title?.toUpperCase().includes('ПРИБИРАННЯ');
                                 return (
                                   <div key={i} className={`text-[9px] leading-tight flex gap-1 items-baseline px-1 rounded ${isCleaning ? 'bg-slate-200' : ''}`}>
-                                    <span className="shrink-0 text-slate-500 font-bold">{ev.startTime}</span>
+                                    <span className="shrink-0 text-slate-500 font-bold text-[6px]">{ev.startTime}</span>
                                     <span className={`${ev.isBold !== false ? 'font-black' : 'font-medium'} ${ev.isItalic === true ? 'italic' : ''} ${ev.isUnderline === true ? 'underline' : ''} ${ev.isUppercase !== false ? 'uppercase' : ''}`} style={{ color: ev.textColor }}>
                                       {ev.title}
                                     </span>
@@ -2065,13 +2066,13 @@ export default function App() {
                 >
                   {/* Left Column: Date & Day */}
                   <div className={`${showPreacherTable ? 'w-6' : (viewMode === 'month' ? 'w-8 md:w-10' : 'w-10 md:w-12')} shrink-0 flex flex-col items-center justify-center border-r border-slate-100/50 bg-white/50 gap-0.5 md:gap-1 py-1 md:py-2`}>
-                    <span className={`${showPreacherTable ? 'text-[10px]' : 'text-[16px] md:text-[20px]'} font-bold uppercase leading-none ${d.isToday ? 'text-blue-600' : 'text-slate-900'}`}>
+                    <span className={`${showPreacherTable ? 'text-[7px]' : 'text-[11px] md:text-[13px]'} font-bold uppercase leading-none ${d.isToday ? 'text-blue-600' : 'text-slate-900'}`}>
                       {String(d.day).padStart(2, '0')}
                     </span>
-                    <span className={`${showPreacherTable ? 'text-[5px]' : 'text-[7px] md:text-[9px]'} font-bold text-slate-500 uppercase leading-none tracking-tighter`}>
+                    <span className={`${showPreacherTable ? 'text-[3px]' : 'text-[4px] md:text-[5px]'} font-bold text-slate-500 uppercase leading-none tracking-tighter`}>
                       {d.monthName}
                     </span>
-                    <span className={`${showPreacherTable ? 'text-[5px]' : 'text-[7px] md:text-[9px]'} font-bold text-slate-500 uppercase leading-none tracking-tighter`}>
+                    <span className={`${showPreacherTable ? 'text-[3px]' : 'text-[4px] md:text-[5px]'} font-bold text-slate-500 uppercase leading-none tracking-tighter`}>
                       {SHORT_WEEKDAYS[d.weekdayIndex]}
                     </span>
                   </div>
@@ -2100,12 +2101,12 @@ export default function App() {
                           <div className={`absolute left-0 top-0 bottom-0 ${showPreacherTable ? 'w-[1.5px]' : 'w-[2px] md:w-[2.5px]'} opacity-90`} style={{ backgroundColor: ev.textColor }} />
                           
                           {/* Col 1: Location & Time */}
-                          <div className={`col-span-1 flex flex-col gap-0 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl'} ${showPreacherTable ? 'px-0.5 py-0' : 'px-1 md:px-2 py-0.5 md:py-1'} min-w-0`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
-                            <div className={`flex items-center gap-0 md:gap-1 text-blue-600 font-normal ${showPreacherTable ? 'text-[5px]' : 'text-[4px] md:text-[9px] lg:text-[8px]'} uppercase tracking-tight`}>
+                          <div className={`col-span-1 flex flex-col gap-0 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl'} ${showPreacherTable ? 'px-0.5 py-0' : 'px-1 md:px-2 py-0.5 md:py-1'} min-w-0 phone-landscape-no-wrap`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                            <div className={`flex items-center gap-0 md:gap-1 text-blue-600 font-normal ${showPreacherTable ? 'text-[3px]' : 'text-[4px] md:text-[6px] lg:text-[5px]'} uppercase tracking-tight`}>
                               <MapPin size={showPreacherTable ? 4 : 5} className="shrink-0 md:w-2 md:h-2 lg:w-2 lg:h-2" />
                               <span className="whitespace-nowrap min-w-0 flex-1">{ev.place || '—'}</span>
                             </div>
-                            <div className={`flex items-center gap-0 md:gap-1 text-slate-600 font-bold ${showPreacherTable ? 'text-[5px]' : 'text-[4px] md:text-[9px] lg:text-[8px]'}`}>
+                            <div className={`flex items-center gap-0 md:gap-1 text-slate-600 font-bold ${showPreacherTable ? 'text-[3px]' : 'text-[4px] md:text-[6px] lg:text-[5px]'}`}>
                               <Clock size={showPreacherTable ? 4 : 5} className="text-blue-500 shrink-0 md:w-2 md:h-2 lg:w-2 lg:h-2" />
                               <span className="whitespace-nowrap">{ev.startTime}{ev.endTime ? `-${ev.endTime}` : ''}</span>
                             </div>
@@ -2129,10 +2130,10 @@ export default function App() {
 
                           {/* Col 3: Ministers - Tight List */}
                           {!isCleaning && (
-                            <div className={`col-span-1 flex flex-col gap-0.5 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl'} ${showPreacherTable ? 'px-0.5 pt-0.5' : 'px-1 md:px-2 pt-0.5 md:pt-1'} min-w-0`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                            <div className={`col-span-1 flex flex-col gap-0.5 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl'} ${showPreacherTable ? 'px-0.5 pt-0.5' : 'px-1 md:px-2 pt-0.5 md:pt-1'} min-w-0 phone-landscape-no-wrap`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                               {ev.leads?.filter(l => l).map((lead, lIdx) => (
-                                <div key={lIdx} className={`text-[#003366] font-medium ${showPreacherTable ? 'text-[5px]' : 'text-[4px] md:text-[9px] lg:text-[10px]'} leading-none flex items-start gap-1 md:gap-1.5 py-px break-words min-w-0`}>
-                                  <span className="break-words min-w-0 flex-1">{lead}</span>
+                                <div key={lIdx} className={`text-[#003366] font-medium ${showPreacherTable ? 'text-[5px]' : 'text-[4px] md:text-[9px] lg:text-[10px]'} leading-none flex items-start gap-1 md:gap-1.5 py-px min-w-0`}>
+                                  <span className="min-w-0 flex-1">{lead}</span>
                                 </div>
                               ))}
                             </div>
