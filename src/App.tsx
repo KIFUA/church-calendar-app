@@ -1931,25 +1931,7 @@ export default function App() {
                           </div>
                         )}
                       </div>
-                      {activeTab === 'admin' && isAdminAuthenticated ? (
-                        <textarea
-                          value={monthlyThemes[currentMonthKey] || ""}
-                          onChange={(e) => {
-                            setMonthlyThemes(prev => ({ ...prev, [currentMonthKey]: e.target.value }));
-                            e.target.style.height = 'auto';
-                            e.target.style.height = e.target.scrollHeight + 'px';
-                          }}
-                          onFocus={(e) => {
-                            e.target.style.height = 'auto';
-                            e.target.style.height = e.target.scrollHeight + 'px';
-                          }}
-                          onBlur={(e) => saveTheme(currentMonthKey, e.target.value)}
-                          className="w-full bg-transparent border-b border-amber-900/20 focus:border-amber-900/50 outline-none text-center text-amber-950 font-serif font-bold italic leading-tight resize-none overflow-hidden min-h-[2.5em]"
-                          style={{ fontSize: `${appSettings.themeFontSize || 16}px` }}
-                          rows={2}
-                          placeholder="(Введіть текст місяця)"
-                        />
-                      ) : currentTheme ? (
+                      {currentTheme ? (
                         <div className="min-h-[2.5em] flex items-center justify-center w-full">
                           <p className="text-amber-950 font-serif font-bold italic leading-tight whitespace-pre-wrap" style={{ fontSize: `${appSettings.themeFontSize || 16}px` }}>
                             {currentTheme}
@@ -1970,25 +1952,7 @@ export default function App() {
                         </div>
                       )}
                     </div>
-                    {activeTab === 'admin' && isAdminAuthenticated ? (
-                      <textarea
-                        value={monthlyThemes[currentMonthKey] || ""}
-                        onChange={(e) => {
-                          setMonthlyThemes(prev => ({ ...prev, [currentMonthKey]: e.target.value }));
-                          e.target.style.height = 'auto';
-                          e.target.style.height = e.target.scrollHeight + 'px';
-                        }}
-                        onFocus={(e) => {
-                          e.target.style.height = 'auto';
-                          e.target.style.height = e.target.scrollHeight + 'px';
-                        }}
-                        onBlur={(e) => saveTheme(currentMonthKey, e.target.value)}
-                        className="w-full bg-transparent border-b border-red-500/20 focus:border-red-500/50 outline-none text-center text-red-500 font-bold italic leading-relaxed resize-none overflow-hidden min-h-[2.5em] text-[10px] md:text-[11px]"
-                        style={{ fontSize: `clamp(10px, ${(appSettings.themeFontSize || 10) + 1}px, 20px)` }}
-                        rows={2}
-                        placeholder="(Введіть текст місяця)"
-                      />
-                    ) : currentTheme ? (
+                    {currentTheme ? (
                       <div className="min-h-[2.5em] flex items-center justify-center w-full">
                         <p className="text-red-500 font-bold italic leading-relaxed whitespace-pre-wrap text-[10px] md:text-[11px]" style={{ fontSize: `clamp(10px, ${(appSettings.themeFontSize || 10) + 1}px, 20px)` }}>
                           {currentTheme}
@@ -2000,7 +1964,7 @@ export default function App() {
               </div>
             )}
           <div className={`
-            ${viewMode === 'month' ? (showPreacherTable ? 'flex flex-col gap-3' : 'grid grid-cols-1 lg:grid-cols-2 gap-3 print:grid-cols-1 print:gap-0') : ''}
+            ${viewMode === 'month' ? (showPreacherTable ? 'flex flex-col gap-3' : 'grid grid-cols-1 gap-3 print:grid-cols-1 print:gap-0') : ''}
             ${viewMode === 'week' ? 'grid grid-cols-1 lg:grid-cols-2 gap-3 w-full max-w-full lg:max-w-[1000px] mx-auto' : ''}
             ${viewMode === 'day' ? `flex flex-col gap-3 w-full max-w-full ${showPreacherTable ? '' : 'md:max-w-[500px] mx-auto'}` : ''}
             ${viewMode === 'year' ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 print:grid-cols-1 print:gap-0' : ''}
@@ -2093,7 +2057,7 @@ export default function App() {
                     setSelectedDate(dateObj);
                     setSelectedDayForEvent(d.dateKey);
                   }}
-                  className={`relative flex flex-row overflow-hidden ${showPreacherTable ? 'border-l-[6px]' : 'border-l-[12px]'} shadow-md transition-all cursor-pointer ${showPreacherTable ? 'min-h-[60px]' : 'min-h-[110px]'} ${showPreacherTable ? 'rounded-xl' : 'rounded-3xl'} w-full ${(viewMode === 'month' || viewMode === 'week') && !showPreacherTable ? 'max-w-[500px] mx-auto' : 'max-w-full'} ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
+                  className={`relative flex flex-row overflow-hidden ${showPreacherTable ? 'border-l-[6px]' : 'border-l-[12px]'} shadow-md transition-all cursor-pointer ${showPreacherTable ? 'min-h-[60px]' : 'min-h-[110px]'} ${showPreacherTable ? 'rounded-xl' : 'rounded-3xl'} w-full ${(viewMode === 'month' || viewMode === 'week') && !showPreacherTable ? 'max-w-[500px] md:max-w-[60%] mx-auto' : 'max-w-full'} ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
                   style={{ 
                     borderLeftColor: (d.isOtherMonth && activeTab === 'view') ? '#f1f5f9' : BORDER_COLORS[d.weekdayIndex],
                     backgroundColor: (d.isOtherMonth && activeTab === 'view') ? '#f8fafc' : WEEKDAY_COLORS[d.weekdayIndex]
@@ -2664,29 +2628,55 @@ export default function App() {
       )}
       {isAssignmentModalOpen && (
         <div className="fixed inset-0 z-[3000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="bg-slate-900 p-6 rounded-2xl border border-slate-700 w-full max-w-4xl max-h-[90vh] overflow-auto">
-            <div className="flex justify-between items-center mb-4">
+          <div className="bg-slate-900 p-6 rounded-2xl border border-slate-700 w-full max-w-4xl max-h-[90vh] flex flex-col">
+            <div className="flex justify-between items-center mb-4 shrink-0">
               <h3 className="text-white font-black uppercase text-sm">Призначення проповідників</h3>
               <button onClick={() => setIsAssignmentModalOpen(false)} className="text-slate-400 hover:text-white">✕</button>
             </div>
-            <PreacherAssignment 
-              staffGroups={staffGroups} 
-              events={events} 
-              db={db} 
-              appId={appId} 
-              doc={doc} 
-              setDoc={setDoc} 
-              backgroundColor={appSettings.backgroundColor} 
-              isWaitingForTableSelection={true}
-              selectedCalendarCell={{ dateKey: selectedDayForEvent }}
-              onAssignmentComplete={(data) => {
-                if (pendingAssignmentCallback && data?.assignment) {
-                  pendingAssignmentCallback(data.assignment);
-                  setPendingAssignmentCallback(null);
-                  setIsAssignmentModalOpen(false); // Close modal only after callback is executed
-                }
-              }}
-            />
+            
+            <div className="flex-1 overflow-auto pr-2">
+              {/* Monthly Theme Input */}
+              {isAdminAuthenticated && (
+                <div className="mb-4 p-4 bg-slate-800 rounded-xl border border-slate-700">
+                  <label className="text-blue-500 text-[9px] font-bold uppercase tracking-widest mb-2 block">Текст місяця</label>
+                  <textarea
+                    value={monthlyThemes[currentMonthKey] || ""}
+                    onChange={(e) => {
+                      setMonthlyThemes(prev => ({ ...prev, [currentMonthKey]: e.target.value }));
+                      e.target.style.height = 'auto';
+                      e.target.style.height = e.target.scrollHeight + 'px';
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.height = 'auto';
+                      e.target.style.height = e.target.scrollHeight + 'px';
+                    }}
+                    onBlur={(e) => saveTheme(currentMonthKey, e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white font-serif italic outline-none focus:border-blue-500 transition-all resize-none"
+                    rows={2}
+                    placeholder="(Введіть текст місяця)"
+                  />
+                </div>
+              )}
+
+              <PreacherAssignment 
+                staffGroups={staffGroups} 
+                events={events} 
+                db={db} 
+                appId={appId} 
+                doc={doc} 
+                setDoc={setDoc} 
+                backgroundColor={appSettings.backgroundColor} 
+                isWaitingForTableSelection={true}
+                selectedCalendarCell={{ dateKey: selectedDayForEvent }}
+                onAssignmentComplete={(data) => {
+                  if (pendingAssignmentCallback && data?.assignment) {
+                    pendingAssignmentCallback(data.assignment);
+                    setPendingAssignmentCallback(null);
+                    setIsAssignmentModalOpen(false); // Close modal only after callback is executed
+                  }
+                }}
+              />
+            </div>
           </div>
         </div>
       )}
