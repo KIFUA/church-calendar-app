@@ -1349,7 +1349,7 @@ export default function App() {
         ></div>
       </div>
 
-      <div className="mx-auto w-full max-w-[1400px] px-2 md:px-6">
+      <div className="mx-auto w-full max-w-[1600px] px-2 md:px-6">
         <header className="w-full flex flex-col gap-4 mb-4 md:mb-6">
           {/* Top Row: Logo, View Mode, Tabs */}
           <div className="w-full flex flex-row flex-nowrap items-center justify-between gap-4">
@@ -2059,7 +2059,7 @@ export default function App() {
                     setSelectedDate(dateObj);
                     setSelectedDayForEvent(d.dateKey);
                   }}
-                  className={`relative flex flex-row overflow-hidden ${showPreacherTable ? 'border-l-[6px]' : 'border-l-[12px]'} shadow-md transition-all cursor-pointer ${showPreacherTable ? 'min-h-[60px]' : 'min-h-[110px]'} ${showPreacherTable ? 'rounded-xl' : 'rounded-3xl'} w-full ${(viewMode === 'month' || viewMode === 'week') && !showPreacherTable ? 'max-w-[95%] md:max-w-[100%] lg:max-w-[60%] mx-auto' : 'max-w-full'} ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
+                  className={`relative flex flex-row overflow-hidden ${showPreacherTable ? 'border-l-[6px]' : 'border-l-[12px]'} shadow-md transition-all cursor-pointer ${showPreacherTable ? 'min-h-[60px]' : 'min-h-[110px]'} ${showPreacherTable ? 'rounded-xl' : 'rounded-3xl'} w-full ${(viewMode === 'month' || viewMode === 'week') && !showPreacherTable ? 'max-w-[95%] md:max-w-[100%] lg:max-w-[85%] mx-auto' : 'max-w-full'} ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
                   style={{ 
                     borderLeftColor: (d.isOtherMonth && activeTab === 'view') ? '#f1f5f9' : BORDER_COLORS[d.weekdayIndex],
                     backgroundColor: (d.isOtherMonth && activeTab === 'view') ? '#f8fafc' : WEEKDAY_COLORS[d.weekdayIndex]
@@ -2096,7 +2096,7 @@ export default function App() {
                       return (
                           <div 
                             key={i} 
-                            className={`grid grid-cols-[auto_5.6fr_110px] items-stretch ${showPreacherTable ? 'gap-0.5' : 'gap-0.5 md:gap-2'} ${showPreacherTable ? 'py-px px-1 pl-1' : 'py-0.5 md:py-1 pl-1 md:pl-1.5 pr-0.5 md:pr-1'} ${showPreacherTable ? 'rounded-lg' : 'rounded-xl md:rounded-2xl'} border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event overflow-hidden ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}
+                            className={`grid grid-cols-[auto_5.6fr_150px] items-stretch ${showPreacherTable ? 'gap-0.5' : 'gap-0.5 md:gap-2'} ${showPreacherTable ? 'py-px px-1 pl-1' : 'py-0.5 md:py-1 pl-1 md:pl-1.5 pr-0.5 md:pr-1'} ${showPreacherTable ? 'rounded-lg' : 'rounded-xl md:rounded-2xl'} border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event overflow-hidden ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}
                           >
                           {/* Accent line - following the curve */}
                           <div className={`absolute left-0 top-0 bottom-0 ${showPreacherTable ? 'w-[1.5px]' : 'w-[2px] md:w-[2.5px]'} opacity-90`} style={{ backgroundColor: ev.textColor }} />
