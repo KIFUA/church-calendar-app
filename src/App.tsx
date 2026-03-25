@@ -1902,7 +1902,7 @@ export default function App() {
             <div className={showPreacherTable ? "w-1/3 shrink-0 flex flex-col gap-4 h-full overflow-y-auto pr-2 custom-scrollbar" : "flex flex-col gap-4 w-full"}>
             {/* Theme of the Month Display */}
             {viewMode !== 'year' && (currentTheme || activeTab === 'admin') && (
-              <div className={`w-full ${viewMode === 'day' || viewMode === 'week' ? (showPreacherTable ? 'max-w-full' : 'max-w-full md:max-w-[500px]') : 'max-w-7xl'} ${showPreacherTable ? '' : 'mx-auto'} px-4 py-1 relative group flex flex-col items-center`}>
+              <div className={`${!showPreacherTable && (viewMode === 'month' || viewMode === 'week') ? 'max-w-[95%] md:max-w-[100%] lg:max-w-[85%] mx-auto' : 'max-w-full'} w-full py-1 relative group flex flex-col items-center`}>
                 {appSettings.themeBackground && appSettings.themeBackground !== 'none' ? (
                   <div 
                     className="relative w-full flex items-center justify-center overflow-hidden shadow-xl"
