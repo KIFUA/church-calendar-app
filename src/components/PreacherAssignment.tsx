@@ -147,17 +147,17 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
   };
 
   return (
-    <div className="w-full bg-white rounded-2xl p-6 border border-slate-300 shadow-lg">
+    <div className="w-full h-full flex flex-col bg-white rounded-2xl p-4 md:p-6 border border-slate-300 shadow-lg overflow-hidden">
       <h2 className="text-black text-lg font-black uppercase mb-4 flex items-center gap-4">
         <button onClick={() => changeMonth(-1)}>&lt;</button>
         Призначення проповідників ({currentDate.toLocaleDateString('uk-UA', { month: 'long', year: 'numeric' })})
         <button onClick={() => changeMonth(1)}>&gt;</button>
       </h2>
       
-      <div className="flex gap-4 h-[calc(100vh-180px)] overflow-hidden">
-        <div className="w-full flex flex-col h-full overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        <div className="w-full flex-1 flex flex-col min-h-0 overflow-hidden">
           {/* Таблиця */}
-          <div className="text-black text-xs overflow-auto border-2 border-slate-400 rounded-lg flex-grow bg-white relative">
+          <div className="flex-1 text-black text-xs overflow-auto border-2 border-slate-400 rounded-lg bg-white relative custom-scrollbar">
             <table className="w-full border-separate border-spacing-0 min-w-max">
               <thead>
                 <tr>
