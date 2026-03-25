@@ -2096,7 +2096,7 @@ export default function App() {
                       return (
                           <div 
                             key={i} 
-                            className={`grid grid-cols-[auto_6.5fr_125px] items-stretch ${showPreacherTable ? 'gap-0.5' : 'gap-0.5 md:gap-2'} ${showPreacherTable ? 'py-px px-1 pl-1' : 'py-0.5 md:py-1 pl-1 md:pl-1.5 pr-0.5 md:pr-1'} ${showPreacherTable ? 'rounded-lg' : 'rounded-xl md:rounded-2xl'} border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event overflow-hidden ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}
+                            className={`grid ${showPreacherTable ? 'grid-cols-[auto_6.5fr_125px]' : 'grid-cols-[auto_7.5fr_105px] md:grid-cols-[auto_8.5fr_90px]'} items-stretch ${showPreacherTable ? 'gap-0.5' : 'gap-0.5 md:gap-2'} ${showPreacherTable ? 'py-px px-1 pl-1' : 'py-0.5 md:py-1 pl-1 md:pl-1.5 pr-0.5 md:pr-1'} ${showPreacherTable ? 'rounded-lg' : 'rounded-xl md:rounded-2xl'} border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event overflow-hidden ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}
                           >
                           {/* Accent line - following the curve */}
                           <div className={`absolute left-0 top-0 bottom-0 ${showPreacherTable ? 'w-[1.5px]' : 'w-[2px] md:w-[2.5px]'} opacity-90`} style={{ backgroundColor: ev.textColor }} />
