@@ -1303,7 +1303,7 @@ export default function App() {
   const [showDiagnostics, setShowDiagnostics] = useState(false);
 
   return (
-    <div className="min-h-screen text-slate-200 p-2 md:p-4 font-sans pb-12 text-[10px]" style={{ backgroundColor: appSettings.backgroundColor }}>
+    <div className="min-h-screen text-slate-200 p-4 font-sans pb-24 text-[10px]" style={{ backgroundColor: appSettings.backgroundColor }}>
       {showDiagnostics && (
         <div className="fixed inset-0 z-[3000] bg-black/90 backdrop-blur-md p-6 flex items-center justify-center" onClick={() => setShowDiagnostics(false)}>
           <div className="bg-slate-900 border border-slate-700 p-6 rounded-[32px] max-w-md w-full" onClick={e => e.stopPropagation()}>
@@ -1898,8 +1898,8 @@ export default function App() {
         )}
 
         {(activeTab === 'view' || activeTab === 'admin') && (
-          <div className={showPreacherTable ? "flex flex-col lg:flex-row gap-4 p-2 md:p-4 items-start h-auto lg:h-[calc(100vh-180px)] overflow-visible lg:overflow-hidden" : "flex flex-col gap-4"}>
-            <div className={showPreacherTable ? "w-full lg:w-1/3 shrink-0 flex flex-col gap-4 h-auto lg:h-full overflow-y-visible lg:overflow-y-auto pr-0 lg:pr-2 custom-scrollbar" : "flex flex-col gap-4 w-full"}>
+          <div className={showPreacherTable ? "flex flex-row gap-4 p-4 items-start h-[calc(100vh-120px)] overflow-hidden" : "flex flex-col gap-4"}>
+            <div className={showPreacherTable ? "w-1/3 shrink-0 flex flex-col gap-4 h-full overflow-y-auto pr-2 custom-scrollbar" : "flex flex-col gap-4 w-full"}>
             {/* Theme of the Month Display */}
             {viewMode !== 'year' && (currentTheme || activeTab === 'admin') && (
               <div className={`w-full ${viewMode === 'day' || viewMode === 'week' ? (showPreacherTable ? 'max-w-full' : 'max-w-full md:max-w-[500px]') : 'max-w-7xl'} ${showPreacherTable ? '' : 'mx-auto'} px-4 py-1 relative group flex flex-col items-center`}>
@@ -2059,7 +2059,7 @@ export default function App() {
                     setSelectedDate(dateObj);
                     setSelectedDayForEvent(d.dateKey);
                   }}
-                  className={`relative flex flex-row overflow-hidden ${showPreacherTable ? 'border-l-[6px]' : 'border-l-[12px]'} shadow-md transition-all cursor-pointer ${showPreacherTable ? 'min-h-[60px]' : 'min-h-[110px]'} ${showPreacherTable ? 'rounded-xl' : 'rounded-3xl'} w-full ${(viewMode === 'month' || viewMode === 'week') && !showPreacherTable ? 'max-w-[95%] md:max-w-[80%] lg:max-w-[60%] mx-auto' : 'max-w-full'} ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
+                  className={`relative flex flex-row overflow-hidden ${showPreacherTable ? 'border-l-[6px]' : 'border-l-[12px]'} shadow-md transition-all cursor-pointer ${showPreacherTable ? 'min-h-[60px]' : 'min-h-[110px]'} ${showPreacherTable ? 'rounded-xl' : 'rounded-3xl'} w-full ${(viewMode === 'month' || viewMode === 'week') && !showPreacherTable ? 'max-w-[95%] md:max-w-[100%] lg:max-w-[60%] mx-auto' : 'max-w-full'} ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
                   style={{ 
                     borderLeftColor: (d.isOtherMonth && activeTab === 'view') ? '#f1f5f9' : BORDER_COLORS[d.weekdayIndex],
                     backgroundColor: (d.isOtherMonth && activeTab === 'view') ? '#f8fafc' : WEEKDAY_COLORS[d.weekdayIndex]
@@ -2094,10 +2094,10 @@ export default function App() {
                       const leadsCount = ev.leads?.filter(l => l).length || 0;
                       
                       return (
-                        <div 
-                          key={i} 
-                          className={`grid grid-cols-[auto_3.6fr_150px] items-stretch ${showPreacherTable ? 'gap-0.5' : 'gap-0.5 md:gap-2'} ${showPreacherTable ? 'py-px px-1 pl-1' : 'py-0.5 md:py-1 pl-1 md:pl-1.5 pr-0.5 md:pr-1'} ${showPreacherTable ? 'rounded-lg' : 'rounded-xl md:rounded-2xl'} border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event overflow-hidden ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}
-                        >
+                          <div 
+                            key={i} 
+                            className={`grid grid-cols-[auto_4.5fr_150px] items-stretch ${showPreacherTable ? 'gap-0.5' : 'gap-0.5 md:gap-2'} ${showPreacherTable ? 'py-px px-1 pl-1' : 'py-0.5 md:py-1 pl-1 md:pl-1.5 pr-0.5 md:pr-1'} ${showPreacherTable ? 'rounded-lg' : 'rounded-xl md:rounded-2xl'} border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event overflow-hidden ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}
+                          >
                           {/* Accent line - following the curve */}
                           <div className={`absolute left-0 top-0 bottom-0 ${showPreacherTable ? 'w-[1.5px]' : 'w-[2px] md:w-[2.5px]'} opacity-90`} style={{ backgroundColor: ev.textColor }} />
                           
@@ -2151,7 +2151,7 @@ export default function App() {
           </div>
           </div>
           {showPreacherTable && (
-            <div className="w-full lg:w-2/3 h-full min-h-0">
+            <div className="w-2/3">
               <PreacherAssignment 
                 staffGroups={staffGroups} 
                 events={events} 

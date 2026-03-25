@@ -147,22 +147,22 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
   };
 
   return (
-    <div className="w-full h-full flex flex-col bg-white rounded-2xl p-4 md:p-6 border border-slate-300 shadow-lg overflow-hidden">
+    <div className="w-full bg-white rounded-2xl p-6 border border-slate-300 shadow-lg">
       <h2 className="text-black text-lg font-black uppercase mb-4 flex items-center gap-4">
         <button onClick={() => changeMonth(-1)}>&lt;</button>
         Призначення проповідників ({currentDate.toLocaleDateString('uk-UA', { month: 'long', year: 'numeric' })})
         <button onClick={() => changeMonth(1)}>&gt;</button>
       </h2>
       
-      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-        <div className="w-full flex-1 flex flex-col min-h-0 overflow-hidden">
+      <div className="flex gap-4 h-auto overflow-visible">
+        <div className="w-full flex flex-col h-auto overflow-visible">
           {/* Таблиця */}
-          <div className="flex-1 text-black text-xs overflow-auto border-2 border-slate-400 rounded-lg bg-white relative custom-scrollbar">
+          <div className="text-black text-xs overflow-auto border-2 border-slate-400 rounded-lg bg-white relative max-h-[calc(100vh-200px)]">
             <table className="w-full border-separate border-spacing-0 min-w-max">
               <thead>
                 <tr>
                   <th className="border-b-2 border-r-2 border-slate-400 p-2 bg-slate-200 sticky top-0 left-0 z-[60]">№</th>
-                  <th className="border-b-2 border-r-2 border-slate-400 p-2 bg-slate-200 sticky top-0 left-[36px] z-[60] whitespace-nowrap">Прізвище, ім'я</th>
+                  <th className="border-b-2 border-r-2 border-slate-400 p-2 bg-slate-200 sticky top-0 left-[36px] z-[60] whitespace-nowrap min-w-[180px]">Прізвище, ім'я</th>
                   {days.map((d) => (
                     <th 
                       key={d.toISOString()} 
@@ -196,7 +196,7 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
                     {group.items.map((item: string, iIdx: number) => (
                       <tr key={item}>
                         <td className="border-b border-r border-slate-400 p-2 text-center sticky left-0 z-20 bg-white">{iIdx + 1}</td>
-                        <td className="border-b border-r border-slate-400 p-2 sticky left-[36px] z-20 bg-white whitespace-nowrap">{item}</td>
+                        <td className="border-b border-r border-slate-400 p-2 sticky left-[36px] z-20 bg-white whitespace-nowrap min-w-[180px]">{item}</td>
                         {days.map((d) => {
                           const dateKey = formatDateKey(d);
                           const event = events.find(e => e.id === dateKey);
