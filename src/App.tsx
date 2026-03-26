@@ -2123,7 +2123,7 @@ export default function App() {
                             </div>
                             {ev.music && (
                               <div className={`${showPreacherTable ? 'text-[4px]' : 'text-slate-500 italic text-[clamp(5px,1vw,10px)]'} leading-tight font-semibold flex items-center gap-0.5 md:gap-1 bg-blue-50/30 px-1 md:px-1.5 py-0.5 rounded-md md:rounded-lg w-fit max-w-full`}>
-                                <Music size={showPreacherTable ? 4 : 6} className={`shrink-0 ${showPreacherTable ? '' : 'text-blue-400 md:w-2 md:h-2 lg:w-2.5 lg:h-2.5'}`} />
+                                <Music size={showPreacherTable ? 4 : 6} className={`shrink-0 self-center ${showPreacherTable ? '' : 'text-blue-400 md:w-2 md:h-2 lg:w-2.5 lg:h-2.5'}`} />
                                 <span className="break-words min-w-0 flex-1">{ev.music}</span>
                               </div>
                             )}
