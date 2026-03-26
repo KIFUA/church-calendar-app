@@ -2096,7 +2096,7 @@ export default function App() {
                       return (
                           <div 
                             key={i} 
-                            className={`grid ${showPreacherTable ? 'grid-cols-[auto_6.5fr_125px]' : 'grid-cols-[auto_7.5fr_105px] md:grid-cols-[auto_8.5fr_90px]'} items-stretch ${showPreacherTable ? 'gap-0.5' : 'gap-0.5 md:gap-2'} ${showPreacherTable ? 'py-px px-1 pl-1' : 'py-0.5 md:py-1 pl-1 md:pl-1.5 pr-0.5 md:pr-1'} ${showPreacherTable ? 'rounded-lg' : 'rounded-xl md:rounded-2xl'} border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event overflow-hidden ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}
+                            className={`grid ${showPreacherTable ? 'grid-cols-[auto_6.5fr_125px]' : 'grid-cols-[auto_7.5fr_105px] md:grid-cols-[auto_8.5fr_90px]'} items-stretch ${showPreacherTable ? 'gap-0.5' : 'gap-0.5 md:gap-2 lg:gap-1'} ${showPreacherTable ? 'py-px px-1 pl-1' : 'py-0.5 md:py-1 lg:py-0.5 pl-1 md:pl-1.5 lg:pl-1 pr-0.5 md:pr-1 lg:pr-1'} ${showPreacherTable ? 'rounded-lg' : 'rounded-xl md:rounded-2xl lg:rounded-xl'} border border-slate-200 shadow-sm hover:border-blue-300 hover:shadow-md transition-all relative group/event overflow-hidden ${isCleaning ? 'bg-slate-200' : 'bg-white'}`}
                           >
                           {/* Accent line - following the curve */}
                           <div className={`absolute left-0 top-0 bottom-0 ${showPreacherTable ? 'w-[1.5px]' : 'w-[2px] md:w-[2.5px]'} opacity-90`} style={{ backgroundColor: ev.textColor }} />
@@ -2116,7 +2116,7 @@ export default function App() {
                           {/* Col 2: Event & Music */}
                           <div className={`${isCleaning ? 'col-span-2' : 'col-span-1'} flex flex-col gap-0.5 md:gap-1 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl'} ${showPreacherTable ? 'px-1 py-0.5' : 'px-1.5 md:px-2 py-1 md:py-1.5'} min-w-0 ${ev.align === 'center' ? 'text-center items-center' : ev.align === 'right' ? 'text-right items-end' : 'text-left items-start'}`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                             <div 
-                              className={`${showPreacherTable ? 'text-[6px]' : 'text-[clamp(7px,1.5vw,14px)]'} leading-tight tracking-tight group-hover/event:scale-[1.01] transition-transform w-full whitespace-pre-wrap break-words min-w-0 ${ev.isBold !== false ? 'font-black' : 'font-medium'} ${ev.isItalic === true ? 'italic' : ''} ${ev.isUnderline === true ? 'underline' : ''} ${ev.isUppercase !== false ? 'uppercase' : ''}`}
+                              className={`${showPreacherTable ? 'text-[6px]' : 'text-[clamp(7px,1.5vw,14px)] lg:text-[15px]'} leading-tight tracking-tight group-hover/event:scale-[1.01] transition-transform w-full whitespace-pre-wrap break-words min-w-0 ${ev.isBold !== false ? 'font-black' : 'font-medium'} ${ev.isItalic === true ? 'italic' : ''} ${ev.isUnderline === true ? 'underline' : ''} ${ev.isUppercase !== false ? 'uppercase' : ''}`}
                               style={{ color: ev.textColor }}
                             >
                               {ev.title || ''}
@@ -2131,9 +2131,9 @@ export default function App() {
 
                           {/* Col 3: Ministers - Tight List */}
                           {!isCleaning && (
-                            <div className={`col-span-1 flex flex-col gap-0.5 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl'} ${showPreacherTable ? 'px-0.5 pt-0.5' : 'px-1 md:px-2 pt-0.5 md:pt-1'} min-w-0 phone-landscape-no-wrap`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                            <div className={`col-span-1 flex flex-col gap-0.5 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl lg:rounded-lg'} ${showPreacherTable ? 'px-0.5 pt-0.5' : 'px-1 md:px-2 lg:px-1 pt-0.5 md:pt-1 lg:pt-0.5'} min-w-0 phone-landscape-no-wrap`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                               {ev.leads?.filter(l => l).map((lead, lIdx) => (
-                                <div key={lIdx} className={`text-[#003366] font-medium ${showPreacherTable ? 'text-[7px]' : 'text-[6px] md:text-[11px] lg:text-[12px]'} leading-none flex items-start gap-1 md:gap-1.5 py-px min-w-0`}>
+                                <div key={lIdx} className={`text-[#003366] font-medium ${showPreacherTable ? 'text-[7px]' : 'text-[6px] md:text-[11px] lg:text-[13px]'} leading-none flex items-start gap-1 md:gap-1.5 py-px min-w-0`}>
                                   <span className="min-w-0 flex-1">{lead}</span>
                                 </div>
                               ))}
