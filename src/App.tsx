@@ -2050,8 +2050,10 @@ export default function App() {
                 <div 
                   key={d.dateKey} 
                   onClick={() => {
-                    setSelectedDate(new Date(d.dateKey));
-                    if (viewMode === 'day') setDayViewPivotDate(new Date(d.dateKey));
+                    const dateObj = new Date(d.dateKey);
+                    setSelectedDate(dateObj);
+                    setSelectedDayForEvent(d.dateKey);
+                    if (viewMode === 'day') setDayViewPivotDate(dateObj);
                   }}
                   onDoubleClick={() => {
                     if (!isAdminAuthenticated) return;
@@ -2243,7 +2245,7 @@ export default function App() {
                <div className="flex flex-col">
                   <span className="text-blue-500 text-[9px] font-bold uppercase tracking-widest leading-none">Редагування дня</span>
                   <h3 className="text-white text-lg font-semibold leading-tight capitalize">
-                    {floatingDate.toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', weekday: 'short' })}
+                    {new Date(selectedDayForEvent).toLocaleDateString('uk-UA', { day: 'numeric', month: 'long', weekday: 'short' })}
                   </h3>
                </div>
                <button onClick={() => setSelectedDayForEvent(null)} className="text-slate-500 hover:text-white transition-colors p-1"><X size={20}/></button>
@@ -2251,7 +2253,7 @@ export default function App() {
             
             <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-slate-800/50">
               {(() => {
-                const dayEvents = getDayEvents(selectedDayForEvent, floatingDate);
+                const dayEvents = getDayEvents(selectedDayForEvent, new Date(selectedDayForEvent));
                 return (
                   <>
                     {dayEvents.map((ev, i) => {
@@ -2290,7 +2292,7 @@ export default function App() {
                                     </button>
                                     <button 
                                       onClick={() => {
-                                        const dayEvents = getDayEvents(selectedDayForEvent, floatingDate);
+                                        const dayEvents = getDayEvents(selectedDayForEvent, new Date(selectedDayForEvent));
                                         const updated = dayEvents.filter((_, idx) => idx !== i);
                                         setEvents(prev => {
                                           const existing = prev.find(d => d.id === selectedDayForEvent);
@@ -2368,7 +2370,7 @@ export default function App() {
                             </div>
                             <button 
                               onClick={async () => {
-                                const dayEvents = getDayEvents(selectedDayForEvent, floatingDate);
+                                const dayEvents = getDayEvents(selectedDayForEvent, new Date(selectedDayForEvent));
                                 const updated = dayEvents.filter((_, idx) => idx !== i);
                                 
                                 const weekday = floatingDate.getDay();
@@ -2568,7 +2570,7 @@ export default function App() {
                </button>
                <button 
                  onClick={async () => {
-                   const dayEvents = getDayEvents(selectedDayForEvent, floatingDate);
+                   const dayEvents = getDayEvents(selectedDayForEvent, new Date(selectedDayForEvent));
                    await commitToDB(selectedDayForEvent, dayEvents, false);
                    setSelectedDayForEvent(null);
                  }} 
