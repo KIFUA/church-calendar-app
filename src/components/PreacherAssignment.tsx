@@ -187,20 +187,20 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
             <table className="w-full border-separate border-spacing-0 min-w-max">
               <thead>
                 <tr>
-                  <th className="border-b-2 border-r-2 border-slate-400 p-2 bg-slate-200 sticky top-0 left-0 z-[60]">№</th>
-                  <th className="border-b-2 border-r-2 border-slate-400 p-2 bg-slate-200 sticky top-0 left-[36px] z-[60] whitespace-nowrap min-w-[180px]">Прізвище, ім'я</th>
+                  <th className="border-b-2 border-r-2 border-slate-400 p-1 bg-slate-200 sticky top-0 left-0 z-[60] text-[10px]">№</th>
+                  <th className="border-b-2 border-r-2 border-slate-400 p-1 bg-slate-200 sticky top-0 left-[28px] z-[60] whitespace-nowrap min-w-[120px] text-[10px]">Прізвище, ім'я</th>
                   {days.map((d) => (
                     <th 
                       key={d.toISOString()} 
-                      className={`border-b-2 border-r-2 border-slate-400 p-1 cursor-pointer hover:bg-slate-300 sticky top-0 z-[50] ${d.getDay() === 0 ? 'bg-blue-100' : ''}`} 
+                      className={`border-b-2 border-r-2 border-slate-400 p-0.5 cursor-pointer hover:bg-slate-300 sticky top-0 z-[50] ${d.getDay() === 0 ? 'bg-blue-100' : ''}`} 
                       style={{ backgroundColor: getDayStyle(d.getDay()) }}
                       onClick={() => setSelectedDate(d)}
                     >
-                      <div className="min-w-[40px] flex flex-col items-center justify-center gap-0.5 py-1">
-                        <span className="text-[14px] font-black text-slate-900 leading-none">
+                      <div className="min-w-[30px] flex flex-col items-center justify-center gap-0 py-0.5">
+                        <span className="text-[10px] font-black text-slate-900 leading-none">
                           {d.getDate()}
                         </span>
-                        <span className="text-[7px] font-bold text-slate-500 uppercase leading-none tracking-tighter">
+                        <span className="text-[6px] font-bold text-slate-500 uppercase leading-none tracking-tighter">
                           {['Нд', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'][d.getDay()]}
                         </span>
                       </div>
@@ -214,15 +214,15 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
                     <tr>
                       <td 
                         colSpan={2 + days.length} 
-                        className="bg-slate-300 font-bold p-2 border-b-2 border-slate-400 text-black sticky top-[38px] z-[55] shadow-sm"
+                        className="bg-slate-300 font-bold p-1 border-b-2 border-slate-400 text-black sticky top-[28px] z-[55] shadow-sm text-[10px]"
                       >
                         {group.label}
                       </td>
                     </tr>
                     {group.items.map((item: string, iIdx: number) => (
                       <tr key={item}>
-                        <td className="border-b border-r border-slate-400 p-2 text-center sticky left-0 z-20 bg-white">{iIdx + 1}</td>
-                        <td className="border-b border-r border-slate-400 p-2 sticky left-[36px] z-20 bg-white whitespace-nowrap min-w-[180px]">{item}</td>
+                        <td className="border-b border-r border-slate-400 p-1 text-center sticky left-0 z-20 bg-white text-[10px]">{iIdx + 1}</td>
+                        <td className="border-b border-r border-slate-400 p-1 sticky left-[28px] z-20 bg-white whitespace-nowrap min-w-[120px] text-[10px]">{item}</td>
                         {days.map((d) => {
                           const dateKey = formatDateKey(d);
                           const event = events.find(e => e.id === dateKey);
@@ -250,7 +250,7 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
                           return (
                             <td 
                               key={d.toISOString()} 
-                              className={`border-b border-r border-slate-400 p-2 min-w-[50px] cursor-pointer hover:bg-slate-100 text-center font-bold ${isSelected ? 'ring-2 ring-blue-500 ring-inset bg-blue-50' : ''}`} 
+                              className={`border-b border-r border-slate-400 p-1 min-w-[40px] cursor-pointer hover:bg-slate-100 text-center font-bold text-[10px] ${isSelected ? 'ring-2 ring-blue-500 ring-inset bg-blue-50' : ''}`} 
                               style={{ backgroundColor: isSelected ? undefined : getDayStyle(d.getDay()) }} 
                               onClick={(e) => handleCellClick(item, d, e)}
                             >
