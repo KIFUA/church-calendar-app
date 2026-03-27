@@ -2052,14 +2052,14 @@ export default function App() {
                   onClick={() => {
                     const dateObj = new Date(d.dateKey);
                     setSelectedDate(dateObj);
-                    setSelectedDayForEvent(d.dateKey);
                     if (viewMode === 'day') setDayViewPivotDate(dateObj);
                   }}
                   onDoubleClick={() => {
-                    if (!isAdminAuthenticated) return;
-                    const dateObj = new Date(d.dateKey);
-                    setSelectedDate(dateObj);
-                    setSelectedDayForEvent(d.dateKey);
+                    if (showPreacherTable) {
+                      const dateObj = new Date(d.dateKey);
+                      setSelectedDate(dateObj);
+                      setSelectedDayForEvent(d.dateKey);
+                    }
                   }}
                   className={`relative flex flex-row overflow-hidden ${showPreacherTable ? 'border-l-[6px]' : 'border-l-[12px]'} shadow-md transition-all cursor-pointer ${showPreacherTable ? 'min-h-[60px]' : 'min-h-[100px] lg:min-h-[130px]'} ${showPreacherTable ? 'rounded-xl' : 'rounded-3xl lg:rounded-[2rem]'} w-full ${(viewMode === 'month' || viewMode === 'week') && !showPreacherTable ? 'max-w-[95%] md:max-w-[100%] lg:max-w-full mx-auto' : 'max-w-full'} ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
                   style={{ 
@@ -2133,9 +2133,9 @@ export default function App() {
 
                           {/* Col 3: Ministers - Tight List */}
                           {!isCleaning && (
-                            <div className={`col-span-1 flex flex-col gap-0.5 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl lg:rounded-lg'} ${showPreacherTable ? 'px-0.5 pt-0.5' : 'px-1 md:px-2 lg:px-1 pt-0.5 md:pt-1 lg:pt-0.5'} min-w-0 phone-landscape-no-wrap`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
+                            <div className={`col-span-1 flex flex-col gap-0.5 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl lg:rounded-lg'} ${showPreacherTable ? 'px-0.5 pt-0.5' : 'px-1 md:px-2 lg:px-1 pt-0.5 md:pt-1 lg:pt-0.5'} min-w-0 phone-landscape-no-wrap text-left items-start`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                               {ev.leads?.filter(l => l).map((lead, lIdx) => (
-                                <div key={lIdx} className={`text-[#003366] font-medium ${showPreacherTable ? 'text-[7px]' : 'text-[6px] md:text-[11px] lg:text-[13px]'} leading-none flex items-start gap-1 md:gap-1.5 py-px min-w-0`}>
+                                <div key={lIdx} className={`text-[#003366] font-medium ${showPreacherTable ? 'text-[7px]' : 'text-[6px] md:text-[11px] lg:text-[13px]'} leading-none flex items-start gap-1 md:gap-1.5 py-px min-w-0 text-left`}>
                                   <span className="min-w-0 flex-1">{lead}</span>
                                 </div>
                               ))}
@@ -2316,8 +2316,23 @@ export default function App() {
 
                               {/* Row 3: Participants */}
                               {ev.leads?.some(l => l) && (
-                                <div className="text-[#003366] font-medium break-words text-[7px]">
-                                  ● {ev.leads.filter(l => l).join(', ')}
+                                <div className="flex flex-row gap-1 text-[7px]">
+                                  <div className="flex-1 text-[#003366] font-medium break-words text-left">
+                                    {ev.leads.filter(l => l).map((lead, idx) => (
+                                      <div key={idx}>{lead}</div>
+                                    ))}
+                                  </div>
+                                  <div className="flex-1 text-[#003366] font-medium break-words text-left">
+                                    {ev.leads.filter(l => l).map((_, idx) => (
+                                      <div key={idx}>
+                                        {idx === 0 ? "(проп.)" : 
+                                         idx === 1 ? "(ведуч.)" : 
+                                         idx === 2 ? "(відпов.)" : 
+                                         idx === 3 ? "(Прич.)" : 
+                                         "(хрещ.)"}
+                                      </div>
+                                    ))}
+                                  </div>
                                 </div>
                               )}
 
