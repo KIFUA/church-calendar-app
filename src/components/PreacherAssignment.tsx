@@ -1,7 +1,7 @@
 import React from 'react';
 import { DayView } from './DayView';
 
-export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc, backgroundColor, isWaitingForTableSelection, selectedCalendarCell, onAssignmentComplete }: { staffGroups: any[], events: any[], db: any, appId: string, doc: any, setDoc: any, backgroundColor: string, isWaitingForTableSelection: boolean, selectedCalendarCell: { dateKey: string } | null, onAssignmentComplete?: (data?: { dateKey: string, assignment: string }) => void }) => {
+export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc, backgroundColor, isWaitingForTableSelection, selectedCalendarCell, onAssignmentComplete }: { staffGroups: any[], events: any[], db: any, appId: string, doc: any, setDoc: any, backgroundColor: string, isWaitingForTableSelection: boolean, selectedCalendarCell: { dateKey: string } | null, onAssignmentComplete?: (data?: { dateKey: string, assignment?: string, preacher?: string }) => void }) => {
   const [currentDate, setCurrentDate] = React.useState(() => {
     const d = new Date();
     d.setMonth(d.getMonth() + 1);
@@ -48,13 +48,13 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
       const calendarDate = new Date(year, month - 1, day);
       setSelectedCell({ preacher, date: calendarDate });
       setSelectedDate(calendarDate);
-      setSelectedFunction('пр.');
+      setSelectedFunction('ПРОПОВІДЬ');
       setParticipationNumber(1);
       setIsModalOpen(true);
     } else if (!isPastMonth) {
       setSelectedCell({ preacher, date });
       setSelectedDate(date);
-      setSelectedFunction('пр.');
+      setSelectedFunction('ПРОПОВІДЬ');
       setParticipationNumber(1);
       setIsModalOpen(true);
     }
@@ -62,24 +62,49 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
 
   const handleAssign = async () => {
     console.log("handleAssign called");
+    console.log("events:", events);
+    console.log("selectedCell:", selectedCell);
+    console.log("selectedFunction:", selectedFunction);
+    console.log("participationNumber:", participationNumber);
+    
     if (!selectedCell) {
       console.log("selectedCell is null");
       return;
     }
     
     const dateKey = formatDateKey(selectedCell.date);
+    console.log("dateKey:", dateKey);
     
     // Check for duplicate sermon order number
     if (selectedFunction === 'ПРОПОВІДЬ') {
+      if (!participationNumber) {
+        alert("Будь ласка, виберіть порядковий номер для проповіді.");
+        return;
+      }
       const event = events.find(e => e.id === dateKey);
+      console.log("Event found:", event);
       const isDuplicate = event?.leads?.some((l: string) => {
-        const parts = l.split(' ');
+        const parts = l.split('|');
         return parts[0] === participationNumber.toString() && parts[1] === 'пр.';
       });
+      console.log("isDuplicate:", isDuplicate);
       if (isDuplicate) {
         alert(`Черговість ${participationNumber} вже зайнята на цей день.`);
         return;
       }
+    }
+
+    // Check for duplicate preacher assignment for the SAME function
+    const existingEvent = events.find(e => e.id === dateKey);
+    const isPreacherAssignedToFunction = existingEvent?.leads?.some((l: string) => {
+        const parts = l.split('|');
+        // Assuming parts[2] is the function name
+        return parts[parts.length - 1].includes(selectedCell.preacher) && parts[2] === selectedFunction;
+    });
+    console.log("isPreacherAssignedToFunction:", isPreacherAssignedToFunction);
+    if (isPreacherAssignedToFunction) {
+        alert(`Проповідник ${selectedCell.preacher} вже має призначення на функцію ${selectedFunction} на цей день.`);
+        return;
     }
 
     const shortFunction = {
@@ -90,14 +115,15 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
       'ХРЕЩЕННЯ': 'Хрещ.'
     }[selectedFunction] || selectedFunction;
 
-    const fullAssignment = `${participationNumber || ''}|${shortFunction}|${selectedFunction}|${selectedCell.preacher}`;
+    const isSermon = selectedFunction === 'ПРОПОВІДЬ';
+    const numPart = isSermon ? participationNumber : '';
+    const fullAssignment = `${numPart}|${shortFunction}|${selectedFunction}|${selectedCell.preacher}`;
     
-    setLocalAssignments(prev => ({ ...prev, [`${dateKey}_${selectedCell.preacher}`]: `${participationNumber || ''} ${shortFunction}`.trim() }));
+    setLocalAssignments(prev => ({ ...prev, [`${dateKey}_${selectedCell.preacher}`]: `${isSermon ? (participationNumber || '') : ''} ${shortFunction}`.trim() }));
 
     const event = events.find(e => e.id === dateKey);
     const currentLeads = event?.leads || [];
-    const filteredLeads = currentLeads.filter((l: string) => !l.includes(selectedCell.preacher));
-    const updatedLeads = [...filteredLeads, fullAssignment];
+    const updatedLeads = [...currentLeads, fullAssignment];
       
     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'calendar_events', dateKey);
     console.log("Повний шлях запису:", docRef.path);
@@ -136,7 +162,7 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
     }
     setSelectedCell(null);
     setIsModalOpen(false);
-    onAssignmentComplete();
+    onAssignmentComplete({ dateKey, preacher: selectedCell.preacher });
   };
 
   const getDayStyle = (day: number) => {
@@ -285,9 +311,10 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
                         className="bg-black/40 text-white font-black text-sm p-1 rounded"
                       >
                         {[1, 2, 3, 4, 5].filter(num => 
-                          !events.find(e => e.id === formatDateKey(selectedCell.date))?.leads?.some(l => 
-                            l.startsWith(`${num} пр.`)
-                          )
+                          num === participationNumber || !events.find(e => e.id === formatDateKey(selectedCell.date))?.leads?.some(l => {
+                            const parts = l.split('|');
+                            return parts[0] === num.toString() && parts[1] === 'пр.';
+                          })
                         ).map(num => (
                           <option key={num} value={num}>{num}</option>
                         ))}

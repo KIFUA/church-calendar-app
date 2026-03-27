@@ -2162,6 +2162,19 @@ export default function App() {
                 backgroundColor={appSettings.backgroundColor} 
                 isWaitingForTableSelection={false}
                 selectedCalendarCell={null}
+                onAssignmentComplete={(data) => {
+                  if (data?.dateKey && data?.preacher) {
+                    setEvents(prev => prev.map(e => {
+                      if (e.id === data.dateKey) {
+                        return {
+                          ...e,
+                          leads: e.leads.filter((l: string) => !l.includes(data.preacher!))
+                        };
+                      }
+                      return e;
+                    }));
+                  }
+                }}
               />
             </div>
           )}
@@ -2484,7 +2497,15 @@ export default function App() {
                                    <div className="flex flex-col gap-2">
                                      {ev.leads?.map((l, lIdx) => (
                                        <div key={lIdx} className="flex gap-1 items-center w-full">
-                                          <CustomSelect title="СЛУЖІННЯ" value={l} groups={staffGroups.filter(g => g.label !== "Хто співає / грає")} onEditGroup={(g) => setEditingGroup({...g, type: 'staff'})} onAddItem={(item, idx) => handleAddValueToGroup(item, idx, 'staff')} onChange={(v) => { const nL = [...ev.leads]; nL[lIdx] = v; updateLocalDetails(selectedDayForEvent, i, 'leads', nL); }} placeholder="Хто..." className="flex-1" disabled={userRole === 'singer_manager'} allowAppend={true} onAssignPreachers={() => {
+                                          <CustomSelect title="СЛУЖІННЯ" value={l} groups={staffGroups.filter(g => g.label !== "Хто співає / грає")} onEditGroup={(g) => setEditingGroup({...g, type: 'staff'})} onAddItem={(item, idx) => handleAddValueToGroup(item, idx, 'staff')} onChange={(v) => { 
+                                              const nL = [...ev.leads]; 
+                                              if (nL[lIdx] && nL[lIdx].trim() !== "") {
+                                                nL.push(v);
+                                              } else {
+                                                nL[lIdx] = v;
+                                              }
+                                              updateLocalDetails(selectedDayForEvent, i, 'leads', nL); 
+                                            }} placeholder="Хто..." className="flex-1" disabled={userRole === 'singer_manager'} allowAppend={true} onAssignPreachers={() => {
                                             setPendingAssignmentCallback(() => (val: string) => {
                                               const nL = [...ev.leads];
                                               nL[lIdx] = val;
