@@ -102,7 +102,7 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
       'ВЕДУЧИЙ': 'вед.',
       'ПРОПОВІДЬ': 'пр.',
       'ВІДПОВІДАЛЬНИЙ': 'відп.',
-      'ПРИЧАСТЯ': 'Прич.',
+      'ПРИЧАСТЯ': 'ПРИЧ.',
       'ХРЕЩЕННЯ': 'Хрещ.'
     }[selectedFunction] || selectedFunction;
 

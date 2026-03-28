@@ -2140,7 +2140,7 @@ export default function App() {
                                     className="min-w-0 flex-1"
                                     style={{ color: lead.toLowerCase().includes('відповідальний') ? '#dc2626' : '#003366' }}
                                   >
-                                    {lead}
+                                    {lead.replace('Прич.', 'ПРИЧ.').replace('причастя', 'ПРИЧАСТЯ')}
                                   </span>
                                 </div>
                               ))}
@@ -2327,7 +2327,7 @@ export default function App() {
                                       key={idx} 
                                       style={{ color: lead.toLowerCase().includes('відповідальний') ? '#dc2626' : '#003366' }}
                                     >
-                                      {lead}
+                                    {lead.replace('Прич.', 'ПРИЧ.').replace('причастя', 'ПРИЧАСТЯ')}
                                     </div>
                                   ))}
                                 </div>
