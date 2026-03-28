@@ -96,16 +96,7 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
 
     // Check for duplicate preacher assignment for the SAME function
     const existingEvent = events.find(e => e.id === dateKey);
-    const isPreacherAssignedToFunction = existingEvent?.leads?.some((l: string) => {
-        const parts = l.split('|');
-        // Assuming parts[2] is the function name
-        return parts[parts.length - 1].includes(selectedCell.preacher) && parts[2] === selectedFunction;
-    });
-    console.log("isPreacherAssignedToFunction:", isPreacherAssignedToFunction);
-    if (isPreacherAssignedToFunction) {
-        alert(`Проповідник ${selectedCell.preacher} вже має призначення на функцію ${selectedFunction} на цей день.`);
-        return;
-    }
+    // Removed the check that blocked assigning the same preacher to multiple functions on the same day.
 
     const shortFunction = {
       'ВЕДУЧИЙ': 'вед.',

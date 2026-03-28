@@ -2316,23 +2316,10 @@ export default function App() {
 
                               {/* Row 3: Participants */}
                               {ev.leads?.some(l => l) && (
-                                <div className="flex flex-row gap-1 text-[7px]">
-                                  <div className="flex-1 text-[#003366] font-medium break-words text-left">
-                                    {ev.leads.filter(l => l).map((lead, idx) => (
-                                      <div key={idx}>{lead}</div>
-                                    ))}
-                                  </div>
-                                  <div className="flex-1 text-[#003366] font-medium break-words text-left">
-                                    {ev.leads.filter(l => l).map((_, idx) => (
-                                      <div key={idx}>
-                                        {idx === 0 ? "(проп.)" : 
-                                         idx === 1 ? "(ведуч.)" : 
-                                         idx === 2 ? "(відпов.)" : 
-                                         idx === 3 ? "(Прич.)" : 
-                                         "(хрещ.)"}
-                                      </div>
-                                    ))}
-                                  </div>
+                                <div className="text-[7px] text-[#003366] font-medium break-words text-left">
+                                  {ev.leads.filter(l => l).map((lead, idx) => (
+                                    <div key={idx}>{lead}</div>
+                                  ))}
                                 </div>
                               )}
 
