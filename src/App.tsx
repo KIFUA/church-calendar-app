@@ -2047,70 +2047,83 @@ export default function App() {
               const dayEvents = getDayEvents(d.dateKey, new Date(d.dateKey)).sort((a, b) => (a.startTime || "99:99").localeCompare(b.startTime || "99:99"));
               
               return (
-                <div 
-                  key={d.dateKey} 
-                  onTouchStart={(e) => {
-                    (e.currentTarget as any).touchStartX = e.touches[0].clientX;
-                    (e.currentTarget as any).touchStartY = e.touches[0].clientY;
-                  }}
-                  onTouchMove={(e) => {
-                    const startX = (e.currentTarget as any).touchStartX;
-                    const startY = (e.currentTarget as any).touchStartY;
-                    if (startX === undefined || startY === undefined) return;
-                    
-                    const diffX = Math.abs(startX - e.touches[0].clientX);
-                    const diffY = Math.abs(startY - e.touches[0].clientY);
-                    
-                    // Якщо горизонтальний рух більший за вертикальний, запобігаємо прокрутці
-                    if (diffX > diffY && diffX > 10) {
-                      e.preventDefault();
-                    }
-                  }}
-                  onTouchEnd={(e) => {
-                    const startX = (e.currentTarget as any).touchStartX;
-                    if (startX === undefined) return;
-                    const endX = e.changedTouches[0].clientX;
-                    const diff = startX - endX;
-                    if (Math.abs(diff) > 50) {
-                      const d = new Date(d.dateKey);
-                      if (diff > 0) d.setDate(d.getDate() + 1);
-                      else d.setDate(d.getDate() - 1);
-                      setSelectedDate(d);
-                      if (viewMode === 'day') setDayViewPivotDate(d);
-                    }
-                    (e.currentTarget as any).touchStartX = undefined;
-                    (e.currentTarget as any).touchStartY = undefined;
-                  }}
-                  onClick={() => {
-                    const dateObj = new Date(d.dateKey);
-                    setSelectedDate(dateObj);
-                    if (viewMode === 'day') setDayViewPivotDate(dateObj);
-                  }}
-                  onDoubleClick={() => {
-                    if (showPreacherTable) {
+                <div key={d.dateKey} className="flex items-center gap-1">
+                  {viewMode === 'day' && (
+                    <button 
+                      onClick={() => {
+                        const date = new Date(d.dateKey);
+                        date.setDate(date.getDate() - 1);
+                        setSelectedDate(date);
+                        setDayViewPivotDate(date);
+                      }}
+                      className="p-2 text-slate-400 hover:text-white text-2xl"
+                    >
+                      &lt;
+                    </button>
+                  )}
+                  <div 
+                    onTouchStart={(e) => {
+                      (e.currentTarget as any).touchStartX = e.touches[0].clientX;
+                      (e.currentTarget as any).touchStartY = e.touches[0].clientY;
+                    }}
+                    onTouchMove={(e) => {
+                      const startX = (e.currentTarget as any).touchStartX;
+                      const startY = (e.currentTarget as any).touchStartY;
+                      if (startX === undefined || startY === undefined) return;
+                      
+                      const diffX = Math.abs(startX - e.touches[0].clientX);
+                      const diffY = Math.abs(startY - e.touches[0].clientY);
+                      
+                      // Якщо горизонтальний рух більший за вертикальний, запобігаємо прокрутці
+                      if (diffX > diffY && diffX > 10) {
+                        e.preventDefault();
+                      }
+                    }}
+                    onTouchEnd={(e) => {
+                      const startX = (e.currentTarget as any).touchStartX;
+                      if (startX === undefined) return;
+                      const endX = e.changedTouches[0].clientX;
+                      const diff = startX - endX;
+                      if (Math.abs(diff) > 50) {
+                        const date = new Date(d.dateKey);
+                        if (diff > 0) date.setDate(date.getDate() + 1);
+                        else date.setDate(date.getDate() - 1);
+                        setSelectedDate(date);
+                        if (viewMode === 'day') setDayViewPivotDate(date);
+                      }
+                      (e.currentTarget as any).touchStartX = undefined;
+                      (e.currentTarget as any).touchStartY = undefined;
+                    }}
+                    onClick={() => {
                       const dateObj = new Date(d.dateKey);
                       setSelectedDate(dateObj);
-                      setSelectedDayForEvent(d.dateKey);
-                    }
-                  }}
-                  className={`relative flex flex-row overflow-hidden ${showPreacherTable ? 'border-l-[3px]' : 'border-l-[6px]'} shadow-md transition-all cursor-pointer ${showPreacherTable ? 'min-h-[60px]' : 'min-h-[100px] lg:min-h-[130px]'} ${showPreacherTable ? 'rounded-xl' : 'rounded-3xl lg:rounded-[2rem]'} w-full ${(viewMode === 'month' || viewMode === 'week') && !showPreacherTable ? 'max-w-[95%] md:max-w-[100%] lg:max-w-full mx-auto' : 'max-w-full'} ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
-                  style={{ 
-                    borderLeftColor: (d.isOtherMonth && activeTab === 'view') ? '#f1f5f9' : BORDER_COLORS[d.weekdayIndex],
-                    backgroundColor: (d.isOtherMonth && activeTab === 'view') ? '#f8fafc' : WEEKDAY_COLORS[d.weekdayIndex]
-                  }}
-                >
-                  {/* Left Column: Date & Day */}
-                  <div className={`${showPreacherTable ? 'w-6' : (viewMode === 'month' ? 'w-8 md:w-10' : 'w-10 md:w-12')} shrink-0 flex flex-col items-center justify-center border-r border-slate-100/50 bg-white/50 gap-0.5 md:gap-1 py-1 md:py-2`}>
-                    <span className={`${showPreacherTable ? 'text-[9px]' : 'text-[14px] md:text-[16px]'} font-black uppercase leading-none ${d.isToday ? 'text-blue-600' : 'text-slate-900'}`}>
-                      {String(d.day).padStart(2, '0')}
-                    </span>
-                    <span className={`${showPreacherTable ? 'text-[5px]' : 'text-[7px] md:text-[8px]'} font-black text-slate-600 uppercase leading-none tracking-tighter`}>
-                      {d.monthName}
-                    </span>
-                    <span className={`${showPreacherTable ? 'text-[5px]' : 'text-[7px] md:text-[8px]'} font-black text-slate-600 uppercase leading-none tracking-tighter`}>
-                      {SHORT_WEEKDAYS[d.weekdayIndex]}
-                    </span>
-                  </div>
+                      if (viewMode === 'day') setDayViewPivotDate(dateObj);
+                    }}
+                    onDoubleClick={() => {
+                      if (showPreacherTable) {
+                        const dateObj = new Date(d.dateKey);
+                        setSelectedDate(dateObj);
+                        setSelectedDayForEvent(d.dateKey);
+                      }
+                    }}
+                    className={`relative flex flex-row overflow-hidden ${showPreacherTable ? 'border-l-[3px]' : 'border-l-[6px]'} shadow-md transition-all cursor-pointer ${showPreacherTable ? 'min-h-[60px]' : 'min-h-[100px] lg:min-h-[130px]'} ${showPreacherTable ? 'rounded-xl' : 'rounded-3xl lg:rounded-[2rem]'} w-full ${(viewMode === 'month' || viewMode === 'week') && !showPreacherTable ? 'max-w-[95%] md:max-w-[100%] lg:max-w-full mx-auto' : 'max-w-full'} ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
+                    style={{ 
+                      borderLeftColor: (d.isOtherMonth && activeTab === 'view') ? '#f1f5f9' : BORDER_COLORS[d.weekdayIndex],
+                      backgroundColor: (d.isOtherMonth && activeTab === 'view') ? '#f8fafc' : WEEKDAY_COLORS[d.weekdayIndex]
+                    }}
+                  >
+                    {/* Left Column: Date & Day */}
+                    <div className={`${showPreacherTable ? 'w-6' : (viewMode === 'month' ? 'w-8 md:w-10' : 'w-10 md:w-12')} shrink-0 flex flex-col items-center justify-center border-r border-slate-100/50 bg-white/50 gap-0.5 md:gap-1 py-1 md:py-2`}>
+                      <span className={`${showPreacherTable ? 'text-[9px]' : 'text-[14px] md:text-[16px]'} font-black uppercase leading-none ${d.isToday ? 'text-blue-600' : 'text-slate-900'}`}>
+                        {String(d.day).padStart(2, '0')}
+                      </span>
+                      <span className={`${showPreacherTable ? 'text-[5px]' : 'text-[7px] md:text-[8px]'} font-black text-slate-600 uppercase leading-none tracking-tighter`}>
+                        {d.monthName}
+                      </span>
+                      <span className={`${showPreacherTable ? 'text-[5px]' : 'text-[7px] md:text-[8px]'} font-black text-slate-600 uppercase leading-none tracking-tighter`}>
+                        {SHORT_WEEKDAYS[d.weekdayIndex]}
+                      </span>
+                    </div>
 
                   {activeTab === 'admin' && isAdminAuthenticated && (
                     <button 
@@ -2146,38 +2159,22 @@ export default function App() {
                               <span className="whitespace-nowrap">{ev.startTime}{ev.endTime ? `-${ev.endTime}` : ''}</span>
                             </div>
                           </div>
-
-                          {/* Col 2: Event & Music */}
-                          <div className={`${isCleaning ? 'col-span-2' : 'col-span-1'} flex flex-col gap-0.5 md:gap-1 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl'} ${showPreacherTable ? 'px-1 py-0.5' : 'px-1.5 md:px-2 py-1 md:py-1.5'} min-w-0 ${ev.align === 'center' ? 'text-center items-center' : ev.align === 'right' ? 'text-right items-end' : 'text-left items-start'}`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
-                            <div 
-                              className={`${showPreacherTable ? 'text-[6px]' : 'text-[clamp(7px,1.5vw,14px)] lg:text-[18px]'} leading-tight tracking-tight group-hover/event:scale-[1.01] transition-transform w-full whitespace-pre-wrap break-words min-w-0 ${ev.isBold !== false ? 'font-black' : 'font-medium'} ${ev.isItalic === true ? 'italic' : ''} ${ev.isUnderline === true ? 'underline' : ''} ${ev.isUppercase !== false ? 'uppercase' : ''}`}
-                              style={{ color: ev.textColor }}
-                            >
-                              {ev.title || ''}
-                            </div>
-                            {ev.music && (
-                              <div className={`${showPreacherTable ? 'text-[4px]' : 'text-slate-500 italic text-[clamp(5px,1vw,10px)]'} leading-tight font-semibold flex items-center gap-0.5 md:gap-1 bg-blue-50/30 px-1 md:px-1.5 py-0.5 rounded-md md:rounded-lg w-fit max-w-full`}>
-                                <Music size={showPreacherTable ? 4 : 6} className={`shrink-0 self-center ${showPreacherTable ? '' : 'text-blue-400 md:w-2 md:h-2 lg:w-2.5 lg:h-2.5'}`} />
-                                <span className="break-words min-w-0 flex-1">{ev.music}</span>
-                              </div>
-                            )}
+                          {/* Col 2: Title */}
+                          <div className="col-span-1 flex flex-col justify-center min-w-0 pl-1 md:pl-2">
+                             <span className={`${ev.isBold !== false ? 'font-black' : 'font-medium'} ${ev.isItalic === true ? 'italic' : ''} ${ev.isUnderline === true ? 'underline' : ''} ${ev.isUppercase !== false ? 'uppercase' : ''} text-[8px] md:text-[10px] lg:text-[14px] leading-tight truncate`} style={{ color: ev.textColor }}>
+                               {ev.title?.replace(/прич\.|причастя/gi, 'ПРИЧ.')}
+                             </span>
+                             {ev.description && <span className="text-[6px] md:text-[8px] lg:text-[10px] text-slate-500 truncate">{ev.description}</span>}
                           </div>
-
-                          {/* Col 3: Ministers - Tight List */}
-                          {!isCleaning && (
-                            <div className={`col-span-1 flex flex-col gap-0.5 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl lg:rounded-lg'} ${showPreacherTable ? 'px-0.5 pt-0.5' : 'px-1 md:px-2 lg:px-1 pt-0.5 md:pt-1 lg:pt-0.5'} min-w-0 phone-landscape-no-wrap text-left items-start`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
-                              {ev.leads?.filter(l => l).map((lead, lIdx) => (
-                                <div key={lIdx} className={`font-medium ${showPreacherTable ? 'text-[7px]' : 'text-[6px] md:text-[11px] lg:text-[13px]'} leading-none flex items-start gap-1 md:gap-1.5 py-px min-w-0 text-left`}>
-                                  <span 
-                                    className="min-w-0 flex-1"
-                                    style={{ color: lead.toLowerCase().includes('відповідальний') ? '#dc2626' : '#003366' }}
-                                  >
-                                    {lead.replace(/прич\.|причастя/gi, 'ПРИЧ.')}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
+                          {/* Col 3: Leads */}
+                          <div className={`col-span-1 flex items-center justify-end gap-0.5 ${showPreacherTable ? 'px-0.5' : 'px-1'}`}>
+                            {ev.leads?.slice(0, 3).map((lead, idx) => (
+                              <div key={idx} className={`rounded-full ${showPreacherTable ? 'w-3 h-3' : 'w-4 h-4 md:w-5 md:h-5'} flex items-center justify-center text-[6px] md:text-[8px] font-bold text-white shadow-sm`} style={{ backgroundColor: ev.textColor }}>
+                                {lead ? lead.charAt(0) : ''}
+                              </div>
+                            ))}
+                            {leadsCount > 3 && <div className="text-[8px] text-slate-400 font-bold">+{leadsCount - 3}</div>}
+                          </div>
                         </div>
                       );
                     }) : (
@@ -2185,11 +2182,26 @@ export default function App() {
                     )}
                   </div>
                 </div>
-              );
-            })}
-          </div>
-          </div>
-          {showPreacherTable && (
+              )}
+              {viewMode === 'day' && (
+                <button 
+                  onClick={() => {
+                    const date = new Date(d.dateKey);
+                    date.setDate(date.getDate() + 1);
+                    setSelectedDate(date);
+                    setDayViewPivotDate(date);
+                  }}
+                  className="p-2 text-slate-400 hover:text-white text-2xl"
+                >
+                  &gt;
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+    {showPreacherTable && (
             <div className="w-2/3">
               <PreacherAssignment 
                 staffGroups={staffGroups} 

@@ -9,6 +9,14 @@
 }
 
 @layer utilities {
+  @keyframes blink-border {
+    0%, 100% { border-color: #3b82f6; }
+    50% { border-color: #f59e0b; }
+  }
+  .animate-blink-border {
+    animation: blink-border 1s infinite;
+    border-width: 1px !important;
+  }
   .page-break-before {
     break-before: page;
   }
