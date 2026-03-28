@@ -2051,6 +2051,20 @@ export default function App() {
                   key={d.dateKey} 
                   onTouchStart={(e) => {
                     (e.currentTarget as any).touchStartX = e.touches[0].clientX;
+                    (e.currentTarget as any).touchStartY = e.touches[0].clientY;
+                  }}
+                  onTouchMove={(e) => {
+                    const startX = (e.currentTarget as any).touchStartX;
+                    const startY = (e.currentTarget as any).touchStartY;
+                    if (startX === undefined || startY === undefined) return;
+                    
+                    const diffX = Math.abs(startX - e.touches[0].clientX);
+                    const diffY = Math.abs(startY - e.touches[0].clientY);
+                    
+                    // Якщо горизонтальний рух більший за вертикальний, запобігаємо прокрутці
+                    if (diffX > diffY && diffX > 10) {
+                      e.preventDefault();
+                    }
                   }}
                   onTouchEnd={(e) => {
                     const startX = (e.currentTarget as any).touchStartX;
@@ -2065,6 +2079,7 @@ export default function App() {
                       if (viewMode === 'day') setDayViewPivotDate(d);
                     }
                     (e.currentTarget as any).touchStartX = undefined;
+                    (e.currentTarget as any).touchStartY = undefined;
                   }}
                   onClick={() => {
                     const dateObj = new Date(d.dateKey);
