@@ -2049,6 +2049,23 @@ export default function App() {
               return (
                 <div 
                   key={d.dateKey} 
+                  onTouchStart={(e) => {
+                    (e.currentTarget as any).touchStartX = e.touches[0].clientX;
+                  }}
+                  onTouchEnd={(e) => {
+                    const startX = (e.currentTarget as any).touchStartX;
+                    if (startX === undefined) return;
+                    const endX = e.changedTouches[0].clientX;
+                    const diff = startX - endX;
+                    if (Math.abs(diff) > 50) {
+                      const d = new Date(d.dateKey);
+                      if (diff > 0) d.setDate(d.getDate() + 1);
+                      else d.setDate(d.getDate() - 1);
+                      setSelectedDate(d);
+                      if (viewMode === 'day') setDayViewPivotDate(d);
+                    }
+                    (e.currentTarget as any).touchStartX = undefined;
+                  }}
                   onClick={() => {
                     const dateObj = new Date(d.dateKey);
                     setSelectedDate(dateObj);
