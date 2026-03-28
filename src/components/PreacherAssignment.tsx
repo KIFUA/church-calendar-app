@@ -24,7 +24,12 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
     }
   }
 
-  const preachersOnly = staffGroups.filter(g => g.label === "НА ВСІ ДНІ" || g.label === "ТІЛЬКИ НА БУДНІ");
+  const preachersOnly = staffGroups
+    .filter(g => g.label === "НА ВСІ ДНІ" || g.label === "ТІЛЬКИ НА БУДНІ")
+    .map(g => ({
+      ...g,
+      items: [...g.items].sort((a, b) => a.localeCompare(b))
+    }));
   const [localAssignments, setLocalAssignments] = React.useState<Record<string, string>>({});
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [selectedCell, setSelectedCell] = React.useState<{ preacher: string, date: Date } | null>(null);
