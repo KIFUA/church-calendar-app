@@ -2135,8 +2135,13 @@ export default function App() {
                           {!isCleaning && (
                             <div className={`col-span-1 flex flex-col gap-0.5 border ${showPreacherTable ? 'rounded-md' : 'rounded-lg md:rounded-xl lg:rounded-lg'} ${showPreacherTable ? 'px-0.5 pt-0.5' : 'px-1 md:px-2 lg:px-1 pt-0.5 md:pt-1 lg:pt-0.5'} min-w-0 phone-landscape-no-wrap text-left items-start`} style={{ borderColor: darkenHex(WEEKDAY_COLORS[d.weekdayIndex], 0.15) }}>
                               {ev.leads?.filter(l => l).map((lead, lIdx) => (
-                                <div key={lIdx} className={`text-[#003366] font-medium ${showPreacherTable ? 'text-[7px]' : 'text-[6px] md:text-[11px] lg:text-[13px]'} leading-none flex items-start gap-1 md:gap-1.5 py-px min-w-0 text-left`}>
-                                  <span className="min-w-0 flex-1">{lead}</span>
+                                <div key={lIdx} className={`font-medium ${showPreacherTable ? 'text-[7px]' : 'text-[6px] md:text-[11px] lg:text-[13px]'} leading-none flex items-start gap-1 md:gap-1.5 py-px min-w-0 text-left`}>
+                                  <span 
+                                    className="min-w-0 flex-1"
+                                    style={{ color: lead.toLowerCase().includes('відповідальний') ? '#dc2626' : '#003366' }}
+                                  >
+                                    {lead}
+                                  </span>
                                 </div>
                               ))}
                             </div>
@@ -2316,9 +2321,14 @@ export default function App() {
 
                               {/* Row 3: Participants */}
                               {ev.leads?.some(l => l) && (
-                                <div className="text-[7px] text-[#003366] font-medium break-words text-left">
+                                <div className="text-[7px] font-medium break-words text-left">
                                   {ev.leads.filter(l => l).map((lead, idx) => (
-                                    <div key={idx}>{lead}</div>
+                                    <div 
+                                      key={idx} 
+                                      style={{ color: lead.toLowerCase().includes('відповідальний') ? '#dc2626' : '#003366' }}
+                                    >
+                                      {lead}
+                                    </div>
                                   ))}
                                 </div>
                               )}
