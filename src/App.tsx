@@ -2093,21 +2093,21 @@ export default function App() {
                       setSelectedDayForEvent(d.dateKey);
                     }
                   }}
-                  className={`relative flex flex-row overflow-hidden ${showPreacherTable ? 'border-l-[6px]' : 'border-l-[12px]'} shadow-md transition-all cursor-pointer ${showPreacherTable ? 'min-h-[60px]' : 'min-h-[100px] lg:min-h-[130px]'} ${showPreacherTable ? 'rounded-xl' : 'rounded-3xl lg:rounded-[2rem]'} w-full ${(viewMode === 'month' || viewMode === 'week') && !showPreacherTable ? 'max-w-[95%] md:max-w-[100%] lg:max-w-full mx-auto' : 'max-w-full'} ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
+                  className={`relative flex flex-row overflow-hidden ${showPreacherTable ? 'border-l-[3px]' : 'border-l-[6px]'} shadow-md transition-all cursor-pointer ${showPreacherTable ? 'min-h-[60px]' : 'min-h-[100px] lg:min-h-[130px]'} ${showPreacherTable ? 'rounded-xl' : 'rounded-3xl lg:rounded-[2rem]'} w-full ${(viewMode === 'month' || viewMode === 'week') && !showPreacherTable ? 'max-w-[95%] md:max-w-[100%] lg:max-w-full mx-auto' : 'max-w-full'} ${d.isToday ? 'ring-4 ring-blue-500/30 ring-offset-4 ring-offset-[#0a1120]' : 'hover:shadow-xl hover:-translate-y-0.5'} ${d.dateKey === formatDateKey(selectedDate) ? 'ring-2 ring-blue-400/50 z-10' : ''} ${d.isOtherMonth && activeTab === 'view' ? 'opacity-60 grayscale-[0.4]' : ''} ${viewMode === 'month' && index > 0 && index % 7 === 0 ? 'print:page-break-before' : ''}`} 
                   style={{ 
                     borderLeftColor: (d.isOtherMonth && activeTab === 'view') ? '#f1f5f9' : BORDER_COLORS[d.weekdayIndex],
                     backgroundColor: (d.isOtherMonth && activeTab === 'view') ? '#f8fafc' : WEEKDAY_COLORS[d.weekdayIndex]
                   }}
                 >
                   {/* Left Column: Date & Day */}
-                  <div className={`${showPreacherTable ? 'w-5' : (viewMode === 'month' ? 'w-6 md:w-8' : 'w-8 md:w-10')} shrink-0 flex flex-col items-center justify-center border-r border-slate-100/50 bg-white/50 gap-0.5 md:gap-1 py-1 md:py-2`}>
-                    <span className={`${showPreacherTable ? 'text-[7px]' : 'text-[11px] md:text-[13px]'} font-bold uppercase leading-none ${d.isToday ? 'text-blue-600' : 'text-slate-900'}`}>
+                  <div className={`${showPreacherTable ? 'w-6' : (viewMode === 'month' ? 'w-8 md:w-10' : 'w-10 md:w-12')} shrink-0 flex flex-col items-center justify-center border-r border-slate-100/50 bg-white/50 gap-0.5 md:gap-1 py-1 md:py-2`}>
+                    <span className={`${showPreacherTable ? 'text-[9px]' : 'text-[14px] md:text-[16px]'} font-black uppercase leading-none ${d.isToday ? 'text-blue-600' : 'text-slate-900'}`}>
                       {String(d.day).padStart(2, '0')}
                     </span>
-                    <span className={`${showPreacherTable ? 'text-[3px]' : 'text-[4px] md:text-[5px]'} font-bold text-slate-500 uppercase leading-none tracking-tighter`}>
+                    <span className={`${showPreacherTable ? 'text-[5px]' : 'text-[7px] md:text-[8px]'} font-black text-slate-600 uppercase leading-none tracking-tighter`}>
                       {d.monthName}
                     </span>
-                    <span className={`${showPreacherTable ? 'text-[3px]' : 'text-[4px] md:text-[5px]'} font-bold text-slate-500 uppercase leading-none tracking-tighter`}>
+                    <span className={`${showPreacherTable ? 'text-[5px]' : 'text-[7px] md:text-[8px]'} font-black text-slate-600 uppercase leading-none tracking-tighter`}>
                       {SHORT_WEEKDAYS[d.weekdayIndex]}
                     </span>
                   </div>
