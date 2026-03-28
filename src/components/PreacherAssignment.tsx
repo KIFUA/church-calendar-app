@@ -24,6 +24,8 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
     }
   }
 
+  const filteredDays = days;
+
   const preachersOnly = staffGroups
     .filter(g => g.label === "НА ВСІ ДНІ" || g.label === "ТІЛЬКИ НА БУДНІ")
     .map(g => ({
@@ -43,6 +45,24 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
       setParticipationNumber(1);
     }
   }, [selectedFunction]);
+
+  const tableContainerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (selectedCalendarCell && tableContainerRef.current) {
+      const dateKey = selectedCalendarCell.dateKey;
+      const dayIndex = days.findIndex(d => formatDateKey(d) === dateKey);
+      if (dayIndex !== -1) {
+        // Find the header element for the day
+        const headerElements = tableContainerRef.current.querySelectorAll('th[data-date-key]');
+        const targetHeader = headerElements[dayIndex] as HTMLElement;
+        if (targetHeader) {
+          // Scroll the container to the target header
+          tableContainerRef.current.scrollLeft = targetHeader.offsetLeft - 150; // Adjust offset to position it near the list
+        }
+      }
+    }
+  }, [selectedCalendarCell, days]);
 
   const formatDateKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
@@ -179,29 +199,34 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
       <div className="flex gap-4 h-auto overflow-visible">
         <div className="w-full flex flex-col h-auto overflow-visible">
           {/* Таблиця */}
-          <div className="text-black text-xs overflow-auto border-2 border-slate-400 rounded-lg bg-white relative max-h-[calc(100vh-200px)]">
+          <div ref={tableContainerRef} className="text-black text-xs overflow-auto border-2 border-slate-400 rounded-lg bg-white relative max-h-[calc(100vh-200px)]">
             <table className="w-full border-separate border-spacing-0 min-w-max">
               <thead>
                 <tr>
                   <th className="border-b-2 border-r-2 border-slate-400 p-1 bg-slate-200 sticky top-0 left-0 z-[60] text-[10px]">№</th>
                   <th className="border-b-2 border-r-2 border-slate-400 p-1 bg-slate-200 sticky top-0 left-[28px] z-[60] whitespace-nowrap min-w-[120px] text-[10px]">Прізвище, ім'я</th>
-                  {days.map((d) => (
-                    <th 
-                      key={d.toISOString()} 
-                      className={`border-b-2 border-r-2 border-slate-400 p-0.5 cursor-pointer hover:bg-slate-300 sticky top-0 z-[50] ${d.getDay() === 0 ? 'bg-blue-100' : ''}`} 
-                      style={{ backgroundColor: getDayStyle(d.getDay()) }}
-                      onClick={() => setSelectedDate(d)}
-                    >
-                      <div className="min-w-[30px] flex flex-col items-center justify-center gap-0 py-0.5">
-                        <span className="text-[10px] font-black text-slate-900 leading-none">
-                          {d.getDate()}
-                        </span>
-                        <span className="text-[6px] font-bold text-slate-500 uppercase leading-none tracking-tighter">
-                          {['Нд', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'][d.getDay()]}
-                        </span>
-                      </div>
-                    </th>
-                  ))}
+                  {filteredDays.map((d) => {
+                    const isSelectedDay = selectedCalendarCell && formatDateKey(d) === selectedCalendarCell.dateKey;
+                    const shouldDarken = selectedCalendarCell && !isSelectedDay;
+                    return (
+                      <th 
+                        key={d.toISOString()} 
+                        data-date-key={formatDateKey(d)}
+                        className={`border-b-2 border-r-2 border-slate-400 p-0.5 cursor-pointer hover:bg-slate-300 sticky top-0 z-[50] ${d.getDay() === 0 ? 'bg-blue-100' : ''} ${shouldDarken ? 'bg-slate-300' : ''}`} 
+                        style={{ backgroundColor: shouldDarken ? '#cbd5e1' : getDayStyle(d.getDay()) }}
+                        onClick={() => setSelectedDate(d)}
+                      >
+                        <div className="min-w-[30px] flex flex-col items-center justify-center gap-0 py-0.5">
+                          <span className="text-[10px] font-black text-slate-900 leading-none">
+                            {d.getDate()}
+                          </span>
+                          <span className="text-[6px] font-bold text-slate-500 uppercase leading-none tracking-tighter">
+                            {['Нд', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'][d.getDay()]}
+                          </span>
+                        </div>
+                      </th>
+                    );
+                  })}
                 </tr>
               </thead>
               <tbody>
@@ -209,7 +234,7 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
                   <React.Fragment key={group.label}>
                     <tr>
                       <td 
-                        colSpan={2 + days.length} 
+                        colSpan={2 + filteredDays.length} 
                         className="bg-slate-300 font-bold p-1 border-b-2 border-slate-400 text-black sticky top-[28px] z-[55] shadow-sm text-[10px]"
                       >
                         {group.label}
@@ -219,7 +244,7 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
                       <tr key={item}>
                         <td className="border-b border-r border-slate-400 p-1 text-center sticky left-0 z-20 bg-white text-[10px]">{iIdx + 1}</td>
                         <td className="border-b border-r border-slate-400 p-1 sticky left-[28px] z-20 bg-white whitespace-nowrap min-w-[120px] text-[10px]">{item}</td>
-                        {days.map((d) => {
+                        {filteredDays.map((d) => {
                           const dateKey = formatDateKey(d);
                           const event = events.find(e => e.id === dateKey);
                           const assignment = event?.leads?.find((l: string) => l.includes(item));
@@ -241,13 +266,15 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
                             displayValue = localAssignments[`${dateKey}_${item}`] || '';
                           }
                           
+                          const isSelectedDay = selectedCalendarCell && formatDateKey(d) === selectedCalendarCell.dateKey;
+                          const shouldDarken = selectedCalendarCell && !isSelectedDay;
                           const isSelected = selectedCell?.preacher === item && selectedCell?.date.toISOString() === d.toISOString();
                           
                           return (
                             <td 
                               key={d.toISOString()} 
-                              className={`border-b border-r border-slate-400 p-1 min-w-[40px] cursor-pointer hover:bg-slate-100 text-center font-bold text-[10px] ${isSelected ? 'ring-2 ring-blue-500 ring-inset bg-blue-50' : ''}`} 
-                              style={{ backgroundColor: isSelected ? undefined : getDayStyle(d.getDay()) }} 
+                              className={`border-b border-r border-slate-400 p-1 min-w-[40px] cursor-pointer hover:bg-slate-100 text-center font-bold text-[10px] ${isSelected ? 'ring-2 ring-blue-500 ring-inset bg-blue-50' : ''} ${shouldDarken ? 'bg-slate-300' : ''}`} 
+                              style={{ backgroundColor: isSelected ? undefined : (shouldDarken ? '#94a3b8' : getDayStyle(d.getDay())) }} 
                               onClick={(e) => handleCellClick(item, d, e)}
                             >
                               {displayValue}
