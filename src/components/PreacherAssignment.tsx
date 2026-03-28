@@ -203,8 +203,8 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
             <table className="w-full border-separate border-spacing-0 min-w-max">
               <thead>
                 <tr>
-                  <th className="border-[0.5px] border-slate-300 p-1 bg-slate-200 sticky top-0 left-0 z-[60] text-[10px]">№</th>
-                  <th className="border-[0.5px] border-slate-300 p-1 bg-slate-200 sticky top-0 left-[28px] z-[60] whitespace-nowrap min-w-[120px] text-[10px]">Прізвище, ім'я</th>
+                  <th className="border-[0.5px] border-slate-200 p-1 bg-slate-200 sticky top-0 left-0 z-[60] text-[10px]">№</th>
+                  <th className="border-[0.5px] border-slate-200 p-1 bg-slate-200 sticky top-0 left-[28px] z-[60] whitespace-nowrap min-w-[120px] text-[10px]">Прізвище, ім'я</th>
                   {filteredDays.map((d) => {
                     const isSelectedDay = selectedCalendarCell && formatDateKey(d) === selectedCalendarCell.dateKey;
                     const shouldDarken = selectedCalendarCell && !isSelectedDay;
@@ -212,7 +212,7 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
                       <th 
                         key={d.toISOString()} 
                         data-date-key={formatDateKey(d)}
-                        className={`border-[0.5px] border-slate-300 p-0.5 cursor-pointer hover:bg-slate-300 sticky top-0 z-[50] ${d.getDay() === 0 ? 'bg-blue-100' : ''} ${shouldDarken ? 'bg-slate-300' : ''} ${isSelectedDay ? 'animate-blink-border border-blue-500' : ''}`} 
+                        className={`border-[0.5px] border-slate-200 p-0.5 cursor-pointer hover:bg-slate-300 sticky top-0 z-[50] ${d.getDay() === 0 ? 'bg-blue-100' : ''} ${shouldDarken ? 'bg-slate-300' : ''} ${isSelectedDay ? 'animate-blink-border border-blue-500' : ''}`} 
                         style={{ backgroundColor: shouldDarken ? '#cbd5e1' : getDayStyle(d.getDay()) }}
                         onClick={() => setSelectedDate(d)}
                       >
@@ -242,8 +242,8 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
                     </tr>
                     {group.items.map((item: string, iIdx: number) => (
                       <tr key={item}>
-                        <td className="border-[0.5px] border-slate-300 p-1 text-center sticky left-0 z-20 bg-white text-[10px]">{iIdx + 1}</td>
-                        <td className="border-[0.5px] border-slate-300 p-1 sticky left-[28px] z-20 bg-white whitespace-nowrap min-w-[120px] text-[10px] font-bold">{item}</td>
+                        <td className="border-[0.5px] border-slate-200 p-1 text-center sticky left-0 z-20 bg-white text-[10px]">{iIdx + 1}</td>
+                        <td className="border-[0.5px] border-slate-200 p-1 sticky left-[28px] z-20 bg-white whitespace-nowrap min-w-[120px] text-[10px] font-bold">{item}</td>
                         {filteredDays.map((d) => {
                           const dateKey = formatDateKey(d);
                           const event = events.find(e => e.id === dateKey);
@@ -273,7 +273,7 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
                           return (
                             <td 
                               key={d.toISOString()} 
-                              className={`border-[0.5px] border-slate-300 p-1 min-w-[40px] cursor-pointer hover:bg-slate-100 text-center font-bold text-[10px] ${isSelected ? 'ring-2 ring-blue-500 ring-inset bg-blue-50' : ''} ${shouldDarken ? 'bg-slate-300' : ''} ${isSelectedDay ? 'animate-blink-border border-blue-500' : ''}`} 
+                              className={`border-[0.5px] border-slate-200 p-1 min-w-[40px] cursor-pointer hover:bg-slate-100 text-center font-bold text-[10px] ${isSelected ? 'ring-2 ring-blue-500 ring-inset bg-blue-50' : ''} ${shouldDarken ? 'bg-slate-300' : ''} ${isSelectedDay ? 'animate-blink-border border-blue-500' : ''}`} 
                               style={{ backgroundColor: isSelected ? undefined : (shouldDarken ? '#94a3b8' : getDayStyle(d.getDay())) }} 
                               onClick={(e) => handleCellClick(item, d, e)}
                             >
