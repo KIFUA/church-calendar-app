@@ -32,8 +32,31 @@ export const DayView = ({ events, date, onDateChange, backgroundColor, applyFilt
     return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
   };
 
+  const touchStartX = React.useRef<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX.current - touchEndX;
+
+    if (Math.abs(diff) > 50) { // Мінімальна відстань для свайпу
+      const d = new Date(date);
+      if (diff > 0) { // Свайп вліво - наступний день
+        d.setDate(d.getDate() + 1);
+      } else { // Свайп вправо - попередній день
+        d.setDate(d.getDate() - 1);
+      }
+      onDateChange(d);
+    }
+    touchStartX.current = null;
+  };
+
   return (
-    <div className="flex flex-col gap-3 w-full" style={{ backgroundColor }}>
+    <div className="flex flex-col gap-3 w-full" style={{ backgroundColor }} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       <div className="flex justify-between items-center mb-2">
         <button onClick={() => { const d = new Date(date); d.setDate(d.getDate() - 1); onDateChange(d); }} className="text-blue-400">◀</button>
         <h3 className="text-white font-black uppercase text-sm">
@@ -42,7 +65,7 @@ export const DayView = ({ events, date, onDateChange, backgroundColor, applyFilt
         <button onClick={() => { const d = new Date(date); d.setDate(d.getDate() + 1); onDateChange(d); }} className="text-blue-400">▶</button>
       </div>
       
-      <div className="flex-grow space-y-3">
+      <div className="flex-grow space-y-3 md:grid md:grid-cols-2 md:gap-3 md:space-y-0">
         {dayEvents.length > 0 ? dayEvents.map((ev, i) => {
           const isCleaning = ev.title?.toUpperCase().replace(/\s+/g, '').includes('ПРИБИРАННЯ');
           

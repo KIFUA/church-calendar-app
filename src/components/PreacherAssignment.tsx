@@ -199,7 +199,7 @@ export const PreacherAssignment = ({ staffGroups, events, db, appId, doc, setDoc
       <div className="flex gap-4 h-auto overflow-visible">
         <div className="w-full flex flex-col h-auto overflow-visible">
           {/* Таблиця */}
-          <div ref={tableContainerRef} className="text-black text-xs overflow-auto border-2 border-slate-400 rounded-lg bg-white relative max-h-[calc(100vh-200px)]">
+          <div ref={tableContainerRef} className="text-black text-[10px] md:text-xs overflow-auto border-2 border-slate-400 rounded-lg bg-white relative max-h-[calc(100vh-150px)]">
             <table className="w-full border-separate border-spacing-0 min-w-max">
               <thead>
                 <tr>
